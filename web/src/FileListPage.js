@@ -1,0 +1,236 @@
+// Copyright 2024 The OpenData Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import React from "react";
+import {Link} from "react-router-dom";
+import {Button, Popconfirm, Space, Table, Tag, Upload} from "antd";
+import {FolderOutlined, UploadOutlined} from "@ant-design/icons";
+import BaseListPage from "./BaseListPage";
+import * as FileBackend from "./backend/FileBackend";
+import * as Setting from "./Setting";
+
+class FileListPage extends BaseListPage {
+  UNSAFE_componentWillMount() {
+    super.UNSAFE_componentWillMount();
+    window.addEventListener("schoolChanged", this.onSchoolChanged);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("schoolChanged", this.onSchoolChanged);
+  }
+
+  onSchoolChanged = () => {
+    this.fetch({pagination: {current: 1, pageSize: this.state.pagination.pageSize}});
+  };
+
+  newFile(category = "folder") {
+    const school = Setting.getSchool(this.props.account);
+    return {
+      owner: school || "admin",
+      name: `file-${Setting.getRandomName()}`,
+      displayName: category === "folder" ? "新文件夹" : "新文件",
+      category,
+      type: "",
+      folder: "",
+      school: school || "",
+      grade: "",
+      class: "",
+      subject: "",
+      teacher: "",
+      student: "",
+      parent: "",
+      uploader: "",
+      tag: "",
+      storagePath: "",
+      url: "",
+      size: 0,
+      fileType: "",
+      admins: [],
+      viewers: [],
+    };
+  }
+
+  addFolder() {
+    const file = this.newFile("folder");
+    FileBackend.addFile(file).then(res => {
+      if (res.status === "ok") {
+        Setting.showMessage("success", "添加文件夹成功");
+        this.props.history.push(`/files/${file.owner}/${file.name}`);
+      } else {
+        Setting.showMessage("error", res.msg);
+      }
+    });
+  }
+
+  deleteFile(record) {
+    FileBackend.deleteFile(record).then(res => {
+      if (res.status === "ok") {
+        Setting.showMessage("success", "删除成功");
+        this.setState({data: this.state.data.filter(f => f.name !== record.name)});
+      } else {
+        Setting.showMessage("error", res.msg);
+      }
+    });
+  }
+
+  handleUpload(info) {
+    const {file} = info;
+    if (file.status === "done") {
+      const res = file.response;
+      if (res && res.status === "ok") {
+        Setting.showMessage("success", `${file.name} 上传成功`);
+        this.fetch({pagination: this.state.pagination});
+      } else {
+        Setting.showMessage("error", (res && res.msg) || "上传失败");
+      }
+    } else if (file.status === "error") {
+      Setting.showMessage("error", `${file.name} 上传失败`);
+    }
+  }
+
+  getUploadAction() {
+    const school = Setting.getSchool(this.props.account);
+    return `${Setting.ServerUrl}/api/upload-file?owner=${school || "admin"}`;
+  }
+
+  fetch = (params = {}) => {
+    const {pagination, sortField, sortOrder, searchText, searchedColumn} = params;
+    const school = Setting.getSchool(this.props.account);
+    this.setState({loading: true});
+    FileBackend.getFiles(
+      school || "admin",
+      pagination?.current,
+      pagination?.pageSize,
+      searchedColumn,
+      searchText,
+      sortField,
+      sortOrder
+    ).then(res => {
+      this.setState({loading: false});
+      if (res.status === "ok") {
+        this.setState({
+          data: res.data,
+          pagination: {...pagination, total: res.data2},
+        });
+      }
+    });
+  };
+
+  renderTable(files) {
+    const columns = [
+      {
+        title: "名称",
+        dataIndex: "name",
+        sorter: true,
+        ...this.getColumnSearchProps("name"),
+        render: (text, record) => (
+          <Space>
+            {record.category === "folder" && <FolderOutlined style={{color: "#faad14"}} />}
+            <Link to={`/files/${record.owner}/${record.name}`}>{record.displayName || text}</Link>
+          </Space>
+        ),
+      },
+      {
+        title: "类型",
+        dataIndex: "category",
+        width: 90,
+        render: (text) => (
+          <Tag color={text === "folder" ? "gold" : "blue"}>
+            {text === "folder" ? "文件夹" : "文件"}
+          </Tag>
+        ),
+      },
+      {
+        title: "文件类型",
+        dataIndex: "fileType",
+        width: 100,
+      },
+      {
+        title: "大小",
+        dataIndex: "size",
+        width: 100,
+        render: (size) => size ? Setting.formatFileSize(size) : "-",
+      },
+      {
+        title: "学校",
+        dataIndex: "school",
+      },
+      {
+        title: "年级",
+        dataIndex: "grade",
+      },
+      {
+        title: "班级",
+        dataIndex: "class",
+      },
+      {
+        title: "标签",
+        dataIndex: "tag",
+      },
+      {
+        title: "上传者",
+        dataIndex: "uploader",
+      },
+      {
+        title: "操作",
+        width: 120,
+        render: (text, record) => (
+          <Popconfirm
+            title="确认删除该文件?"
+            onConfirm={() => this.deleteFile(record)}
+            okText="确认"
+            cancelText="取消"
+          >
+            <Button danger size="small">删除</Button>
+          </Popconfirm>
+        ),
+      },
+    ];
+
+    return (
+      <div>
+        <Space style={{marginBottom: 16}}>
+          <Button
+            icon={<FolderOutlined />}
+            onClick={() => this.addFolder()}
+          >
+            新建文件夹
+          </Button>
+          <Upload
+            name="file"
+            action={this.getUploadAction()}
+            withCredentials
+            onChange={(info) => this.handleUpload(info)}
+            showUploadList={false}
+          >
+            <Button type="primary" icon={<UploadOutlined />}>
+              上传文件
+            </Button>
+          </Upload>
+        </Space>
+        <Table
+          columns={columns}
+          dataSource={files?.map(f => ({...f, key: f.name}))}
+          pagination={this.state.pagination}
+          onChange={this.handleTableChange}
+          loading={this.state.loading}
+          bordered
+          size="middle"
+        />
+      </div>
+    );
+  }
+}
+
+export default FileListPage;

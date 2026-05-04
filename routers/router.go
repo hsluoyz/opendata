@@ -98,6 +98,12 @@ func initAPI() {
 	// Stats
 	beego.Router("/api/get-stats", &controllers.ApiController{}, "GET:GetStats")
 
+	// Dashboard charts
+	beego.Router("/api/get-dashboard-trend", &controllers.ApiController{}, "GET:GetDashboardTrend")
+	beego.Router("/api/get-dashboard-file-type-dist", &controllers.ApiController{}, "GET:GetDashboardFileTypeDist")
+	beego.Router("/api/get-dashboard-school-dist", &controllers.ApiController{}, "GET:GetDashboardSchoolDist")
+	beego.Router("/api/get-dashboard-heatmap", &controllers.ApiController{}, "GET:GetDashboardHeatmap")
+
 	// Records (Audit Logs)
 	beego.Router("/api/get-records", &controllers.ApiController{}, "GET:GetRecords")
 	beego.Router("/api/get-record", &controllers.ApiController{}, "GET:GetRecord")

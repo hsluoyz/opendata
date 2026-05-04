@@ -22,8 +22,24 @@ export const ThemeDefault = {
 };
 
 export const AuthConfig = {serverUrl: "", clientId: "", appName: "", organizationName: "", redirectPath: ""};
-export const ShortcutPageItems = [];
-export const NavbarHtml = "";
-export const FooterHtml = "由OpenData提供支持";
-export const HtmlTitle = "OpenData";
-export const FaviconUrl = "";
+export let StaticBaseUrl = "";
+export let HtmlTitle = "OpenData";
+export let FaviconUrl = "";
+export let FooterHtml = "Powered by OpenData";
+export let ShowGithubCorner = false;
+export let IsDemoMode = false;
+
+export function setConfig(config) {
+  if (!config) {
+    return;
+  }
+  if (config.authConfig) {
+    Object.assign(AuthConfig, config.authConfig);
+  }
+  if (config.staticBaseUrl !== undefined) {StaticBaseUrl = config.staticBaseUrl;}
+  if (config.htmlTitle !== undefined) {HtmlTitle = config.htmlTitle;}
+  if (config.faviconUrl !== undefined) {FaviconUrl = config.faviconUrl;}
+  if (config.footerHtml !== undefined) {FooterHtml = config.footerHtml;}
+  if (config.showGithubCorner !== undefined) {ShowGithubCorner = config.showGithubCorner;}
+  if (config.isDemoMode !== undefined) {IsDemoMode = config.isDemoMode;}
+}

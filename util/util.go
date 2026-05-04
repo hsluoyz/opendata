@@ -15,10 +15,15 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/beego/beego/context"
+	"github.com/the-open-data/opendata/conf"
 )
 
 func GetCurrentTime() string {
@@ -84,6 +89,16 @@ func FilterField(field string) bool {
 	return false
 }
 
-func EnsureFolderExists(path string) {
-	// no-op for now, caller should handle
+func EnsureFolderExists(path string) {}
+
+// AppendWebConfigCookie sets the jsonWebConfig cookie with URL-encoded JSON of the web config.
+func AppendWebConfigCookie(ctx *context.Context) error {
+	webConfig := conf.GetWebConfig()
+	jsonBytes, err := json.Marshal(webConfig)
+	if err != nil {
+		return err
+	}
+	encoded := url.QueryEscape(string(jsonBytes))
+	ctx.SetCookie("jsonWebConfig", encoded)
+	return nil
 }

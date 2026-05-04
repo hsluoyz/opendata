@@ -23,6 +23,7 @@ import * as AccountBackend from "./backend/AccountBackend";
 import * as Conf from "./Conf";
 import * as Setting from "./Setting";
 import {getShadcnThemeComponents, getShadcnThemeToken} from "./shadcnTheme";
+import AuthCallback from "./AuthCallback";
 import SigninPage from "./SigninPage";
 import ManagementPage from "./ManagementPage";
 import "./App.less";
@@ -32,7 +33,9 @@ class App extends React.Component {
     super(props);
     const themeAlgorithm = ["default"];
     document.documentElement.setAttribute("data-theme", "light");
+    Setting.initServerUrl();
     Setting.initWebConfig();
+    Setting.initCasdoorSdk(Conf.AuthConfig);
     Setting.setThemeColor(Conf.ThemeDefault.colorPrimary);
     this.state = {
       account: undefined,
@@ -47,6 +50,9 @@ class App extends React.Component {
 
   getAccount() {
     AccountBackend.getAccount().then(res => {
+      // Re-init after getAccount sets the web config cookie
+      Setting.initWebConfig();
+      Setting.initCasdoorSdk(Conf.AuthConfig);
       if (res.status === "ok") {
         this.setState({account: res.data, loading: false});
       } else {
@@ -94,8 +100,9 @@ class App extends React.Component {
           <StyleProvider hashPriority="high" transformers={[legacyLogicalPropertiesTransformer]}>
             <BrowserRouter>
               <Switch>
+                <Route exact path="/callback" component={AuthCallback} />
                 <Route path="/signin" render={props => (
-                  account ? <Redirect to="/" /> : <SigninPage {...props} onSignin={(acc) => this.updateAccount(acc)} />
+                  account ? <Redirect to="/" /> : <SigninPage {...props} />
                 )} />
                 <Route path="/" render={props => {
                   if (!account) {

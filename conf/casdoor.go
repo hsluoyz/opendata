@@ -12,35 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package routers
+package conf
 
-import (
-	"strings"
+import "sync/atomic"
 
-	"github.com/beego/beego/context"
-)
+var casdoorAvailable atomic.Bool
 
-func AuthzFilter(ctx *context.Context) {
-	path := ctx.Request.URL.Path
+// SetCasdoorAvailable records whether Casdoor was initialized successfully.
+func SetCasdoorAvailable(available bool) {
+	casdoorAvailable.Store(available)
+}
 
-	if !strings.HasPrefix(path, "/api/") {
-		return
-	}
-
-	exemptedPaths := []string{
-		"signin", "signout", "get-account", "health",
-	}
-
-	controllerName := strings.TrimPrefix(path, "/api/")
-	for _, p := range exemptedPaths {
-		if controllerName == p {
-			return
-		}
-	}
-
-	user := GetSessionUser(ctx)
-	if user == nil {
-		responseError(ctx, "请先登录")
-		return
-	}
+// IsCasdoorAvailable reports whether Casdoor is configured and reachable.
+func IsCasdoorAvailable() bool {
+	return casdoorAvailable.Load()
 }

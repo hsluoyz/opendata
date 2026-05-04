@@ -15,204 +15,127 @@
 package controllers
 
 import (
-	"encoding/json"
+	"fmt"
+	"time"
 
-	"github.com/the-open-data/opendata/object"
+	"github.com/beego/beego"
+	"github.com/the-open-data/opendata/auth"
+	"github.com/the-open-data/opendata/conf"
+	"github.com/the-open-data/opendata/util"
 )
 
-type SigninRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+func init() {
+	InitAuthConfig()
 }
 
-func (c *ApiController) Signin() {
-	var req SigninRequest
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &req); err != nil {
-		c.ResponseError("请求格式错误")
+func tryInitAuthConfig() error {
+	casdoorEndpoint := conf.GetConfigString("casdoorEndpoint")
+	clientId := conf.GetConfigString("clientId")
+	clientSecret := conf.GetConfigString("clientSecret")
+	casdoorOrganization := conf.GetConfigString("casdoorOrganization")
+	casdoorApplication := conf.GetConfigString("casdoorApplication")
+
+	auth.InitConfig(casdoorEndpoint, clientId, clientSecret, "", casdoorOrganization, casdoorApplication)
+
+	application, err := auth.GetApplication(casdoorApplication)
+	if err != nil {
+		return err
+	}
+	if application == nil {
+		return fmt.Errorf("application %q not found", casdoorApplication)
+	}
+
+	cert, err := auth.GetCert(application.Cert)
+	if err != nil {
+		return err
+	}
+	if cert == nil {
+		return fmt.Errorf("cert %q not found", application.Cert)
+	}
+
+	auth.InitConfig(casdoorEndpoint, clientId, clientSecret, cert.Certificate, casdoorOrganization, casdoorApplication)
+	conf.SetCasdoorAvailable(true)
+	return nil
+}
+
+func InitAuthConfig() {
+	casdoorEndpoint := conf.GetConfigString("casdoorEndpoint")
+	if casdoorEndpoint == "" {
+		conf.SetCasdoorAvailable(false)
 		return
 	}
 
-	user, err := object.GetUserByName(req.Username)
+	if err := tryInitAuthConfig(); err != nil {
+		conf.SetCasdoorAvailable(false)
+		beego.Warning("InitAuthConfig: casdoor unreachable, retrying in background:", err)
+		go func() {
+			for {
+				time.Sleep(10 * time.Second)
+				if err := tryInitAuthConfig(); err != nil {
+					conf.SetCasdoorAvailable(false)
+					beego.Warning("InitAuthConfig: retry failed:", err)
+				} else {
+					beego.Info("InitAuthConfig: casdoor connected")
+					return
+				}
+			}
+		}()
+	}
+}
+
+func (c *ApiController) Signin() {
+	code := c.Input().Get("code")
+	state := c.Input().Get("state")
+
+	token, err := auth.GetOAuthToken(code, state)
 	if err != nil {
 		c.ResponseError(err.Error())
 		return
 	}
-	if user == nil {
-		c.ResponseError("用户不存在")
-		return
-	}
-	if !object.CheckPassword(user.Password, req.Password) {
-		c.ResponseError("密码错误")
+
+	claims, err := auth.ParseJwtToken(token.AccessToken)
+	if err != nil {
+		c.ResponseError(err.Error())
 		return
 	}
 
-	c.SetSessionUser(user)
-	c.ResponseOk(user)
+	claims.AccessToken = token.AccessToken
+	c.SetSessionClaims(claims)
+	c.ResponseOk(claims.User)
 }
 
 func (c *ApiController) Signout() {
-	c.SetSessionUser(nil)
+	c.SetSessionClaims(nil)
 	c.ResponseOk()
 }
 
 func (c *ApiController) GetAccount() {
-	user := c.GetSessionUser()
-	if user == nil {
-		c.ResponseOk(nil)
+	if err := util.AppendWebConfigCookie(c.Ctx); err != nil {
+		fmt.Println(err)
+	}
+
+	claims := c.GetSessionClaims()
+	if claims == nil {
+		c.ResponseError("请先登录")
 		return
 	}
-	// return user without password
-	safe := *user
-	safe.Password = ""
-	c.ResponseOk(&safe)
+
+	if conf.IsCasdoorAvailable() {
+		user, err := auth.GetUser(claims.User.Name)
+		if err == nil && user != nil {
+			claims.User = *user
+			c.SetSessionClaims(claims)
+		}
+	}
+
+	c.ResponseOk(claims.User)
 }
 
 func (c *ApiController) UpdateAccount() {
-	if !c.RequireSignedIn() {
+	claims := c.GetSessionClaims()
+	if claims == nil {
+		c.ResponseError("请先登录")
 		return
 	}
-	current := c.GetSessionUser()
-
-	var user object.User
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &user); err != nil {
-		c.ResponseError("请求格式错误")
-		return
-	}
-
-	affected, err := object.UpdateUser(current.Owner+"/"+current.Name, &user)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-
-	// refresh session
-	updated, err := object.GetUser(current.Owner + "/" + current.Name)
-	if err == nil && updated != nil {
-		c.SetSessionUser(updated)
-	}
-
-	c.ResponseOk(affected)
-}
-
-func (c *ApiController) GetUsers() {
-	if !c.RequireAdmin() {
-		return
-	}
-	owner := c.Input().Get("owner")
-	limit := c.Input().Get("pageSize")
-	page := c.Input().Get("p")
-	field := c.Input().Get("field")
-	value := c.Input().Get("value")
-	sortField := c.Input().Get("sortField")
-	sortOrder := c.Input().Get("sortOrder")
-
-	if limit == "" || page == "" {
-		users, err := object.GetUsers(owner)
-		if err != nil {
-			c.ResponseError(err.Error())
-			return
-		}
-		c.ResponseOk(maskUsers(users))
-		return
-	}
-
-	limitInt := parseInt(limit)
-	pageInt := parseInt(page)
-	count, err := object.GetUserCount(owner, field, value)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-	users, err := object.GetPaginationUsers(owner, (pageInt-1)*limitInt, limitInt, field, value, sortField, sortOrder)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-	c.ResponseOk(maskUsers(users), count)
-}
-
-func (c *ApiController) GetUser() {
-	if !c.RequireSignedIn() {
-		return
-	}
-	id := c.Input().Get("id")
-	user, err := object.GetUser(id)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-	if user != nil {
-		user.Password = ""
-	}
-	c.ResponseOk(user)
-}
-
-func (c *ApiController) AddUser() {
-	if !c.RequireAdmin() {
-		return
-	}
-	var user object.User
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &user); err != nil {
-		c.ResponseError("请求格式错误")
-		return
-	}
-	user.CreatedTime = object.GetCurrentTime()
-	affected, err := object.AddUser(&user)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-	c.ResponseOk(affected)
-}
-
-func (c *ApiController) UpdateUser() {
-	if !c.RequireAdmin() {
-		return
-	}
-	id := c.Input().Get("id")
-	var user object.User
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &user); err != nil {
-		c.ResponseError("请求格式错误")
-		return
-	}
-	affected, err := object.UpdateUser(id, &user)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-	c.ResponseOk(affected)
-}
-
-func (c *ApiController) DeleteUser() {
-	if !c.RequireAdmin() {
-		return
-	}
-	var user object.User
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &user); err != nil {
-		c.ResponseError("请求格式错误")
-		return
-	}
-	affected, err := object.DeleteUser(&user)
-	if err != nil {
-		c.ResponseError(err.Error())
-		return
-	}
-	c.ResponseOk(affected)
-}
-
-func maskUsers(users []*object.User) []*object.User {
-	for _, u := range users {
-		u.Password = ""
-	}
-	return users
-}
-
-func parseInt(s string) int {
-	i := 0
-	for _, c := range s {
-		if c >= '0' && c <= '9' {
-			i = i*10 + int(c-'0')
-		}
-	}
-	return i
+	c.ResponseOk(claims.User)
 }

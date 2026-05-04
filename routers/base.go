@@ -16,7 +16,7 @@ package routers
 
 import (
 	"github.com/beego/beego/context"
-	"github.com/the-open-data/opendata/object"
+	"github.com/the-open-data/opendata/auth"
 )
 
 type Response struct {
@@ -25,13 +25,13 @@ type Response struct {
 	Data   interface{} `json:"data"`
 }
 
-func GetSessionUser(ctx *context.Context) *object.User {
+func GetSessionUser(ctx *context.Context) *auth.User {
 	s := ctx.Input.Session("user")
 	if s == nil {
 		return nil
 	}
-	user := s.(object.User)
-	return &user
+	claims := s.(auth.Claims)
+	return &claims.User
 }
 
 func responseError(ctx *context.Context, msg string) {

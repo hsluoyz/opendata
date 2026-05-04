@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/the-open-data/opendata/auth"
 )
 
 func GetCurrentTime() string {
@@ -32,24 +34,30 @@ func getOwnerAndNameFromId(id string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-func IsAdmin(user *User) bool {
+func IsAdmin(user *auth.User) bool {
 	if user == nil {
 		return false
 	}
-	return user.IsAdmin || user.Role == "admin"
+	return user.IsAdmin
 }
 
-func IsSchoolAdmin(user *User, schoolName string) bool {
+func IsSchoolAdmin(user *auth.User, schoolName string) bool {
 	if user == nil {
 		return false
 	}
 	if IsAdmin(user) {
 		return true
 	}
-	return user.Role == "school_admin" && user.SchoolName == schoolName
+	role := ""
+	school := ""
+	if user.Properties != nil {
+		role = user.Properties["role"]
+		school = user.Properties["schoolName"]
+	}
+	return role == "school_admin" && school == schoolName
 }
 
-func HasViewPermission(user *User, admins []string, viewers []string) bool {
+func HasViewPermission(user *auth.User, admins []string, viewers []string) bool {
 	if user == nil {
 		return false
 	}
@@ -69,7 +77,7 @@ func HasViewPermission(user *User, admins []string, viewers []string) bool {
 	return false
 }
 
-func HasAdminPermission(user *User, admins []string) bool {
+func HasAdminPermission(user *auth.User, admins []string) bool {
 	if user == nil {
 		return false
 	}

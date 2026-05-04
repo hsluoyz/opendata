@@ -15,9 +15,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
+	"time"
 
 	"github.com/beego/beego"
 	"github.com/beego/beego/logs"
@@ -25,13 +28,41 @@ import (
 	"github.com/the-open-data/opendata/conf"
 	"github.com/the-open-data/opendata/object"
 	"github.com/the-open-data/opendata/routers"
+	"golang.org/x/net/proxy"
 )
+
+func initSocks5Proxy() {
+	socks5Proxy := conf.GetConfigString("socks5Proxy")
+	if socks5Proxy == "" {
+		return
+	}
+
+	conn, err := net.DialTimeout("tcp", socks5Proxy, 100*time.Millisecond)
+	if err != nil {
+		beego.Warning("socks5Proxy configured but unreachable:", socks5Proxy)
+		return
+	}
+	conn.Close()
+
+	dialer, err := proxy.SOCKS5("tcp", socks5Proxy, nil, proxy.Direct)
+	if err != nil {
+		beego.Warning("Failed to create SOCKS5 dialer:", err)
+		return
+	}
+
+	http.DefaultTransport = &http.Transport{
+		Dial:            dialer.Dial,
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	beego.Info("SOCKS5 proxy enabled:", socks5Proxy)
+}
 
 func main() {
 	object.InitAdapter()
 	object.CreateTables()
-	object.InitDb()
 	object.InitDefaultProvider()
+
+	initSocks5Proxy()
 
 	beego.InsertFilter("*", beego.BeforeRouter, routers.CorsFilter)
 	beego.InsertFilter("*", beego.BeforeRouter, routers.AuthzFilter)
@@ -52,9 +83,6 @@ func main() {
 	var logAdapter string
 	logConfigMap := make(map[string]interface{})
 	logConfigStr := conf.GetConfigString("logConfig")
-	if logConfigStr == "" {
-		logConfigStr = `{"adapter":"console"}`
-	}
 	err := json.Unmarshal([]byte(logConfigStr), &logConfigMap)
 	if err != nil {
 		logAdapter = "console"

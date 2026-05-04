@@ -15,9 +15,11 @@
 import React from "react";
 import {Tooltip, message, theme} from "antd";
 import {QuestionCircleOutlined} from "@ant-design/icons";
+import Sdk from "casdoor-js-sdk";
 import * as Conf from "./Conf";
 
 export let ServerUrl = "";
+export let CasdoorSdk;
 
 export function initServerUrl() {
   const hostname = window.location.hostname;
@@ -26,9 +28,46 @@ export function initServerUrl() {
   }
 }
 
-export function initWebConfig() {}
+function parseCookieValue(name) {
+  const match = document.cookie.match(new RegExp("(^|;)\\s*" + name + "=([^;]*)"));
+  return match ? match[2] : null;
+}
 
-export function initCasdoorSdk() {}
+export function initWebConfig() {
+  const raw = parseCookieValue("jsonWebConfig");
+  if (!raw || raw === "null") {
+    return;
+  }
+  try {
+    const decoded = decodeURIComponent(raw.replace(/\+/g, " "));
+    const config = JSON.parse(decoded);
+    Conf.setConfig(config);
+  } catch (e) {
+    // ignore malformed cookie
+  }
+}
+
+export function initCasdoorSdk(config) {
+  if (!config || !config.serverUrl) {
+    return;
+  }
+  CasdoorSdk = new Sdk(config);
+}
+
+export function isCasdoorAvailable() {
+  return !!(Conf.AuthConfig && Conf.AuthConfig.serverUrl);
+}
+
+export function getSigninUrl() {
+  if (!CasdoorSdk || !isCasdoorAvailable()) {
+    return "";
+  }
+  return CasdoorSdk.getSigninUrl();
+}
+
+export function signin() {
+  return CasdoorSdk.signin(ServerUrl);
+}
 
 export function setThemeColor(color) {
   const meta = document.querySelector("meta[name='theme-color']");

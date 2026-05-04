@@ -15,26 +15,14 @@
 package object
 
 import (
-	"database/sql"
 	"fmt"
-	"net"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
 	"github.com/the-open-data/opendata/conf"
-	moderncsqlite "modernc.org/sqlite"
 	"xorm.io/xorm"
 )
-
-func init() {
-	sql.Register("sqlite3", &moderncsqlite.Driver{})
-}
-
-const defaultMySQLDataSourceName = "root:123456@tcp(localhost:3306)/"
 
 type Adapter struct {
 	engine *xorm.Engine
@@ -45,18 +33,11 @@ var adapter *Adapter
 func InitAdapter() {
 	driverName := conf.GetConfigString("driverName")
 	dataSourceName := conf.GetConfigString("dataSourceName")
+	dbName := conf.GetConfigString("dbName")
 
-	driverName, dataSourceName = resolveDatabase(driverName, dataSourceName)
+	fmt.Printf("OpenData: connecting to database [driver=%s, db=%s]\n", driverName, dbName)
 
-	var err error
-	var engine *xorm.Engine
-
-	if driverName == "sqlite3" {
-		engine, err = xorm.NewEngine(driverName, dataSourceName)
-	} else {
-		dbName := conf.GetConfigString("dbName")
-		engine, err = xorm.NewEngine(driverName, dataSourceName+dbName)
-	}
+	engine, err := xorm.NewEngine(driverName, dataSourceName+dbName)
 	if err != nil {
 		panic(err)
 	}
@@ -68,36 +49,8 @@ func InitAdapter() {
 	adapter = &Adapter{engine: engine}
 }
 
-func resolveDatabase(driverName, dataSourceName string) (string, string) {
-	dbName := conf.GetConfigString("dbName")
-
-	if driverName != "mysql" || dataSourceName != defaultMySQLDataSourceName {
-		fmt.Printf("OpenData: connecting to database [driver=%s, db=%s]\n", driverName, dbName)
-		return driverName, dataSourceName
-	}
-
-	conn, err := net.DialTimeout("tcp", "localhost:3306", 2*time.Second)
-	if err != nil {
-		dsn := sqliteDBPath()
-		fmt.Printf("OpenData: MySQL not available, using SQLite [path=%s]\n", dsn)
-		return "sqlite3", dsn
-	}
-	conn.Close()
-	fmt.Printf("OpenData: connecting to database [driver=%s, db=%s]\n", driverName, dbName)
-	return driverName, dataSourceName
-}
-
-func sqliteDBPath() string {
-	exe, err := os.Executable()
-	if err != nil {
-		return "opendata.db"
-	}
-	return filepath.Join(filepath.Dir(exe), "opendata.db")
-}
-
 func CreateTables() {
 	err := adapter.engine.Sync2(
-		new(User),
 		new(School),
 		new(Grade),
 		new(Class),

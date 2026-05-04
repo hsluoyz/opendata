@@ -24,18 +24,11 @@ func init() {
 }
 
 func initAPI() {
-	// Auth
+	// Auth (Casdoor SSO)
 	beego.Router("/api/signin", &controllers.ApiController{}, "POST:Signin")
 	beego.Router("/api/signout", &controllers.ApiController{}, "POST:Signout")
 	beego.Router("/api/get-account", &controllers.ApiController{}, "GET:GetAccount")
 	beego.Router("/api/update-account", &controllers.ApiController{}, "POST:UpdateAccount")
-
-	// Users
-	beego.Router("/api/get-users", &controllers.ApiController{}, "GET:GetUsers")
-	beego.Router("/api/get-user", &controllers.ApiController{}, "GET:GetUser")
-	beego.Router("/api/add-user", &controllers.ApiController{}, "POST:AddUser")
-	beego.Router("/api/update-user", &controllers.ApiController{}, "POST:UpdateUser")
-	beego.Router("/api/delete-user", &controllers.ApiController{}, "POST:DeleteUser")
 
 	// Schools
 	beego.Router("/api/get-schools", &controllers.ApiController{}, "GET:GetSchools")

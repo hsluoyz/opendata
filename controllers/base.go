@@ -17,8 +17,10 @@ package controllers
 import (
 	"encoding/gob"
 	"encoding/json"
+	"strconv"
 
 	"github.com/beego/beego"
+	"github.com/the-open-data/opendata/auth"
 	"github.com/the-open-data/opendata/object"
 )
 
@@ -34,24 +36,32 @@ type Response struct {
 }
 
 func init() {
-	gob.Register(object.User{})
+	gob.Register(auth.Claims{})
 }
 
-func (c *ApiController) GetSessionUser() *object.User {
+func (c *ApiController) GetSessionClaims() *auth.Claims {
 	s := c.GetSession("user")
 	if s == nil {
 		return nil
 	}
-	user := s.(object.User)
-	return &user
+	claims := s.(auth.Claims)
+	return &claims
 }
 
-func (c *ApiController) SetSessionUser(user *object.User) {
-	if user == nil {
+func (c *ApiController) SetSessionClaims(claims *auth.Claims) {
+	if claims == nil {
 		c.DelSession("user")
 		return
 	}
-	c.SetSession("user", *user)
+	c.SetSession("user", *claims)
+}
+
+func (c *ApiController) GetSessionUser() *auth.User {
+	claims := c.GetSessionClaims()
+	if claims == nil {
+		return nil
+	}
+	return &claims.User
 }
 
 func (c *ApiController) ResponseOk(data ...interface{}) {
@@ -102,9 +112,7 @@ func (c *ApiController) RequireAdmin() bool {
 	return true
 }
 
-func DenyRequest(ctx interface{}) {
-	// used by routers
-}
+func DenyRequest(ctx interface{}) {}
 
 func wrapActionResponse(affected bool, err error) *Response {
 	if err != nil {
@@ -118,4 +126,12 @@ func wrapActionResponse(affected bool, err error) *Response {
 
 func parseBody(body []byte, v interface{}) error {
 	return json.Unmarshal(body, v)
+}
+
+func parseInt(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	return i
 }

@@ -15,13 +15,41 @@
 package routers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/beego/beego"
 	"github.com/beego/beego/context"
 )
+
+func getWebBuildFolder() string {
+	// Default: web/build relative to working directory
+	if _, err := os.Stat(filepath.Join("web/build", "index.html")); err == nil {
+		return "web/build"
+	}
+
+	frontendBaseDir := beego.AppConfig.DefaultString("frontendBaseDir", "")
+	if frontendBaseDir == "" {
+		return "web/build"
+	}
+
+	// Try frontendBaseDir/web/build
+	candidate := filepath.Join(frontendBaseDir, "web/build")
+	if _, err := os.Stat(filepath.Join(candidate, "index.html")); err == nil {
+		return candidate
+	}
+
+	// Try frontendBaseDir directly
+	if _, err := os.Stat(filepath.Join(frontendBaseDir, "index.html")); err == nil {
+		return frontendBaseDir
+	}
+
+	return "web/build"
+}
 
 func StaticFilter(ctx *context.Context) {
 	urlPath := ctx.Request.URL.Path
@@ -34,17 +62,30 @@ func StaticFilter(ctx *context.Context) {
 		return
 	}
 
-	// serve frontend static files
-	frontendDir := beego.AppConfig.DefaultString("frontendBaseDir", "./web/build")
-	if frontendDir == "" {
-		frontendDir = "./web/build"
+	webBuildFolder := getWebBuildFolder()
+
+	var filePath string
+	if urlPath == "/" {
+		filePath = filepath.Join(webBuildFolder, "index.html")
+	} else {
+		filePath = filepath.Join(webBuildFolder, urlPath)
 	}
 
-	filePath := frontendDir + urlPath
+	// Path traversal guard + SPA fallback
+	if strings.Contains(filePath, ".."+string(filepath.Separator)) || strings.Contains(filePath, "../") {
+		filePath = filepath.Join(webBuildFolder, "index.html")
+	} else if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		filePath = filepath.Join(webBuildFolder, "index.html")
+	}
+
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		// serve index.html for SPA routing
-		http.ServeFile(ctx.ResponseWriter, ctx.Request, frontendDir+"/index.html")
+		dir, _ := os.Getwd()
+		dir = strings.ReplaceAll(dir, "\\", "/")
+		ctx.ResponseWriter.WriteHeader(http.StatusNotFound)
+		msg := fmt.Sprintf("OpenData frontend file \"index.html\" not found; expected at: %s/web/build/index.html", dir)
+		http.ServeContent(ctx.ResponseWriter, ctx.Request, "error", time.Now(), strings.NewReader(msg))
 		return
 	}
+
 	http.ServeFile(ctx.ResponseWriter, ctx.Request, filePath)
 }

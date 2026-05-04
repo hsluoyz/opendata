@@ -21,6 +21,7 @@ import (
 	"github.com/beego/beego"
 	"github.com/the-open-data/opendata/auth"
 	"github.com/the-open-data/opendata/conf"
+	"github.com/the-open-data/opendata/object"
 	"github.com/the-open-data/opendata/util"
 )
 
@@ -101,10 +102,22 @@ func (c *ApiController) Signin() {
 
 	claims.AccessToken = token.AccessToken
 	c.SetSessionClaims(claims)
+	sessionId := c.Ctx.Input.CruSession.SessionID()
+	if sessionId != "" {
+		_, _ = object.AddSession(&object.Session{
+			Owner:     claims.User.Owner,
+			Name:      claims.User.Name,
+			SessionId: []string{sessionId},
+		})
+	}
 	c.ResponseOk(claims.User)
 }
 
 func (c *ApiController) Signout() {
+	user := c.GetSessionUser()
+	if user != nil {
+		_, _ = object.DeleteSessionId(util.GetIdFromOwnerAndName(user.Owner, user.Name), c.Ctx.Input.CruSession.SessionID())
+	}
 	c.SetSessionClaims(nil)
 	c.ResponseOk()
 }

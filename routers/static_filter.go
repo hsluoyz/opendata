@@ -29,6 +29,10 @@ func StaticFilter(ctx *context.Context) {
 	if strings.HasPrefix(urlPath, "/api/") {
 		return
 	}
+	if strings.HasPrefix(urlPath, "/swagger/") {
+		http.ServeFile(ctx.ResponseWriter, ctx.Request, "."+urlPath)
+		return
+	}
 
 	// serve frontend static files
 	frontendDir := beego.AppConfig.DefaultString("frontendBaseDir", "./web/build")

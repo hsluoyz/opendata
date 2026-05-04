@@ -60,6 +60,9 @@ func CreateTables() {
 		new(Parent),
 		new(File),
 		new(Provider),
+		new(Record),
+		new(Session),
+		new(Site),
 	)
 	if err != nil {
 		panic(err)

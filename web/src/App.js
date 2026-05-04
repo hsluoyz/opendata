@@ -20,6 +20,7 @@ import zhCN from "antd/es/locale/zh_CN";
 import {Helmet} from "react-helmet";
 import {AiDots} from "./common/Loading";
 import * as AccountBackend from "./backend/AccountBackend";
+import * as SiteBackend from "./backend/SiteBackend";
 import * as Conf from "./Conf";
 import * as Setting from "./Setting";
 import {getShadcnThemeComponents, getShadcnThemeToken} from "./shadcnTheme";
@@ -43,11 +44,23 @@ class App extends React.Component {
       account: undefined,
       loading: true,
       themeAlgorithm,
+      site: undefined,
     };
   }
 
   UNSAFE_componentWillMount() {
     this.getAccount();
+    this.getBuiltInSite();
+  }
+
+  getBuiltInSite() {
+    SiteBackend.getBuiltInSite().then(res => {
+      if (res.status === "ok" && res.data) {
+        const site = res.data;
+        Setting.setThemeColor(site.themeColor || Conf.ThemeDefault.colorPrimary);
+        this.setState({site});
+      }
+    });
   }
 
   getAccount() {
@@ -76,8 +89,9 @@ class App extends React.Component {
   };
 
   render() {
-    const {account, loading, themeAlgorithm} = this.state;
+    const {account, loading, themeAlgorithm, site} = this.state;
     const isDark = themeAlgorithm.includes("dark");
+    const colorPrimary = site?.themeColor || Conf.ThemeDefault.colorPrimary;
 
     if (loading) {
       return (
@@ -90,8 +104,8 @@ class App extends React.Component {
     return (
       <>
         <Helmet>
-          <title>{Setting.getHtmlTitle()}</title>
-          <link rel="icon" href={Setting.getFaviconUrl(themeAlgorithm)} />
+          <title>{Setting.getHtmlTitle(site?.htmlTitle)}</title>
+          <link rel="icon" href={Setting.getFaviconUrl(themeAlgorithm, site?.faviconUrl)} />
         </Helmet>
         <ConfigProvider
           locale={zhCN}
@@ -100,8 +114,8 @@ class App extends React.Component {
             algorithm: Setting.getAlgorithm(themeAlgorithm),
             token: {
               ...getShadcnThemeToken(isDark),
-              colorPrimary: Conf.ThemeDefault.colorPrimary,
-              colorInfo: Conf.ThemeDefault.colorPrimary,
+              colorPrimary,
+              colorInfo: colorPrimary,
               borderRadius: Conf.ThemeDefault.borderRadius,
             },
             components: getShadcnThemeComponents(isDark),
@@ -122,6 +136,7 @@ class App extends React.Component {
                     <ManagementPage
                       {...props}
                       account={account}
+                      site={site}
                       themeAlgorithm={themeAlgorithm}
                       onThemeChange={this.setThemeAlgorithm}
                       onSignout={() => this.updateAccount(null)}

@@ -16,13 +16,18 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math/rand"
+	"net"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/beego/beego/context"
+	"github.com/google/uuid"
 	"github.com/the-open-data/opendata/conf"
 )
 
@@ -58,6 +63,56 @@ func ParseInt(s string) int {
 	return i
 }
 
+func ParseIntWithError(s string) (int, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return -1, err
+	}
+	if i < 0 {
+		return -1, errors.New("negative number")
+	}
+	return i, nil
+}
+
+func GenerateId() string {
+	return uuid.NewString()
+}
+
+func GetCurrentTimeWithMilli() string {
+	return time.Now().Format("2006-01-02T15:04:05.999Z07:00")
+}
+
+func GetCurrentTimeBasedOnLastMilli(timestamp string) string {
+	tm := time.Now()
+	inputTime, err := time.Parse("2006-01-02T15:04:05.999Z07:00", timestamp)
+	if err != nil {
+		return tm.Format("2006-01-02T15:04:05.999Z07:00")
+	}
+	if !tm.After(inputTime.Add(1 * time.Millisecond)) {
+		tm = inputTime.Add(1 * time.Millisecond)
+	}
+	return tm.Format("2006-01-02T15:04:05.999Z07:00")
+}
+
+func DeleteVal(strs []string, str string) []string {
+	result := []string{}
+	for _, s := range strs {
+		if s != str {
+			result = append(result, s)
+		}
+	}
+	return result
+}
+
+func GetRandomName() string {
+	const charset = "0123456789abcdefghijklmnopqrstuvwxyz"
+	result := make([]byte, 6)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(result)
+}
+
 func SnakeString(s string) string {
 	data := make([]byte, 0, len(s)*2)
 	j := false
@@ -87,6 +142,37 @@ func FilterField(field string) bool {
 		}
 	}
 	return false
+}
+
+func GetIPFromRequest(r *http.Request) string {
+	headers := []string{"X-Forwarded-For", "X-Real-IP", "CF-Connecting-IP"}
+	for _, header := range headers {
+		value := strings.TrimSpace(r.Header.Get(header))
+		if value == "" {
+			continue
+		}
+		return strings.TrimSpace(strings.Split(value, ",")[0])
+	}
+
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
+
+func FilterQuery(requestUri string, filterKeys []string) string {
+	u, err := url.ParseRequestURI(requestUri)
+	if err != nil {
+		return requestUri
+	}
+
+	query := u.Query()
+	for _, key := range filterKeys {
+		query.Del(key)
+	}
+	u.RawQuery = query.Encode()
+	return u.String()
 }
 
 func EnsureFolderExists(path string) {}

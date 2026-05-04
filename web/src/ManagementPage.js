@@ -17,17 +17,23 @@ import {Link, Route, Switch, withRouter} from "react-router-dom";
 import {Avatar, Button, Card, Dropdown, Layout, Menu, Result, Select, Space} from "antd";
 import {
   ApartmentOutlined,
+  ApiOutlined,
+  AuditOutlined,
   BankOutlined,
   BookOutlined,
   CloudOutlined,
+  DashboardOutlined,
   DatabaseOutlined,
   DownOutlined,
   FileOutlined,
+  FundOutlined,
   HeartOutlined,
   HomeOutlined,
+  LayoutOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  OrderedListOutlined,
   SettingOutlined,
   SolutionOutlined,
   TeamOutlined,
@@ -39,6 +45,7 @@ import * as SchoolBackend from "./backend/SchoolBackend";
 import * as GradeBackend from "./backend/GradeBackend";
 import * as ClassBackend from "./backend/ClassBackend";
 import * as Setting from "./Setting";
+import BreadcrumbBar from "./common/BreadcrumbBar";
 import HomePage from "./HomePage";
 import SchoolListPage from "./SchoolListPage";
 import SchoolEditPage from "./SchoolEditPage";
@@ -58,8 +65,37 @@ import FileListPage from "./FileListPage";
 import FileEditPage from "./FileEditPage";
 import ProviderListPage from "./ProviderListPage";
 import ProviderEditPage from "./ProviderEditPage";
+import RecordListPage from "./RecordListPage";
+import SessionListPage from "./SessionListPage";
+import SiteListPage from "./SiteListPage";
+import SiteEditPage from "./SiteEditPage";
+import VisitorPage from "./VisitorPage";
+import SystemInfo from "./SystemInfo";
 
 const {Header, Content, Sider} = Layout;
+const siderMenuOpenKeysStorageKey = "siderMenuOpenKeys";
+const defaultMenuOpenKeys = ["/education", "/people", "/storage", "/logs", "/admin"];
+
+function readSavedMenuOpenKeys() {
+  try {
+    const raw = localStorage.getItem(siderMenuOpenKeysStorageKey);
+    if (!raw) {
+      return defaultMenuOpenKeys;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(key => typeof key === "string") : defaultMenuOpenKeys;
+  } catch {
+    return defaultMenuOpenKeys;
+  }
+}
+
+function persistMenuOpenKeys(keys) {
+  try {
+    localStorage.setItem(siderMenuOpenKeysStorageKey, JSON.stringify(keys));
+  } catch {
+    return;
+  }
+}
 
 function getMenuParentKey(uri) {
   if (!uri) {
@@ -74,6 +110,12 @@ function getMenuParentKey(uri) {
   if (uri.includes("/files") || uri.includes("/providers")) {
     return "/storage";
   }
+  if (uri.includes("/records") || uri.includes("/sessions")) {
+    return "/logs";
+  }
+  if (uri.includes("/sites") || uri.includes("/visitors") || uri.includes("/sysinfo") || uri.includes("/swagger")) {
+    return "/admin";
+  }
   return null;
 }
 
@@ -82,6 +124,11 @@ class ManagementPage extends React.Component {
     super(props);
     const siderCollapsed = localStorage.getItem("siderCollapsed") === "true";
     const parentKey = getMenuParentKey(props.location.pathname);
+    const savedMenuOpenKeys = readSavedMenuOpenKeys();
+    const menuOpenKeys = new Set(savedMenuOpenKeys);
+    if (parentKey) {
+      menuOpenKeys.add(parentKey);
+    }
     this.state = {
       schools: [],
       grades: [],
@@ -90,7 +137,7 @@ class ManagementPage extends React.Component {
       selectedGrade: localStorage.getItem("selectedGrade") || "",
       selectedClass: localStorage.getItem("selectedClass") || "",
       siderCollapsed,
-      menuOpenKeys: siderCollapsed ? [] : ["/education", "/people", "/storage"].filter(key => key === parentKey || key !== null),
+      menuOpenKeys: siderCollapsed ? [] : [...menuOpenKeys],
     };
   }
 
@@ -105,7 +152,9 @@ class ManagementPage extends React.Component {
     if (prevProps.location.pathname !== this.props.location.pathname && !this.state.siderCollapsed) {
       const parentKey = getMenuParentKey(this.props.location.pathname);
       if (parentKey && !this.state.menuOpenKeys.includes(parentKey)) {
-        this.setState({menuOpenKeys: [...this.state.menuOpenKeys, parentKey]});
+        const menuOpenKeys = [...this.state.menuOpenKeys, parentKey];
+        persistMenuOpenKeys(menuOpenKeys);
+        this.setState({menuOpenKeys});
       }
     }
   }
@@ -185,8 +234,13 @@ class ManagementPage extends React.Component {
     localStorage.setItem("siderCollapsed", String(siderCollapsed));
     this.setState({
       siderCollapsed,
-      menuOpenKeys: siderCollapsed ? [] : ["/education", "/people", "/storage"],
+      menuOpenKeys: siderCollapsed ? [] : readSavedMenuOpenKeys(),
     });
+  };
+
+  onMenuOpenChange = (menuOpenKeys) => {
+    persistMenuOpenKeys(menuOpenKeys);
+    this.setState({menuOpenKeys});
   };
 
   getMenuItems() {
@@ -206,10 +260,26 @@ class ManagementPage extends React.Component {
       Setting.getItem("存储管理", "/storage", <CloudOutlined />, [
         Setting.getItem(<Link to="/files">文件</Link>, "/files", <FileOutlined />),
       ]),
+      Setting.getItem("审计日志", "/logs", <AuditOutlined />, [
+        Setting.getItem(<Link to="/records">日志</Link>, "/records", <DatabaseOutlined />),
+        Setting.getItem(<Link to="/sessions">会话</Link>, "/sessions", <OrderedListOutlined />),
+      ]),
     ];
 
     if (Setting.isAdminUser(this.props.account)) {
       items[3].children.push(Setting.getItem(<Link to="/providers">存储提供商</Link>, "/providers", <CloudOutlined />));
+      items.push(Setting.getItem("管理", "/admin", <SettingOutlined />, [
+        Setting.getItem(<Link to="/sites">设置</Link>, "/sites", <LayoutOutlined />),
+        Setting.getItem(<Link to="/visitors">访客</Link>, "/visitors", <FundOutlined />),
+        Setting.getItem(<Link to="/sysinfo">系统信息</Link>, "/sysinfo", <DashboardOutlined />),
+        Setting.getItem(
+          <a target="_blank" rel="noreferrer" href={Setting.isLocalhost() ? `${Setting.ServerUrl}/swagger/index.html` : "/swagger/index.html"}>
+            API 文档
+          </a>,
+          "/swagger",
+          <ApiOutlined />
+        ),
+      ]));
     }
     return items;
   }
@@ -256,9 +326,10 @@ class ManagementPage extends React.Component {
   renderHeader() {
     const {schools, grades, classes, selectedSchool, selectedGrade, selectedClass} = this.state;
     const filteredClasses = selectedGrade ? classes.filter(c => c.grade === selectedGrade || !c.grade) : classes;
+    const isDark = this.props.themeAlgorithm?.includes("dark");
 
     return (
-      <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: "#ffffff", position: "sticky", top: 0, zIndex: 99, borderBottom: "1px solid #f0f0f0", height: 52, lineHeight: "52px"}}>
+      <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: isDark ? "#141414" : "#ffffff", position: "sticky", top: 0, zIndex: 99, borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #f0f0f0", height: 52, lineHeight: "52px"}}>
         <div style={{display: "flex", alignItems: "center"}}>
           <Button
             icon={this.state.siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -266,7 +337,7 @@ class ManagementPage extends React.Component {
             type="text"
             style={{fontSize: 16, width: 40, height: 40}}
           />
-          <span style={{fontWeight: 600}}>OpenData</span>
+          <BreadcrumbBar uri={this.props.location.pathname} />
         </div>
         <Space size={8}>
           <Select placeholder="学校" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
@@ -302,6 +373,12 @@ class ManagementPage extends React.Component {
         <Route path="/files/:owner/:name" render={props => <FileEditPage {...props} account={account} />} />
         <Route exact path="/providers" render={props => <ProviderListPage {...props} account={account} />} />
         <Route exact path="/providers/:providerName" render={props => <ProviderEditPage {...props} account={account} />} />
+        <Route exact path="/records" render={props => <RecordListPage {...props} account={account} />} />
+        <Route exact path="/sessions" render={props => <SessionListPage {...props} account={account} />} />
+        <Route exact path="/sites" render={props => <SiteListPage {...props} account={account} />} />
+        <Route exact path="/sites/:siteName" render={props => <SiteEditPage {...props} account={account} />} />
+        <Route exact path="/visitors" render={props => <VisitorPage {...props} account={account} themeAlgorithm={this.props.themeAlgorithm} />} />
+        <Route exact path="/sysinfo" render={props => <SystemInfo {...props} account={account} />} />
         <Route path="" render={() => <Result status="404" title="404 未找到" extra={<a href="/"><Button type="primary">返回首页</Button></a>} />} />
       </Switch>
     );
@@ -311,6 +388,7 @@ class ManagementPage extends React.Component {
     const siderWidth = 256;
     const siderCollapsedWidth = 80;
     const contentMarginLeft = this.state.siderCollapsed ? siderCollapsedWidth : siderWidth;
+    const isDark = this.props.themeAlgorithm?.includes("dark");
 
     return (
       <>
@@ -319,7 +397,7 @@ class ManagementPage extends React.Component {
           collapsedWidth={siderCollapsedWidth}
           width={siderWidth}
           trigger={null}
-          theme="light"
+          theme={isDark ? "dark" : "light"}
           style={{
             height: "100vh",
             position: "fixed",
@@ -327,14 +405,14 @@ class ManagementPage extends React.Component {
             top: 0,
             bottom: 0,
             zIndex: 100,
-            borderRight: "1px solid #eaedf3",
-            background: "#fafbfc",
+            borderRight: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #eaedf3",
+            background: isDark ? "#141414" : "#fafbfc",
             display: "flex",
             flexDirection: "column",
           }}
         >
-          <div style={{height: 52, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: this.state.siderCollapsed ? "center" : "flex-start", padding: this.state.siderCollapsed ? 0 : "0 16px 0 24px", overflow: "hidden", borderBottom: "1px solid #eaedf3"}}>
-            <Link to="/" style={{fontWeight: 700, color: "#404040", fontSize: this.state.siderCollapsed ? 18 : 20}}>
+          <div style={{height: 52, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: this.state.siderCollapsed ? "center" : "flex-start", padding: this.state.siderCollapsed ? 0 : "0 16px 0 24px", overflow: "hidden", borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #eaedf3"}}>
+            <Link to="/" style={{fontWeight: 700, color: isDark ? "#ffffff" : "#404040", fontSize: this.state.siderCollapsed ? 18 : 20}}>
               {this.state.siderCollapsed ? "OD" : "OpenData"}
             </Link>
           </div>
@@ -344,8 +422,9 @@ class ManagementPage extends React.Component {
               items={this.getMenuItems()}
               selectedKeys={[this.getSelectedMenuKey()]}
               openKeys={this.state.menuOpenKeys}
-              onOpenChange={menuOpenKeys => this.setState({menuOpenKeys})}
-              style={{borderRight: 0, background: "#fafbfc"}}
+              onOpenChange={this.onMenuOpenChange}
+              theme={isDark ? "dark" : "light"}
+              style={{borderRight: 0, background: isDark ? "#141414" : "#fafbfc"}}
             />
           </div>
         </Sider>

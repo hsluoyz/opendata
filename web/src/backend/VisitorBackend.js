@@ -12,35 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package routers
+import * as Setting from "../Setting";
 
-import (
-	"strings"
-
-	"github.com/beego/beego/context"
-)
-
-func AuthzFilter(ctx *context.Context) {
-	path := ctx.Request.URL.Path
-
-	if !strings.HasPrefix(path, "/api/") {
-		return
-	}
-
-	exemptedPaths := []string{
-		"signin", "signout", "get-account", "get-built-in-site", "health",
-	}
-
-	controllerName := strings.TrimPrefix(path, "/api/")
-	for _, p := range exemptedPaths {
-		if controllerName == p {
-			return
-		}
-	}
-
-	user := GetSessionUser(ctx)
-	if user == nil {
-		responseError(ctx, "请先登录")
-		return
-	}
+export function getVisitors(days, selectedUser, fields) {
+  return fetch(`${Setting.ServerUrl}/api/get-visitors?days=${days}&selectedUser=${selectedUser}&field=${fields}`, {
+    method: "GET",
+    credentials: "include",
+  }).then(res => Setting.handleFetchResponse(res));
 }

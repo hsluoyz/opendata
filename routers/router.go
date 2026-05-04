@@ -98,6 +98,42 @@ func initAPI() {
 	// Stats
 	beego.Router("/api/get-stats", &controllers.ApiController{}, "GET:GetStats")
 
+	// Records (Audit Logs)
+	beego.Router("/api/get-records", &controllers.ApiController{}, "GET:GetRecords")
+	beego.Router("/api/get-record", &controllers.ApiController{}, "GET:GetRecord")
+	beego.Router("/api/update-record", &controllers.ApiController{}, "POST:UpdateRecord")
+	beego.Router("/api/add-record", &controllers.ApiController{}, "POST:AddRecord")
+	beego.Router("/api/add-records", &controllers.ApiController{}, "POST:AddRecords")
+	beego.Router("/api/delete-record", &controllers.ApiController{}, "POST:DeleteRecord")
+
+	// Sessions
+	beego.Router("/api/get-sessions", &controllers.ApiController{}, "GET:GetSessions")
+	beego.Router("/api/get-session", &controllers.ApiController{}, "GET:GetSingleSession")
+	beego.Router("/api/update-session", &controllers.ApiController{}, "POST:UpdateSession")
+	beego.Router("/api/add-session", &controllers.ApiController{}, "POST:AddSession")
+	beego.Router("/api/delete-session", &controllers.ApiController{}, "POST:DeleteSession")
+	beego.Router("/api/is-session-duplicated", &controllers.ApiController{}, "GET:IsSessionDuplicated")
+
+	// Sites
+	beego.Router("/api/get-global-sites", &controllers.ApiController{}, "GET:GetGlobalSites")
+	beego.Router("/api/get-sites", &controllers.ApiController{}, "GET:GetSites")
+	beego.Router("/api/get-site", &controllers.ApiController{}, "GET:GetSite")
+	beego.Router("/api/get-built-in-site", &controllers.ApiController{}, "GET:GetBuiltInSite")
+	beego.Router("/api/update-site", &controllers.ApiController{}, "POST:UpdateSite")
+	beego.Router("/api/add-site", &controllers.ApiController{}, "POST:AddSite")
+	beego.Router("/api/delete-site", &controllers.ApiController{}, "POST:DeleteSite")
+
+	// Visitors
+	beego.Router("/api/get-visitors", &controllers.ApiController{}, "GET:GetVisitors")
+
+	// System Info
+	beego.Router("/api/get-system-info", &controllers.ApiController{}, "GET:GetSystemInfo")
+	beego.Router("/api/get-version-info", &controllers.ApiController{}, "GET:GetVersionInfo")
+
+	// Prometheus
+	beego.Router("/api/get-prometheus-info", &controllers.ApiController{}, "GET:GetPrometheusInfo")
+	beego.Router("/api/metrics", &controllers.ApiController{}, "GET:GetMetrics")
+
 	// Health
 	beego.Router("/api/health", &controllers.ApiController{}, "GET:Health")
 }

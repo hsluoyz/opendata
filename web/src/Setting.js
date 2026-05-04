@@ -143,6 +143,10 @@ export function isMobile() {
   return window.innerWidth <= 768;
 }
 
+export function isLocalhost() {
+  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+}
+
 export function getLabel(text, tooltip) {
   if (!tooltip) {
     return text;
@@ -338,4 +342,95 @@ export function formatDate(dateStr) {
   } catch {
     return dateStr;
   }
+}
+
+export function getFormattedDate(date) {
+  if (date === undefined || date === null) {
+    return null;
+  }
+  date = date.replace("T", " ");
+  date = date.replace("+08:00", " ");
+  return date;
+}
+
+export function getShortText(s, maxLength = 35) {
+  if (!s) {
+    return "";
+  }
+  if (s.length > maxLength) {
+    return `${s.slice(0, maxLength)}...`;
+  } else {
+    return s;
+  }
+}
+
+export function getFriendlyFileSize(size) {
+  if (size < 1024) {
+    return size + " B";
+  }
+  const i = Math.floor(Math.log(size) / Math.log(1024));
+  let num = (size / Math.pow(1024, i));
+  const round = Math.round(num);
+  num = round < 10 ? num.toFixed(2) : round < 100 ? num.toFixed(1) : round;
+  return `${num} ${"KMGTPEZY"[i - 1]}B`;
+}
+
+export function formatJsonString(s) {
+  if (s === "") {
+    return "";
+  }
+  try {
+    return JSON.stringify(JSON.parse(s), null, 2);
+  } catch (error) {
+    return s;
+  }
+}
+
+export function GenerateId() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+export function deleteRow(array, i) {
+  return [...array.slice(0, i), ...array.slice(i + 1)];
+}
+
+export function getRequestOrganization(account) {
+  if (isAdminUser(account)) {
+    return account.owner;
+  }
+  return account.owner;
+}
+
+export function canViewAllUsers(account) {
+  if (account === undefined || account === null) {
+    return false;
+  }
+  return isAdminUser(account);
+}
+
+export function filterTableColumns(columns, formItems, actionKey = "action") {
+  if (!formItems || formItems.length === 0) {
+    return columns;
+  }
+  const visibleColumns = formItems
+    .filter(item => item.visible !== false)
+    .map(item => {
+      const matchedColumn = columns.find(col => col.key === item.name);
+      if (matchedColumn) {
+        return {
+          ...matchedColumn,
+          width: item.width !== undefined ? `${item.width}px` : matchedColumn.width,
+          title: item.width !== undefined ? item.label : matchedColumn.title,
+        };
+      }
+      return null;
+    })
+    .filter(col => col !== null);
+
+  const actionColumn = columns.find(col => col.key === actionKey);
+  return [...visibleColumns, actionColumn].filter(col => col);
 }

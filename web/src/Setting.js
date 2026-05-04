@@ -247,16 +247,26 @@ export function getProviderDisplayName(provider) {
   return provider?.displayName || provider?.name || "";
 }
 
+// Casdoor-style static base for provider icons (Conf.staticBaseUrl or cdn.casbin.org).
+export function getProviderStaticBase() {
+  const u = (Conf.StaticBaseUrl || "").replace(/\/$/, "");
+  if (u) {
+    return u;
+  }
+  return "https://cdn.casbin.org";
+}
+
 export function getOtherProviderInfo() {
+  const b = getProviderStaticBase();
   return {
     Storage: {
       "Local File System": {
         url: "",
-        logo: "https://cdn.openagentai.org/img/provider/local_file_system.png",
+        logo: `${b}/img/social_file.png`,
       },
       "Aliyun OSS": {
-        url: "https://www.alibabacloud.com/product/oss",
-        logo: "https://cdn.openagentai.org/img/provider/aliyun.png",
+        url: "https://aliyun.com/product/oss",
+        logo: `${b}/img/social_aliyun.png`,
       },
     },
   };
@@ -286,8 +296,21 @@ export function getProviderStateDisplayName(state) {
 }
 
 export function getProviderLogoURL(provider) {
-  const info = getOtherProviderInfo()[provider?.category]?.[provider?.type];
-  return info?.logo || "https://cdn.openagentai.org/img/provider/local_file_system.png";
+  if (!provider) {
+    return `${getProviderStaticBase()}/img/social_default.png`;
+  }
+  if (provider.type?.startsWith("Custom") && provider.customLogo) {
+    return provider.customLogo;
+  }
+  if (provider.category === "OAuth") {
+    const type = provider.type.startsWith("Custom") ? "Custom" : provider.type;
+    return `${getProviderStaticBase()}/img/social_${type.toLowerCase()}.png`;
+  }
+  const info = getOtherProviderInfo()[provider.category]?.[provider.type];
+  if (info) {
+    return info.logo;
+  }
+  return `${getProviderStaticBase()}/img/social_default.png`;
 }
 
 export function getProviderTypeOptions(category) {

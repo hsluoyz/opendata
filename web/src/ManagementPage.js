@@ -217,8 +217,14 @@ class ManagementPage extends React.Component {
 
   getSelectedMenuKey() {
     const path = this.props.location.pathname;
+    if (path === "/" || path === "") {
+      return "/";
+    }
+    if (path === "/sites" || path.startsWith("/sites/")) {
+      return path;
+    }
     const firstSeg = path.split("/").filter(Boolean)[0] || "";
-    return firstSeg === "" ? "/" : `/${firstSeg}`;
+    return `/${firstSeg}`;
   }
 
   handleSignout() {
@@ -269,7 +275,7 @@ class ManagementPage extends React.Component {
     if (Setting.isAdminUser(this.props.account)) {
       items[3].children.push(Setting.getItem(<Link to="/providers">存储提供商</Link>, "/providers", <CloudOutlined />));
       items.push(Setting.getItem("管理", "/admin", <SettingOutlined />, [
-        Setting.getItem(<Link to="/sites">设置</Link>, "/sites", <LayoutOutlined />),
+        Setting.getItem(<Link to="/sites/site-built-in">设置</Link>, "/sites/site-built-in", <LayoutOutlined />),
         Setting.getItem(<Link to="/visitors">访客</Link>, "/visitors", <FundOutlined />),
         Setting.getItem(<Link to="/sysinfo">系统信息</Link>, "/sysinfo", <DashboardOutlined />),
         Setting.getItem(

@@ -12,87 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useState} from "react";
+import React from "react";
 import {Tooltip} from "antd";
 import * as Setting from "./Setting";
 
+// Aligned with Casdoor web/src/auth/Provider.js (getProviderUrl + getProviderLogoWidget).
+
 export function getProviderUrl(provider) {
-  if (!Setting.getOtherProviderInfo()[provider.category]) {
+  if (provider?.category === "OAuth") {
     return "";
   }
-
-  const info = Setting.getOtherProviderInfo()[provider.category][provider.type];
-  // avoid crash when provider is not found
+  const info = Setting.getOtherProviderInfo()[provider?.category]?.[provider?.type];
   if (info) {
     return info.url;
   }
   return "";
 }
 
-function getDefaultLogoURL(provider) {
-  const otherProviderInfo = Setting.getOtherProviderInfo();
-  if (!provider || !otherProviderInfo[provider.category] || !otherProviderInfo[provider.category][provider.type]) {
-    return "";
-  }
-
-  const logoPath = otherProviderInfo[provider.category][provider.type].logo;
-  if (!logoPath) {
-    return "";
-  }
-
-  // Extract the path after StaticBaseUrl and prepend the default CDN URL
-  const defaultCdnUrl = "https://cdn.openagentai.org";
-  const pathMatch = logoPath.match(/\/img\/.+$/);
-  if (pathMatch) {
-    return `${defaultCdnUrl}${pathMatch[0]}`;
-  }
-  return "";
-}
-
-export function ProviderLogo({provider, width = 36, height = 36}) {
-  const [imgSrc, setImgSrc] = useState(Setting.getProviderLogoURL(provider));
-  const [hasError, setHasError] = useState(false);
-
-  const handleError = () => {
-    if (!hasError) {
-      const fallbackUrl = getDefaultLogoURL(provider);
-      if (fallbackUrl && fallbackUrl !== imgSrc) {
-        setImgSrc(fallbackUrl);
-        setHasError(true);
-      }
-    }
-  };
-
-  return (
-    <img
-      width={width}
-      height={height}
-      src={imgSrc}
-      alt={provider.type}
-      onError={handleError}
-    />
-  );
-}
-
-export function getProviderLogoWidget(provider) {
+export function getProviderLogoWidget(provider, options = {}) {
   if (provider === undefined) {
     return null;
   }
 
   const url = getProviderUrl(provider);
-  if (url !== "") {
+  const disableLink = options.disableLink === true;
+  const imgEl = (
+    <img width={36} height={36} src={Setting.getProviderLogoURL(provider)} alt={provider.displayName || provider.type} />
+  );
+
+  if (url !== "" && !disableLink) {
     return (
-      <Tooltip title={Setting.getProviderTypeDisplayName(provider.type)}>
-        <a target="_blank" rel="noreferrer" href={getProviderUrl(provider)}>
-          <ProviderLogo provider={provider} />
+      <Tooltip title={provider.type}>
+        <a target="_blank" rel="noreferrer" href={url}>
+          {imgEl}
         </a>
       </Tooltip>
     );
-  } else {
-    return (
-      <Tooltip title={Setting.getProviderTypeDisplayName(provider.type)}>
-        <ProviderLogo provider={provider} />
-      </Tooltip>
-    );
   }
+  return (
+    <Tooltip title={provider.type}>
+      {imgEl}
+    </Tooltip>
+  );
 }

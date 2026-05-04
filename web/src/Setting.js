@@ -107,16 +107,25 @@ export function getFaviconUrl(themeAlgorithm, faviconUrl) {
 }
 
 export function getLogo(themeAlgorithm = ["default"], logoUrl = "") {
-  if (logoUrl) {
-    return logoUrl;
+  let res = logoUrl || Conf.LogoUrl || "";
+  if (Conf.StaticBaseUrl && res.includes("https://cdn.openagentai.org")) {
+    res = res.replace("https://cdn.openagentai.org", Conf.StaticBaseUrl);
   }
-  return themeAlgorithm.includes("dark")
-    ? "https://cdn.openagentai.org/img/logo-dark.png"
-    : "https://cdn.openagentai.org/img/logo.png";
+  if (themeAlgorithm.includes("dark") && res.endsWith(".png")) {
+    return res.replace(/\.png$/, "_white.png");
+  }
+  return res;
 }
 
 export function getFooterHtml(themeAlgorithm, footerHtml) {
-  return footerHtml || Conf.FooterHtml;
+  let res = footerHtml || Conf.FooterHtml;
+  if (Conf.StaticBaseUrl && res.includes("https://cdn.openagentai.org")) {
+    res = res.replace("https://cdn.openagentai.org", Conf.StaticBaseUrl);
+  }
+  if (themeAlgorithm?.includes("dark")) {
+    return res.replace(/(\.png)/g, "_white$1");
+  }
+  return res;
 }
 
 export function getAcceptLanguage() {

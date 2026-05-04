@@ -72,7 +72,7 @@ import SiteEditPage from "./SiteEditPage";
 import VisitorPage from "./VisitorPage";
 import SystemInfo from "./SystemInfo";
 
-const {Header, Content, Sider} = Layout;
+const {Header, Content, Footer, Sider} = Layout;
 const siderMenuOpenKeysStorageKey = "siderMenuOpenKeys";
 const defaultMenuOpenKeys = ["/education", "/people", "/storage", "/logs", "/admin"];
 
@@ -389,6 +389,9 @@ class ManagementPage extends React.Component {
     const siderCollapsedWidth = 80;
     const contentMarginLeft = this.state.siderCollapsed ? siderCollapsedWidth : siderWidth;
     const isDark = this.props.themeAlgorithm?.includes("dark");
+    const logo = Setting.getLogo(this.props.themeAlgorithm, this.props.site?.logoUrl);
+    const faviconUrl = Setting.getFaviconUrl(this.props.themeAlgorithm, this.props.site?.faviconUrl);
+    const footerHtml = Setting.getFooterHtml(this.props.themeAlgorithm, this.props.site?.footerHtml);
 
     const brandHeight = this.state.siderCollapsed ? 52 : 72;
 
@@ -438,11 +441,38 @@ class ManagementPage extends React.Component {
               }}
             >
               {this.state.siderCollapsed
-                ? <span className="edu-sider-title-mark">数</span>
+                ? faviconUrl
+                  ? (
+                    <img
+                      src={faviconUrl}
+                      alt="logo"
+                      style={{
+                        width: 30,
+                        height: 30,
+                        objectFit: "contain",
+                        borderRadius: 6,
+                      }}
+                    />
+                  )
+                  : <span className="edu-sider-title-mark">教</span>
                 : (
-                  <div style={{paddingLeft: 10}}>
-                    <div className="edu-sider-title-main" style={{color: isDark ? "#ffffff" : "#0d47a1", fontSize: 17}}>教育数据平台</div>
-                    <div className="edu-sider-title-sub" style={{color: isDark ? "rgba(255,255,255,0.7)" : "#546e7a"}}>规范 · 阳光 · 服务师生</div>
+                  <div style={{display: "flex", alignItems: "center", gap: 8, minWidth: 0}}>
+                    {logo && (
+                      <img
+                        src={logo}
+                        alt="logo"
+                        style={{
+                          width: 90,
+                          height: 46,
+                          objectFit: "contain",
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
+                    <div style={{minWidth: 0}}>
+                      <div className="edu-sider-title-main" style={{color: isDark ? "#ffffff" : "#0d47a1", fontSize: 17}}>教育数据平台</div>
+                      <div className="edu-sider-title-sub" style={{color: isDark ? "rgba(255,255,255,0.7)" : "#546e7a"}}>规范 · 阳光 · 服务师生</div>
+                    </div>
                   </div>
                 )}
             </Link>
@@ -466,6 +496,9 @@ class ManagementPage extends React.Component {
               {this.renderRouter()}
             </Card>
           </Content>
+          <Footer id="footer" style={{textAlign: "center", minHeight: 44, padding: "12px 50px", background: isDark ? "#141414" : "#fbfdff"}}>
+            <div dangerouslySetInnerHTML={{__html: footerHtml}} />
+          </Footer>
         </div>
       </div>
     );

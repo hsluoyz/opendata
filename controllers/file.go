@@ -23,6 +23,7 @@ import (
 
 	"github.com/beego/beego/utils/pagination"
 	"github.com/the-open-data/opendata/object"
+	"github.com/the-open-data/opendata/util"
 )
 
 func (c *ApiController) GetFiles() {
@@ -188,12 +189,16 @@ func (c *ApiController) UploadFile() {
 		return
 	}
 
-	// generate unique key for the file
+	// generate unique key for the file (Casdoor-style: Unix nano string avoids Windows-invalid names from RFC3339)
 	fileName := header.Filename
 	ext := filepath.Ext(fileName)
-	fileId := fmt.Sprintf("%s-%s%s", object.GetCurrentTime(), sanitizeFileName(fileName), ext)
+	fileId := fmt.Sprintf("%s-%s%s", util.GetCurrentUnixTime(), sanitizeFileName(fileName), ext)
 	if owner != "" {
 		fileId = owner + "/" + fileId
+	}
+	if strings.Contains(fileId, "..") {
+		c.ResponseError("文件路径不合法：不允许包含 \"..\"")
+		return
 	}
 
 	storagePath, err := sp.PutObject(user.Name, "", fileId, buf)
@@ -208,7 +213,7 @@ func (c *ApiController) UploadFile() {
 	// create file object
 	fileObj := &object.File{
 		Owner:       owner,
-		Name:        fmt.Sprintf("file-%s", object.GetCurrentTime()),
+		Name:        fmt.Sprintf("file-%s", util.GetCurrentUnixTime()),
 		CreatedTime: object.GetCurrentTime(),
 		DisplayName: fileName,
 		Category:    "file",

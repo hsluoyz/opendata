@@ -35,6 +35,12 @@ func GetCurrentTime() string {
 	return time.Now().UTC().Format(time.RFC3339)
 }
 
+// GetCurrentUnixTime returns the current time as Unix nanoseconds in decimal (Casdoor-compatible).
+// Suitable for embedding in cross-platform file paths (no reserved characters on Windows).
+func GetCurrentUnixTime() string {
+	return strconv.FormatInt(time.Now().UnixNano(), 10)
+}
+
 func GetIdFromOwnerAndName(owner, name string) string {
 	return fmt.Sprintf("%s/%s", owner, name)
 }

@@ -14,15 +14,28 @@
 
 package routers
 
-import "github.com/beego/beego/context"
+import (
+	"net/http"
+
+	"github.com/beego/beego/context"
+)
+
+// CORS header names aligned with Casdoor (routers/cors_filter.go); Allow-Headers also lists
+// X-Requested-With because Ant Design Upload sends it on XHR uploads.
+const (
+	headerAllowOrigin      = "Access-Control-Allow-Origin"
+	headerAllowMethods     = "Access-Control-Allow-Methods"
+	headerAllowHeaders     = "Access-Control-Allow-Headers"
+	headerAllowCredentials = "Access-Control-Allow-Credentials"
+)
 
 func CorsFilter(ctx *context.Context) {
-	ctx.Output.Header("Access-Control-Allow-Origin", ctx.Input.Header("Origin"))
-	ctx.Output.Header("Access-Control-Allow-Credentials", "true")
-	ctx.Output.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-	ctx.Output.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	ctx.Output.Header(headerAllowOrigin, ctx.Input.Header("Origin"))
+	ctx.Output.Header(headerAllowCredentials, "true")
+	ctx.Output.Header(headerAllowHeaders, "Content-Type, Authorization, X-Requested-With")
+	ctx.Output.Header(headerAllowMethods, "GET, POST, PUT, DELETE, OPTIONS")
 
 	if ctx.Input.Method() == "OPTIONS" {
-		ctx.ResponseWriter.WriteHeader(200)
+		ctx.ResponseWriter.WriteHeader(http.StatusOK)
 	}
 }

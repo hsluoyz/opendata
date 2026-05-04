@@ -34,8 +34,8 @@ type Site struct {
 	FooterHtml string   `xorm:"mediumtext" json:"footerHtml"`
 	NavItems   []string `xorm:"text" json:"navItems"`
 
+	// StorageProvider holds the storage Provider name under owner "admin" (e.g. provider-storage-local).
 	StorageProvider string `xorm:"varchar(100)" json:"storageProvider"`
-	StoragePath     string `xorm:"varchar(500)" json:"storagePath"`
 }
 
 func (s *Site) GetId() string {
@@ -120,8 +120,7 @@ func InitBuiltInSite() {
 		FaviconUrl:      "",
 		LogoUrl:         "",
 		FooterHtml:      "Powered by OpenData",
-		StorageProvider: "local",
-		StoragePath:     "./files",
+		StorageProvider: "provider-storage-local",
 		NavItems: []string{
 			"/schools", "/grades", "/classes", "/subjects",
 			"/teachers", "/students", "/parents",

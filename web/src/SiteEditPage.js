@@ -13,35 +13,62 @@
 // limitations under the License.
 
 import React from "react";
-import {Button, Card, Col, Image, Input, Row, Space} from "antd";
+import {Button, Card, Col, Image, Input, Row, Select, Space} from "antd";
 import {LinkOutlined} from "@ant-design/icons";
 import * as SiteBackend from "./backend/SiteBackend";
+import * as ProviderBackend from "./backend/ProviderBackend";
 import * as Setting from "./Setting";
 import {ThemeDefault} from "./Conf";
 import Loading from "./common/Loading";
+
+function normalizeSiteStorageProvider(site, providers) {
+  if (!site || !providers?.length) {
+    return site;
+  }
+  const s = {...site};
+  const names = new Set(providers.map(p => p.name));
+  if (!s.storageProvider || s.storageProvider === "local" || !names.has(s.storageProvider)) {
+    const def = providers.find(p => p.isDefault) || providers[0];
+    if (def) {
+      s.storageProvider = def.name;
+    }
+  }
+  return s;
+}
 
 class SiteEditPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      classes: props,
       siteName: props.match.params.siteName,
       site: null,
+      storageProviders: [],
     };
   }
 
   UNSAFE_componentWillMount() {
-    this.getSite();
+    this.loadSiteAndProviders();
   }
 
-  getSite() {
-    SiteBackend.getSite("admin", this.state.siteName)
-      .then((res) => {
-        if (res.status === "ok") {
-          this.setState({site: res.data});
-        } else {
-          Setting.showMessage("error", `获取站点失败: ${res.msg}`);
+  loadSiteAndProviders() {
+    Promise.all([
+      SiteBackend.getSite("admin", this.state.siteName),
+      ProviderBackend.getProviders("admin", 1, 500, "", "", "", ""),
+    ])
+      .then(([siteRes, provRes]) => {
+        if (siteRes.status !== "ok") {
+          Setting.showMessage("error", `获取站点失败: ${siteRes.msg}`);
+          return;
         }
+        if (provRes.status !== "ok") {
+          Setting.showMessage("error", `获取存储提供商失败: ${provRes.msg}`);
+        }
+        const providers = provRes.status === "ok" ? provRes.data || [] : [];
+        const site = normalizeSiteStorageProvider(siteRes.data, providers);
+        this.setState({site, storageProviders: providers});
+      })
+      .catch(err => {
+        Setting.showMessage("error", `加载失败: ${err}`);
       });
   }
 
@@ -77,7 +104,12 @@ class SiteEditPage extends React.Component {
   }
 
   renderSite() {
-    const {site} = this.state;
+    const {site, storageProviders} = this.state;
+    const providerOptions = storageProviders.map(p => ({
+      value: p.name,
+      label: `${p.displayName || p.name} (${p.type})`,
+    }));
+
     return (
       <Card
         size="small"
@@ -185,23 +217,18 @@ class SiteEditPage extends React.Component {
         </Row>
         <Row style={{marginTop: "20px"}}>
           <Col style={{marginTop: "5px"}} span={Setting.isMobile() ? 22 : 2}>
-            存储提供商:
+            {Setting.getLabel("存储提供商", "对应「存储提供商」管理中的条目，路径与凭据在提供商中配置")}
+            :
           </Col>
           <Col span={22}>
-            <Input
-              value={site.storageProvider}
-              onChange={e => this.updateSiteField("storageProvider", e.target.value)}
-            />
-          </Col>
-        </Row>
-        <Row style={{marginTop: "20px"}}>
-          <Col style={{marginTop: "5px"}} span={Setting.isMobile() ? 22 : 2}>
-            存储路径:
-          </Col>
-          <Col span={22}>
-            <Input
-              value={site.storagePath}
-              onChange={e => this.updateSiteField("storagePath", e.target.value)}
+            <Select
+              showSearch
+              optionFilterProp="label"
+              style={{width: "100%"}}
+              placeholder="请选择存储提供商"
+              value={site.storageProvider || undefined}
+              onChange={v => this.updateSiteField("storageProvider", v)}
+              options={providerOptions}
             />
           </Col>
         </Row>

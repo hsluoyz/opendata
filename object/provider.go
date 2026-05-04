@@ -97,6 +97,13 @@ func getProvider(owner, name string) (*Provider, error) {
 }
 
 func GetDefaultStorageProvider() (*Provider, error) {
+	site, err := GetBuiltInSite()
+	if err == nil && site != nil && site.StorageProvider != "" && site.StorageProvider != "local" {
+		if p, err := getProvider("admin", site.StorageProvider); err == nil && p != nil {
+			return p, nil
+		}
+	}
+
 	provider := &Provider{}
 	existed, err := adapter.engine.Where("category=? AND is_default=?", "Storage", true).Get(provider)
 	if err != nil {

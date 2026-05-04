@@ -1,6 +1,6 @@
 module github.com/the-open-data/opendata
 
-go 1.21
+go 1.25.0
 
 require (
 	github.com/beego/beego v1.12.12

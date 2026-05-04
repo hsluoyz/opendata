@@ -25,6 +25,8 @@ class BaseListPage extends React.Component {
       loading: false,
       searchText: "",
       searchedColumn: "",
+      selectedRowKeys: [],
+      selectedRows: [],
     };
     this.searchInput = React.createRef();
   }
@@ -40,6 +42,31 @@ class BaseListPage extends React.Component {
       pagination,
       ...filters,
     });
+  };
+
+  getRowSelection = () => ({
+    selectedRowKeys: this.state.selectedRowKeys,
+    onChange: (selectedRowKeys, selectedRows) => this.setState({selectedRowKeys, selectedRows}),
+  });
+
+  clearSelection = () => {
+    this.setState({selectedRowKeys: [], selectedRows: []});
+  };
+
+  performBulkDelete = async(selectedRows) => {
+    this.setState({loading: true});
+    await Promise.all(selectedRows.map(row => this.deleteItemByRecord(row)));
+    this.clearSelection();
+    this.fetch({pagination: this.state.pagination});
+  };
+
+  deleteItemByRecord = async(record) => {
+    const index = this.state.data.findIndex(item => item.name === record.name);
+    return this.deleteItem(index);
+  };
+
+  getTableLoading = () => {
+    return this.state.loading ? {tip: "Loading"} : false;
   };
 
   getColumnSearchProps(dataIndex) {
@@ -79,7 +106,7 @@ class BaseListPage extends React.Component {
       ),
       onFilter: (value, record) => {
         const val = record[dataIndex];
-        if (val === null || val === undefined) return false;
+        if (val === null || val === undefined) {return false;}
         return val.toString().toLowerCase().includes(value.toLowerCase());
       },
       onFilterDropdownOpenChange: visible => {
@@ -137,7 +164,7 @@ class BaseListPage extends React.Component {
   render() {
     const {data, loading} = this.state;
     return (
-      <div style={{padding: 24}}>
+      <div>
         {this.renderTable(data, loading)}
       </div>
     );

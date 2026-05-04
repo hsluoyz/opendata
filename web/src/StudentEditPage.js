@@ -43,12 +43,11 @@ class StudentEditPage extends React.Component {
       ClassBackend.getClasses(owner, 1, 1000, "", "", "", ""),
       ParentBackend.getParents(owner, 1, 1000, "", "", "", ""),
     ]).then(([stuRes, schoolRes, gradeRes, classRes, parentRes]) => {
-      if (stuRes.status === "ok") this.setState({student: stuRes.data});
-      else Setting.showMessage("error", stuRes.msg);
-      if (schoolRes.status === "ok") this.setState({schools: schoolRes.data || []});
-      if (gradeRes.status === "ok") this.setState({grades: gradeRes.data || []});
-      if (classRes.status === "ok") this.setState({classes: classRes.data || []});
-      if (parentRes.status === "ok") this.setState({parents: parentRes.data || []});
+      if (stuRes.status === "ok") {this.setState({student: stuRes.data});} else {Setting.showMessage("error", stuRes.msg);}
+      if (schoolRes.status === "ok") {this.setState({schools: schoolRes.data || []});}
+      if (gradeRes.status === "ok") {this.setState({grades: gradeRes.data || []});}
+      if (classRes.status === "ok") {this.setState({classes: classRes.data || []});}
+      if (parentRes.status === "ok") {this.setState({parents: parentRes.data || []});}
       this.setState({loading: false});
     });
   }
@@ -79,7 +78,7 @@ class StudentEditPage extends React.Component {
       );
     }
 
-    if (!student) return null;
+    if (!student) {return null;}
 
     const filteredGrades = student.school
       ? grades.filter(g => g.school === student.school || !g.school)

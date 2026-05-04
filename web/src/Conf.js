@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export const DefaultColorPrimary = "#404040";
+
 export const ThemeDefault = {
-  colorPrimary: "#1677ff",
-  borderRadius: 6,
+  themeType: "default",
+  colorPrimary: DefaultColorPrimary,
+  borderRadius: 10,
+  isCompact: false,
 };
 
-export const ServerUrl = "";
+export const AuthConfig = {serverUrl: "", clientId: "", appName: "", organizationName: "", redirectPath: ""};
+export const ShortcutPageItems = [];
+export const NavbarHtml = "";
+export const FooterHtml = "Powered by OpenData";
+export const HtmlTitle = "OpenData";
+export const FaviconUrl = "";

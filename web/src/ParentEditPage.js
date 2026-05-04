@@ -37,10 +37,9 @@ class ParentEditPage extends React.Component {
       SchoolBackend.getSchools("admin", 1, 1000, "", "", "", ""),
       StudentBackend.getStudents(owner, 1, 1000, "", "", "", ""),
     ]).then(([parentRes, schoolRes, studentRes]) => {
-      if (parentRes.status === "ok") this.setState({parent: parentRes.data});
-      else Setting.showMessage("error", parentRes.msg);
-      if (schoolRes.status === "ok") this.setState({schools: schoolRes.data || []});
-      if (studentRes.status === "ok") this.setState({students: studentRes.data || []});
+      if (parentRes.status === "ok") {this.setState({parent: parentRes.data});} else {Setting.showMessage("error", parentRes.msg);}
+      if (schoolRes.status === "ok") {this.setState({schools: schoolRes.data || []});}
+      if (studentRes.status === "ok") {this.setState({students: studentRes.data || []});}
       this.setState({loading: false});
     });
   }
@@ -71,7 +70,7 @@ class ParentEditPage extends React.Component {
       );
     }
 
-    if (!parent) return null;
+    if (!parent) {return null;}
 
     return (
       <div style={{padding: 24}}>

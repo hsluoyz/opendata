@@ -64,7 +64,7 @@ class SchoolEditPage extends React.Component {
       );
     }
 
-    if (!school) return null;
+    if (!school) {return null;}
 
     return (
       <div style={{padding: 24}}>

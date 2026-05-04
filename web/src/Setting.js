@@ -12,15 +12,185 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {message} from "antd";
+import React from "react";
+import {Tooltip, message, theme} from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import * as Conf from "./Conf";
 
 export let ServerUrl = "";
 
 export function initServerUrl() {
   const hostname = window.location.hostname;
   if (hostname === "localhost") {
-    ServerUrl = `http://localhost:14001`;
+    ServerUrl = "http://localhost:14001";
   }
+}
+
+export function initWebConfig() {}
+
+export function initCasdoorSdk() {}
+
+export function setThemeColor(color) {
+  const meta = document.querySelector("meta[name='theme-color']");
+  if (meta) {
+    meta.setAttribute("content", color);
+  }
+}
+
+export function getAlgorithm(themeAlgorithm = ["default"]) {
+  const algorithms = [];
+  if (themeAlgorithm.includes("dark")) {
+    algorithms.push(theme.darkAlgorithm);
+  }
+  if (themeAlgorithm.includes("compact")) {
+    algorithms.push(theme.compactAlgorithm);
+  }
+  return algorithms;
+}
+
+export function getHtmlTitle(htmlTitle) {
+  return htmlTitle || Conf.HtmlTitle || "OpenData";
+}
+
+export function getFaviconUrl(themeAlgorithm, faviconUrl) {
+  return faviconUrl || Conf.FaviconUrl || "/favicon.ico";
+}
+
+export function getLogo(themeAlgorithm = ["default"], logoUrl = "") {
+  if (logoUrl) {
+    return logoUrl;
+  }
+  return themeAlgorithm.includes("dark")
+    ? "https://cdn.openagentai.org/img/logo-dark.png"
+    : "https://cdn.openagentai.org/img/logo.png";
+}
+
+export function getFooterHtml(themeAlgorithm, footerHtml) {
+  return footerHtml || Conf.FooterHtml;
+}
+
+export function getAcceptLanguage() {
+  return localStorage.getItem("language") || navigator.language || "en";
+}
+
+export async function handleFetchResponse(res) {
+  const text = await res.text();
+  if (text === "") {
+    return {};
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return {status: "error", msg: text};
+  }
+}
+
+export function getItem(label, key, icon, children, type) {
+  return {key, icon, children, label, type};
+}
+
+export function isMobile() {
+  return window.innerWidth <= 768;
+}
+
+export function getLabel(text, tooltip) {
+  if (!tooltip) {
+    return text;
+  }
+  return (
+    <span>
+      {text}&nbsp;
+      <Tooltip title={tooltip}>
+        <QuestionCircleOutlined />
+      </Tooltip>
+    </span>
+  );
+}
+
+export function getOption(label, value) {
+  return {label, value};
+}
+
+export function getShortName(name) {
+  if (!name) {
+    return "";
+  }
+  return name.length <= 2 ? name : name.slice(0, 2).toUpperCase();
+}
+
+export function getAvatarColor(name) {
+  const colors = ["#404040", "#2563eb", "#16a34a", "#9333ea", "#dc2626"];
+  const seed = (name || "").split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+  return colors[seed % colors.length];
+}
+
+export function isAnonymousUser(account) {
+  return account === null || account?.name === "anonymous";
+}
+
+export function isLocalAdminUser(account) {
+  return isAdminUser(account);
+}
+
+export function isBasicLoginMode() {
+  return true;
+}
+
+export function getRequestStore() {
+  return "";
+}
+
+export function isResponseDenied(data) {
+  return data?.status === "error" && (data?.msg || "").includes("denied");
+}
+
+export function getProviderDisplayName(provider) {
+  return provider?.displayName || provider?.name || "";
+}
+
+export function getOtherProviderInfo() {
+  return {
+    Storage: {
+      "Local File System": {
+        url: "",
+        logo: "https://cdn.openagentai.org/img/provider/local_file_system.png",
+      },
+      "OpenAI File System": {
+        url: "https://platform.openai.com/storage",
+        logo: "https://cdn.openagentai.org/img/provider/openai.png",
+      },
+      "Casdoor": {
+        url: "https://casdoor.org",
+        logo: "https://cdn.openagentai.org/img/provider/casdoor.png",
+      },
+    },
+  };
+}
+
+export function getProviderLogoURL(provider) {
+  const info = getOtherProviderInfo()[provider?.category]?.[provider?.type];
+  return info?.logo || "https://cdn.openagentai.org/img/provider/local_file_system.png";
+}
+
+export function getProviderTypeOptions(category) {
+  if (category !== "Storage") {
+    return [];
+  }
+  return [
+    {id: "Local File System", name: "Local File System"},
+    {id: "OpenAI File System", name: "OpenAI File System"},
+    {id: "Casdoor", name: "Casdoor"},
+  ];
+}
+
+export function myParseInt(i) {
+  const res = parseInt(i);
+  return Number.isNaN(res) ? 0 : res;
+}
+
+export function myParseFloat(f) {
+  const res = parseFloat(f);
+  return Number.isNaN(res) ? 0 : res;
 }
 
 export function showMessage(type, text) {
@@ -47,12 +217,12 @@ export function deepCopy(obj) {
 }
 
 export function isAdminUser(account) {
-  if (!account) return false;
+  if (!account) {return false;}
   return account.isAdmin || account.role === "admin";
 }
 
 export function getSchool(account) {
-  if (!account) return "";
+  if (!account) {return "";}
   return localStorage.getItem("selectedSchool") || "";
 }
 
@@ -80,7 +250,7 @@ export function setClass(className) {
 }
 
 export function formatFileSize(bytes) {
-  if (bytes === 0) return "0 B";
+  if (bytes === 0) {return "0 B";}
   const k = 1024;
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -88,7 +258,7 @@ export function formatFileSize(bytes) {
 }
 
 export function formatDate(dateStr) {
-  if (!dateStr) return "";
+  if (!dateStr) {return "";}
   try {
     return new Date(dateStr).toLocaleString("zh-CN");
   } catch {

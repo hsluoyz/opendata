@@ -64,7 +64,7 @@ class FileEditPage extends React.Component {
       );
     }
 
-    if (!file) return null;
+    if (!file) {return null;}
 
     return (
       <div style={{padding: 24}}>

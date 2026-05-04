@@ -14,140 +14,233 @@
 
 import React from "react";
 import {Link} from "react-router-dom";
-import {Button, Popconfirm, Table, Tag} from "antd";
+import {Button, Popconfirm, Switch, Table} from "antd";
+import moment from "moment";
+import {DeleteOutlined} from "@ant-design/icons";
+import Highlighter from "react-highlight-words";
 import BaseListPage from "./BaseListPage";
-import * as ProviderBackend from "./backend/ProviderBackend";
 import * as Setting from "./Setting";
+import * as ProviderBackend from "./backend/ProviderBackend";
+import * as Provider from "./Provider";
 
 class ProviderListPage extends BaseListPage {
-  newProvider() {
+  newStorageProvider() {
+    const randomName = Setting.getRandomName();
     return {
       owner: "admin",
-      name: `provider-${Setting.getRandomName()}`,
-      displayName: "新存储提供商",
+      name: `provider_${randomName}`,
+      createdTime: moment().format(),
+      displayName: `New Storage Provider - ${randomName}`,
+      displayName2: "",
       category: "Storage",
       type: "Local File System",
-      clientId: "",
+      subType: "",
+      clientId: "./files",
+      clientSecret: "",
+      region: "",
+      providerUrl: "",
+      state: "Active",
       isDefault: false,
+      isRemote: false,
     };
   }
 
   addProvider() {
-    const provider = this.newProvider();
-    ProviderBackend.addProvider(provider).then(res => {
-      if (res.status === "ok") {
-        Setting.showMessage("success", "添加成功");
-        this.props.history.push(`/providers/admin/${provider.name}`);
-      } else {
-        Setting.showMessage("error", res.msg);
-      }
-    });
+    const newProvider = this.newStorageProvider();
+    ProviderBackend.addProvider(newProvider)
+      .then((res) => {
+        if (res.status === "ok") {
+          Setting.showMessage("success", "Successfully added");
+          this.props.history.push({
+            pathname: `/providers/${newProvider.name}`,
+            state: {isNewProvider: true},
+          });
+        } else {
+          Setting.showMessage("error", `Failed to add: ${res.msg}`);
+        }
+      });
   }
+
+  deleteItem = async(i) => {
+    return ProviderBackend.deleteProvider(this.state.data[i]);
+  };
 
   deleteProvider(record) {
-    ProviderBackend.deleteProvider(record).then(res => {
-      if (res.status === "ok") {
-        Setting.showMessage("success", "删除成功");
-        this.setState({data: this.state.data.filter(p => p.name !== record.name)});
-      } else {
-        Setting.showMessage("error", res.msg);
-      }
-    });
+    ProviderBackend.deleteProvider(record)
+      .then((res) => {
+        if (res.status === "ok") {
+          Setting.showMessage("success", "Successfully deleted");
+          this.setState({
+            data: this.state.data.filter((item) => item.name !== record.name),
+            pagination: {
+              ...this.state.pagination,
+              total: this.state.pagination.total - 1,
+            },
+          });
+        } else {
+          Setting.showMessage("error", `Failed to delete: ${res.msg}`);
+        }
+      });
   }
-
-  fetch = (params = {}) => {
-    const {pagination, sortField, sortOrder, searchText, searchedColumn} = params;
-    this.setState({loading: true});
-    ProviderBackend.getProviders(
-      "admin",
-      pagination?.current,
-      pagination?.pageSize,
-      searchedColumn,
-      searchText,
-      sortField,
-      sortOrder
-    ).then(res => {
-      this.setState({loading: false});
-      if (res.status === "ok") {
-        this.setState({
-          data: res.data,
-          pagination: {...pagination, total: res.data2},
-        });
-      }
-    });
-  };
 
   renderTable(providers) {
     const columns = [
       {
-        title: "名称",
+        title: "Name",
         dataIndex: "name",
-        sorter: true,
+        key: "name",
+        width: "180px",
+        sorter: (a, b) => a.name.localeCompare(b.name),
         ...this.getColumnSearchProps("name"),
-        render: (text, record) => (
-          <Link to={`/providers/${record.owner}/${record.name}`}>{text}</Link>
-        ),
+        render: (text) => <Link to={`/providers/${text}`}>{text}</Link>,
       },
       {
-        title: "显示名",
+        title: "Display name",
         dataIndex: "displayName",
+        key: "displayName",
+        width: "220px",
+        sorter: (a, b) => Setting.getProviderDisplayName(a).localeCompare(Setting.getProviderDisplayName(b)),
         ...this.getColumnSearchProps("displayName"),
+        render: (text, record) => {
+          const visible = Setting.getProviderDisplayName(record);
+          return this.state.searchedColumn === "displayName" ? (
+            <Highlighter highlightStyle={{backgroundColor: "#ffc069", padding: 0}} searchWords={[this.state.searchText]} autoEscape textToHighlight={visible} />
+          ) : visible;
+        },
       },
       {
-        title: "类别",
+        title: "Category",
         dataIndex: "category",
-        width: 100,
+        key: "category",
+        width: "110px",
+        filters: [{text: "Storage", value: "Storage"}],
+        filterMultiple: false,
+        sorter: (a, b) => a.category.localeCompare(b.category),
       },
       {
-        title: "类型",
+        title: "Type",
         dataIndex: "type",
+        key: "type",
+        width: "150px",
+        align: "center",
+        filters: Setting.getProviderTypeOptions("Storage").map((o) => ({text: o.id, value: o.name})),
+        filterMultiple: false,
+        sorter: (a, b) => a.type.localeCompare(b.type),
+        render: (text, record) => Provider.getProviderLogoWidget(record),
       },
       {
-        title: "Client ID",
+        title: "Storage subpath",
         dataIndex: "clientId",
-        ellipsis: true,
+        key: "clientId",
+        width: "240px",
+        sorter: (a, b) => (a.clientId || "").localeCompare(b.clientId || ""),
+        ...this.getColumnSearchProps("clientId"),
       },
       {
-        title: "默认",
+        title: "Region",
+        dataIndex: "region",
+        key: "region",
+        width: "120px",
+        sorter: (a, b) => (a.region || "").localeCompare(b.region || ""),
+        ...this.getColumnSearchProps("region"),
+      },
+      {
+        title: "Is default",
         dataIndex: "isDefault",
-        width: 80,
-        render: (val) => val ? <Tag color="green">是</Tag> : <Tag>否</Tag>,
+        key: "isDefault",
+        width: "120px",
+        sorter: (a, b) => a.isDefault - b.isDefault,
+        render: (text) => <Switch disabled checkedChildren="ON" unCheckedChildren="OFF" checked={text} />,
       },
       {
-        title: "操作",
-        width: 120,
+        title: "State",
+        dataIndex: "state",
+        key: "state",
+        width: "90px",
+        sorter: (a, b) => (a.state || "").localeCompare(b.state || ""),
+      },
+      {
+        title: "Action",
+        dataIndex: "action",
+        key: "action",
+        width: "180px",
+        fixed: "right",
         render: (text, record) => (
-          <Popconfirm
-            title="确认删除该存储提供商?"
-            onConfirm={() => this.deleteProvider(record)}
-            okText="确认"
-            cancelText="取消"
-          >
-            <Button danger size="small">删除</Button>
-          </Popconfirm>
+          <div>
+            <Button style={{marginTop: 10, marginBottom: 10, marginRight: 10}} type="primary" onClick={() => this.props.history.push(`/providers/${record.name}`)}>
+              Edit
+            </Button>
+            <Popconfirm title={`Sure to delete: ${record.name} ?`} onConfirm={() => this.deleteProvider(record)} okText="OK" cancelText="Cancel">
+              <Button style={{marginBottom: 10}} type="primary" danger>Delete</Button>
+            </Popconfirm>
+          </div>
         ),
       },
     ];
 
+    const paginationProps = {
+      total: this.state.pagination.total,
+      showQuickJumper: true,
+      showSizeChanger: true,
+      pageSizeOptions: ["10", "20", "50", "100", "1000"],
+      showTotal: () => `${this.state.pagination.total} in total`,
+    };
+
     return (
-      <div>
-        <div style={{marginBottom: 16}}>
-          <Button type="primary" onClick={() => this.addProvider()}>
-            添加存储提供商
-          </Button>
-        </div>
-        <Table
-          columns={columns}
-          dataSource={providers?.map(p => ({...p, key: p.name}))}
-          pagination={this.state.pagination}
-          onChange={this.handleTableChange}
-          loading={this.state.loading}
-          bordered
-          size="middle"
-        />
-      </div>
+      <Table
+        scroll={{x: "max-content"}}
+        columns={columns}
+        dataSource={providers}
+        rowKey="name"
+        rowSelection={this.getRowSelection()}
+        size="middle"
+        bordered
+        pagination={paginationProps}
+        title={() => (
+          <div>
+            Storage Providers&nbsp;&nbsp;&nbsp;&nbsp;
+            <Button type="primary" size="small" onClick={() => this.addProvider()}>Add</Button>
+            {this.state.selectedRowKeys.length > 0 && (
+              <Popconfirm title={`Sure to delete: ${this.state.selectedRowKeys.length} items ?`} onConfirm={() => this.performBulkDelete(this.state.selectedRows)} okText="OK" cancelText="Cancel">
+                <Button type="primary" danger size="small" icon={<DeleteOutlined />} style={{marginLeft: 8}}>
+                  Delete ({this.state.selectedRowKeys.length})
+                </Button>
+              </Popconfirm>
+            )}
+          </div>
+        )}
+        loading={this.getTableLoading()}
+        onChange={this.handleTableChange}
+      />
     );
   }
+
+  fetch = (params = {}) => {
+    let field = params.searchedColumn, value = params.searchText;
+    const sortField = params.sortField, sortOrder = params.sortOrder;
+    if (params.category !== undefined && params.category !== null) {
+      field = "category";
+      value = "Storage";
+    } else if (params.type !== undefined && params.type !== null) {
+      field = "type";
+      value = params.type;
+    }
+    this.setState({loading: true});
+    ProviderBackend.getProviders(this.props.account.name, params.pagination.current, params.pagination.pageSize, field, value, sortField, sortOrder)
+      .then((res) => {
+        this.setState({loading: false});
+        if (res.status === "ok") {
+          this.setState({
+            data: (res.data || []).filter(provider => provider.category === "Storage"),
+            pagination: {...params.pagination, total: res.data2},
+            searchText: params.searchText,
+            searchedColumn: params.searchedColumn,
+          });
+        } else {
+          Setting.showMessage("error", res.msg);
+        }
+      });
+  };
 }
 
 export default ProviderListPage;

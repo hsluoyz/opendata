@@ -106,8 +106,8 @@ class StudentListPage extends BaseListPage {
         let data = res.data || [];
         const gradeFilter = Setting.getGrade();
         const classFilter = Setting.getClass();
-        if (gradeFilter) data = data.filter(s => s.grade === gradeFilter);
-        if (classFilter) data = data.filter(s => s.class === classFilter);
+        if (gradeFilter) {data = data.filter(s => s.grade === gradeFilter);}
+        if (classFilter) {data = data.filter(s => s.class === classFilter);}
         this.setState({
           data,
           pagination: {...pagination, total: res.data2},

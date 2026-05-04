@@ -34,9 +34,8 @@ class TeacherEditPage extends React.Component {
       TeacherBackend.getTeacher(owner, name),
       SchoolBackend.getSchools("admin", 1, 1000, "", "", "", ""),
     ]).then(([teacherRes, schoolRes]) => {
-      if (teacherRes.status === "ok") this.setState({teacher: teacherRes.data});
-      else Setting.showMessage("error", teacherRes.msg);
-      if (schoolRes.status === "ok") this.setState({schools: schoolRes.data || []});
+      if (teacherRes.status === "ok") {this.setState({teacher: teacherRes.data});} else {Setting.showMessage("error", teacherRes.msg);}
+      if (schoolRes.status === "ok") {this.setState({schools: schoolRes.data || []});}
       this.setState({loading: false});
     });
   }
@@ -67,7 +66,7 @@ class TeacherEditPage extends React.Component {
       );
     }
 
-    if (!teacher) return null;
+    if (!teacher) {return null;}
 
     return (
       <div style={{padding: 24}}>

@@ -43,12 +43,11 @@ class SubjectEditPage extends React.Component {
       ClassBackend.getClasses(owner, 1, 1000, "", "", "", ""),
       TeacherBackend.getTeachers(owner, 1, 1000, "", "", "", ""),
     ]).then(([subRes, schoolRes, gradeRes, classRes, teacherRes]) => {
-      if (subRes.status === "ok") this.setState({subject: subRes.data});
-      else Setting.showMessage("error", subRes.msg);
-      if (schoolRes.status === "ok") this.setState({schools: schoolRes.data || []});
-      if (gradeRes.status === "ok") this.setState({grades: gradeRes.data || []});
-      if (classRes.status === "ok") this.setState({classes: classRes.data || []});
-      if (teacherRes.status === "ok") this.setState({teachers: teacherRes.data || []});
+      if (subRes.status === "ok") {this.setState({subject: subRes.data});} else {Setting.showMessage("error", subRes.msg);}
+      if (schoolRes.status === "ok") {this.setState({schools: schoolRes.data || []});}
+      if (gradeRes.status === "ok") {this.setState({grades: gradeRes.data || []});}
+      if (classRes.status === "ok") {this.setState({classes: classRes.data || []});}
+      if (teacherRes.status === "ok") {this.setState({teachers: teacherRes.data || []});}
       this.setState({loading: false});
     });
   }
@@ -79,7 +78,7 @@ class SubjectEditPage extends React.Component {
       );
     }
 
-    if (!subject) return null;
+    if (!subject) {return null;}
 
     return (
       <div style={{padding: 24}}>

@@ -22,7 +22,7 @@ import {
   HeartOutlined,
   SolutionOutlined,
   TeamOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import * as StatBackend from "./backend/StatBackend";
 import * as Setting from "./Setting";

@@ -72,7 +72,7 @@ class GradeEditPage extends React.Component {
       );
     }
 
-    if (!grade) return null;
+    if (!grade) {return null;}
 
     return (
       <div style={{padding: 24}}>

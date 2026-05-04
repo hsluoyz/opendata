@@ -14,19 +14,29 @@
 
 import React from "react";
 import {BrowserRouter, Redirect, Route, Switch} from "react-router-dom";
-import {ConfigProvider, Spin} from "antd";
-import zhCN from "antd/locale/zh_CN";
+import {StyleProvider, legacyLogicalPropertiesTransformer} from "@ant-design/cssinjs";
+import {ConfigProvider} from "antd";
+import {Helmet} from "react-helmet";
+import {AiDots} from "./common/Loading";
 import * as AccountBackend from "./backend/AccountBackend";
 import * as Conf from "./Conf";
+import * as Setting from "./Setting";
+import {getShadcnThemeComponents, getShadcnThemeToken} from "./shadcnTheme";
 import SigninPage from "./SigninPage";
 import ManagementPage from "./ManagementPage";
+import "./App.less";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+    const themeAlgorithm = ["default"];
+    document.documentElement.setAttribute("data-theme", "light");
+    Setting.initWebConfig();
+    Setting.setThemeColor(Conf.ThemeDefault.colorPrimary);
     this.state = {
       account: undefined,
       loading: true,
+      themeAlgorithm,
     };
   }
 
@@ -51,46 +61,58 @@ class App extends React.Component {
   }
 
   render() {
-    const {account, loading} = this.state;
+    const {account, loading, themeAlgorithm} = this.state;
 
     if (loading) {
       return (
         <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>
-          <Spin size="large" tip="加载中..." />
+          <AiDots size="large" />
         </div>
       );
     }
 
     return (
-      <ConfigProvider
-        locale={zhCN}
-        theme={{
-          token: {
-            colorPrimary: Conf.ThemeDefault.colorPrimary,
-            borderRadius: Conf.ThemeDefault.borderRadius,
-          },
-        }}
-      >
-        <BrowserRouter>
-          <Switch>
-            <Route path="/signin" render={props => (
-              <SigninPage {...props} onSignin={(acc) => this.updateAccount(acc)} />
-            )} />
-            <Route path="/" render={props => {
-              if (!account) {
-                return <Redirect to="/signin" />;
-              }
-              return (
-                <ManagementPage
-                  {...props}
-                  account={account}
-                  onSignout={() => this.updateAccount(null)}
-                />
-              );
-            }} />
-          </Switch>
-        </BrowserRouter>
-      </ConfigProvider>
+      <>
+        <Helmet>
+          <title>{Setting.getHtmlTitle()}</title>
+          <link rel="icon" href={Setting.getFaviconUrl(themeAlgorithm)} />
+        </Helmet>
+        <ConfigProvider
+          spin={{indicator: <AiDots />}}
+          theme={{
+            token: {
+              ...getShadcnThemeToken(false),
+              colorPrimary: Conf.ThemeDefault.colorPrimary,
+              colorInfo: Conf.ThemeDefault.colorPrimary,
+              borderRadius: Conf.ThemeDefault.borderRadius,
+            },
+            components: getShadcnThemeComponents(false),
+          }}
+        >
+          <StyleProvider hashPriority="high" transformers={[legacyLogicalPropertiesTransformer]}>
+            <BrowserRouter>
+              <Switch>
+                <Route path="/signin" render={props => (
+                  account ? <Redirect to="/" /> : <SigninPage {...props} onSignin={(acc) => this.updateAccount(acc)} />
+                )} />
+                <Route path="/" render={props => {
+                  if (!account) {
+                    return <Redirect to="/signin" />;
+                  }
+                  return (
+                    <ManagementPage
+                      {...props}
+                      account={account}
+                      themeAlgorithm={themeAlgorithm}
+                      onSignout={() => this.updateAccount(null)}
+                    />
+                  );
+                }} />
+              </Switch>
+            </BrowserRouter>
+          </StyleProvider>
+        </ConfigProvider>
+      </>
     );
   }
 }

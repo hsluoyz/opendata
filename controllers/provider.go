@@ -68,6 +68,10 @@ func (c *ApiController) GetProvider() {
 		c.ResponseError(err.Error())
 		return
 	}
+	if provider != nil && provider.Category != "Storage" {
+		c.ResponseError("only Storage providers are supported")
+		return
+	}
 	c.ResponseOk(provider)
 }
 
@@ -80,6 +84,8 @@ func (c *ApiController) AddProvider() {
 		c.ResponseError("请求格式错误")
 		return
 	}
+	provider.Owner = "admin"
+	provider.Category = "Storage"
 	provider.CreatedTime = object.GetCurrentTime()
 	affected, err := object.AddProvider(&provider)
 	if err != nil {
@@ -99,6 +105,8 @@ func (c *ApiController) UpdateProvider() {
 		c.ResponseError("请求格式错误")
 		return
 	}
+	provider.Owner = "admin"
+	provider.Category = "Storage"
 	affected, err := object.UpdateProvider(id, &provider)
 	if err != nil {
 		c.ResponseError(err.Error())

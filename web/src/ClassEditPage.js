@@ -78,7 +78,7 @@ class ClassEditPage extends React.Component {
       );
     }
 
-    if (!cls) return null;
+    if (!cls) {return null;}
 
     const filteredGrades = cls.school
       ? grades.filter(g => g.school === cls.school || !g.school)

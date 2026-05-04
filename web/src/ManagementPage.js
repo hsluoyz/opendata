@@ -14,19 +14,23 @@
 
 import React from "react";
 import {Link, Route, Switch, withRouter} from "react-router-dom";
-import {Avatar, Dropdown, Layout, Menu, Select, Space, Typography} from "antd";
+import {Avatar, Button, Card, Dropdown, Layout, Menu, Result, Select, Space} from "antd";
 import {
   ApartmentOutlined,
   BankOutlined,
   BookOutlined,
   CloudOutlined,
+  DatabaseOutlined,
+  DownOutlined,
   FileOutlined,
   HeartOutlined,
   HomeOutlined,
   LogoutOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
   SolutionOutlined,
   TeamOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import * as AccountBackend from "./backend/AccountBackend";
 import * as SchoolBackend from "./backend/SchoolBackend";
@@ -53,12 +57,29 @@ import FileEditPage from "./FileEditPage";
 import ProviderListPage from "./ProviderListPage";
 import ProviderEditPage from "./ProviderEditPage";
 
-const {Header, Sider, Content} = Layout;
-const {Text} = Typography;
+const {Header, Content, Sider} = Layout;
+
+function getMenuParentKey(uri) {
+  if (!uri) {
+    return null;
+  }
+  if (uri.includes("/schools") || uri.includes("/grades") || uri.includes("/classes") || uri.includes("/subjects")) {
+    return "/education";
+  }
+  if (uri.includes("/teachers") || uri.includes("/students") || uri.includes("/parents")) {
+    return "/people";
+  }
+  if (uri.includes("/files") || uri.includes("/providers")) {
+    return "/storage";
+  }
+  return null;
+}
 
 class ManagementPage extends React.Component {
   constructor(props) {
     super(props);
+    const siderCollapsed = localStorage.getItem("siderCollapsed") === "true";
+    const parentKey = getMenuParentKey(props.location.pathname);
     this.state = {
       schools: [],
       grades: [],
@@ -66,7 +87,8 @@ class ManagementPage extends React.Component {
       selectedSchool: localStorage.getItem("selectedSchool") || "",
       selectedGrade: localStorage.getItem("selectedGrade") || "",
       selectedClass: localStorage.getItem("selectedClass") || "",
-      collapsed: false,
+      siderCollapsed,
+      menuOpenKeys: siderCollapsed ? [] : ["/education", "/people", "/storage"].filter(key => key === parentKey || key !== null),
     };
   }
 
@@ -75,6 +97,15 @@ class ManagementPage extends React.Component {
     window.addEventListener("schoolChanged", this.onSchoolChanged);
     window.addEventListener("gradeChanged", this.onGradeChanged);
     window.addEventListener("classChanged", this.onClassChanged);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.location.pathname !== this.props.location.pathname && !this.state.siderCollapsed) {
+      const parentKey = getMenuParentKey(this.props.location.pathname);
+      if (parentKey && !this.state.menuOpenKeys.includes(parentKey)) {
+        this.setState({menuOpenKeys: [...this.state.menuOpenKeys, parentKey]});
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -94,25 +125,21 @@ class ManagementPage extends React.Component {
   onGradeChanged = () => {
     const selectedGrade = localStorage.getItem("selectedGrade") || "";
     this.setState({selectedGrade, selectedClass: "", classes: []});
-    const {selectedSchool} = this.state;
-    if (selectedSchool && selectedGrade) {
-      this.getClasses(selectedSchool);
+    if (this.state.selectedSchool && selectedGrade) {
+      this.getClasses(this.state.selectedSchool);
     }
   };
 
   onClassChanged = () => {
-    const selectedClass = localStorage.getItem("selectedClass") || "";
-    this.setState({selectedClass});
+    this.setState({selectedClass: localStorage.getItem("selectedClass") || ""});
   };
 
   getSchools() {
     SchoolBackend.getSchools("admin", 1, 1000, "", "", "", "").then(res => {
       if (res.status === "ok") {
-        const schools = res.data || [];
-        this.setState({schools});
-        const {selectedSchool} = this.state;
-        if (selectedSchool) {
-          this.getGrades(selectedSchool);
+        this.setState({schools: res.data || []});
+        if (this.state.selectedSchool) {
+          this.getGrades(this.state.selectedSchool);
         }
       }
     });
@@ -122,8 +149,7 @@ class ManagementPage extends React.Component {
     GradeBackend.getGrades(schoolName, 1, 1000, "", "", "", "").then(res => {
       if (res.status === "ok") {
         this.setState({grades: res.data || []});
-        const {selectedGrade} = this.state;
-        if (selectedGrade) {
+        if (this.state.selectedGrade) {
           this.getClasses(schoolName);
         }
       }
@@ -138,185 +164,183 @@ class ManagementPage extends React.Component {
     });
   }
 
-  handleSchoolChange(value) {
-    Setting.setSchool(value || "");
-  }
-
-  handleGradeChange(value) {
-    Setting.setGrade(value || "");
-  }
-
-  handleClassChange(value) {
-    Setting.setClass(value || "");
+  getSelectedMenuKey() {
+    const path = this.props.location.pathname;
+    const firstSeg = path.split("/").filter(Boolean)[0] || "";
+    return firstSeg === "" ? "/" : `/${firstSeg}`;
   }
 
   handleSignout() {
     AccountBackend.signout().then(() => {
-      Setting.showMessage("success", "已退出登录");
-      if (this.props.onSignout) {
-        this.props.onSignout();
-      }
+      Setting.showMessage("success", "Signed out");
+      this.props.onSignout?.();
       this.props.history.push("/signin");
     });
   }
 
-  getSelectedMenuKey() {
-    const path = this.props.location.pathname;
-    if (path.startsWith("/schools")) return "/schools";
-    if (path.startsWith("/grades")) return "/grades";
-    if (path.startsWith("/classes")) return "/classes";
-    if (path.startsWith("/subjects")) return "/subjects";
-    if (path.startsWith("/teachers")) return "/teachers";
-    if (path.startsWith("/students")) return "/students";
-    if (path.startsWith("/parents")) return "/parents";
-    if (path.startsWith("/files")) return "/files";
-    if (path.startsWith("/providers")) return "/providers";
-    return "/";
+  toggleSider = () => {
+    const siderCollapsed = !this.state.siderCollapsed;
+    localStorage.setItem("siderCollapsed", String(siderCollapsed));
+    this.setState({
+      siderCollapsed,
+      menuOpenKeys: siderCollapsed ? [] : ["/education", "/people", "/storage"],
+    });
+  };
+
+  getMenuItems() {
+    const items = [
+      Setting.getItem(<Link to="/">Home</Link>, "/", <HomeOutlined />),
+      Setting.getItem("Education", "/education", <DatabaseOutlined />, [
+        Setting.getItem(<Link to="/schools">Schools</Link>, "/schools", <BankOutlined />),
+        Setting.getItem(<Link to="/grades">Grades</Link>, "/grades", <ApartmentOutlined />),
+        Setting.getItem(<Link to="/classes">Classes</Link>, "/classes", <TeamOutlined />),
+        Setting.getItem(<Link to="/subjects">Subjects</Link>, "/subjects", <BookOutlined />),
+      ]),
+      Setting.getItem("People", "/people", <UserOutlined />, [
+        Setting.getItem(<Link to="/teachers">Teachers</Link>, "/teachers", <UserOutlined />),
+        Setting.getItem(<Link to="/students">Students</Link>, "/students", <SolutionOutlined />),
+        Setting.getItem(<Link to="/parents">Parents</Link>, "/parents", <HeartOutlined />),
+      ]),
+      Setting.getItem("Storage", "/storage", <CloudOutlined />, [
+        Setting.getItem(<Link to="/files">Files</Link>, "/files", <FileOutlined />),
+      ]),
+    ];
+
+    if (Setting.isAdminUser(this.props.account)) {
+      items[3].children.push(Setting.getItem(<Link to="/providers">Storage Providers</Link>, "/providers", <CloudOutlined />));
+    }
+    return items;
+  }
+
+  renderAccountMenu() {
+    const {account} = this.props;
+    const items = [{
+      key: "/logout",
+      icon: <LogoutOutlined />,
+      label: "Sign Out",
+      onClick: () => this.handleSignout(),
+    }];
+    return (
+      <Dropdown menu={{items}}>
+        <div className="rightDropDown">
+          <Avatar style={{backgroundColor: Setting.getAvatarColor(account?.name)}} size={32}>
+            {Setting.getShortName(account?.displayName || account?.name)}
+          </Avatar>
+          {!Setting.isMobile() && (
+            <span style={{fontSize: 14, fontWeight: 500, marginLeft: 8, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>
+              {account?.displayName || account?.name}
+            </span>
+          )}
+          <DownOutlined style={{fontSize: 10, opacity: 0.45, marginLeft: 6}} />
+        </div>
+      </Dropdown>
+    );
+  }
+
+  renderHeader() {
+    const {schools, grades, classes, selectedSchool, selectedGrade, selectedClass} = this.state;
+    const filteredClasses = selectedGrade ? classes.filter(c => c.grade === selectedGrade || !c.grade) : classes;
+
+    return (
+      <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: "#ffffff", position: "sticky", top: 0, zIndex: 99, borderBottom: "1px solid #f0f0f0", height: 52, lineHeight: "52px"}}>
+        <div style={{display: "flex", alignItems: "center"}}>
+          <Button
+            icon={this.state.siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={this.toggleSider}
+            type="text"
+            style={{fontSize: 16, width: 40, height: 40}}
+          />
+          <span style={{fontWeight: 600}}>OpenData</span>
+        </div>
+        <Space size={8}>
+          <Select placeholder="School" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
+          <Select placeholder="Grade" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
+          <Select placeholder="Class" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
+          {this.renderAccountMenu()}
+        </Space>
+      </Header>
+    );
+  }
+
+  renderRouter() {
+    const {account} = this.props;
+    return (
+      <Switch>
+        <Route exact path="/" render={props => <HomePage {...props} account={account} />} />
+        <Route exact path="/schools" render={props => <SchoolListPage {...props} account={account} />} />
+        <Route path="/schools/:owner/:name" render={props => <SchoolEditPage {...props} account={account} />} />
+        <Route exact path="/grades" render={props => <GradeListPage {...props} account={account} />} />
+        <Route path="/grades/:owner/:name" render={props => <GradeEditPage {...props} account={account} />} />
+        <Route exact path="/classes" render={props => <ClassListPage {...props} account={account} />} />
+        <Route path="/classes/:owner/:name" render={props => <ClassEditPage {...props} account={account} />} />
+        <Route exact path="/subjects" render={props => <SubjectListPage {...props} account={account} />} />
+        <Route path="/subjects/:owner/:name" render={props => <SubjectEditPage {...props} account={account} />} />
+        <Route exact path="/teachers" render={props => <TeacherListPage {...props} account={account} />} />
+        <Route path="/teachers/:owner/:name" render={props => <TeacherEditPage {...props} account={account} />} />
+        <Route exact path="/students" render={props => <StudentListPage {...props} account={account} />} />
+        <Route path="/students/:owner/:name" render={props => <StudentEditPage {...props} account={account} />} />
+        <Route exact path="/parents" render={props => <ParentListPage {...props} account={account} />} />
+        <Route path="/parents/:owner/:name" render={props => <ParentEditPage {...props} account={account} />} />
+        <Route exact path="/files" render={props => <FileListPage {...props} account={account} />} />
+        <Route path="/files/:owner/:name" render={props => <FileEditPage {...props} account={account} />} />
+        <Route exact path="/providers" render={props => <ProviderListPage {...props} account={account} />} />
+        <Route exact path="/providers/:providerName" render={props => <ProviderEditPage {...props} account={account} />} />
+        <Route path="" render={() => <Result status="404" title="404 NOT FOUND" extra={<a href="/"><Button type="primary">Back Home</Button></a>} />} />
+      </Switch>
+    );
   }
 
   render() {
-    const {account} = this.props;
-    const {schools, grades, classes, selectedSchool, selectedGrade, selectedClass, collapsed} = this.state;
-    const isAdmin = Setting.isAdminUser(account);
-
-    const menuItems = [
-      {key: "/", icon: <HomeOutlined />, label: <Link to="/">首页</Link>},
-      {key: "/schools", icon: <BankOutlined />, label: <Link to="/schools">学校</Link>},
-      {key: "/grades", icon: <ApartmentOutlined />, label: <Link to="/grades">年级</Link>},
-      {key: "/classes", icon: <TeamOutlined />, label: <Link to="/classes">班级</Link>},
-      {key: "/subjects", icon: <BookOutlined />, label: <Link to="/subjects">学科</Link>},
-      {key: "/teachers", icon: <UserOutlined />, label: <Link to="/teachers">教师</Link>},
-      {key: "/students", icon: <SolutionOutlined />, label: <Link to="/students">学生</Link>},
-      {key: "/parents", icon: <HeartOutlined />, label: <Link to="/parents">家长</Link>},
-      {key: "/files", icon: <FileOutlined />, label: <Link to="/files">文件</Link>},
-    ];
-
-    if (isAdmin) {
-      menuItems.push({
-        key: "/providers",
-        icon: <CloudOutlined />,
-        label: <Link to="/providers">存储配置</Link>,
-      });
-    }
-
-    const userMenuItems = [
-      {
-        key: "logout",
-        icon: <LogoutOutlined />,
-        label: "退出登录",
-        onClick: () => this.handleSignout(),
-      },
-    ];
-
-    const filteredGrades = selectedSchool
-      ? grades.filter(g => g.school === selectedSchool || !g.school)
-      : grades;
-
-    const filteredClasses = selectedGrade
-      ? classes.filter(c => c.grade === selectedGrade || !c.grade)
-      : classes;
+    const siderWidth = 256;
+    const siderCollapsedWidth = 80;
+    const contentMarginLeft = this.state.siderCollapsed ? siderCollapsedWidth : siderWidth;
 
     return (
-      <Layout style={{minHeight: "100vh"}}>
+      <>
         <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={v => this.setState({collapsed: v})}
-          style={{background: "#fff", boxShadow: "2px 0 8px rgba(0,0,0,0.08)"}}
-          width={200}
+          collapsed={this.state.siderCollapsed}
+          collapsedWidth={siderCollapsedWidth}
+          width={siderWidth}
+          trigger={null}
+          theme="light"
+          style={{
+            height: "100vh",
+            position: "fixed",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            zIndex: 100,
+            borderRight: "1px solid #eaedf3",
+            background: "#fafbfc",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
-          <div style={{
-            height: 64,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderBottom: "1px solid #f0f0f0",
-            overflow: "hidden",
-          }}>
-            {collapsed ? (
-              <span style={{fontWeight: 700, color: "#1677ff", fontSize: 18}}>OD</span>
-            ) : (
-              <span style={{fontWeight: 700, color: "#1677ff", fontSize: 16}}>OpenData</span>
-            )}
+          <div style={{height: 52, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: this.state.siderCollapsed ? "center" : "flex-start", padding: this.state.siderCollapsed ? 0 : "0 16px 0 24px", overflow: "hidden", borderBottom: "1px solid #eaedf3"}}>
+            <Link to="/" style={{fontWeight: 700, color: "#404040", fontSize: this.state.siderCollapsed ? 18 : 20}}>
+              {this.state.siderCollapsed ? "OD" : "OpenData"}
+            </Link>
           </div>
-          <Menu
-            mode="inline"
-            selectedKeys={[this.getSelectedMenuKey()]}
-            items={menuItems}
-            style={{borderRight: 0, marginTop: 8}}
-          />
+          <div className="sider-menu-container" style={{flex: 1, overflow: "auto", paddingTop: 6}}>
+            <Menu
+              mode="inline"
+              items={this.getMenuItems()}
+              selectedKeys={[this.getSelectedMenuKey()]}
+              openKeys={this.state.menuOpenKeys}
+              onOpenChange={menuOpenKeys => this.setState({menuOpenKeys})}
+              style={{borderRight: 0, background: "#fafbfc"}}
+            />
+          </div>
         </Sider>
-        <Layout>
-          <Header style={{
-            background: "#fff",
-            padding: "0 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            zIndex: 1,
-          }}>
-            <Text strong style={{fontSize: 18, color: "#1677ff"}}>OpenData 数据管理系统</Text>
-            <Space size="middle" wrap>
-              <Select
-                placeholder="选择学校"
-                value={selectedSchool || undefined}
-                onChange={v => this.handleSchoolChange(v)}
-                allowClear
-                style={{width: 160}}
-                options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))}
-              />
-              <Select
-                placeholder="选择年级"
-                value={selectedGrade || undefined}
-                onChange={v => this.handleGradeChange(v)}
-                allowClear
-                style={{width: 130}}
-                disabled={!selectedSchool}
-                options={filteredGrades.map(g => ({value: g.name, label: g.displayName || g.name}))}
-              />
-              <Select
-                placeholder="选择班级"
-                value={selectedClass || undefined}
-                onChange={v => this.handleClassChange(v)}
-                allowClear
-                style={{width: 130}}
-                disabled={!selectedGrade}
-                options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))}
-              />
-              <Dropdown menu={{items: userMenuItems}} placement="bottomRight">
-                <Space style={{cursor: "pointer"}}>
-                  <Avatar icon={<UserOutlined />} style={{backgroundColor: "#1677ff"}} />
-                  <Text>{account?.displayName || account?.name || "用户"}</Text>
-                </Space>
-              </Dropdown>
-            </Space>
-          </Header>
-          <Content style={{margin: 0, background: "#f5f7fa", minHeight: "calc(100vh - 64px)"}}>
-            <Switch>
-              <Route exact path="/" render={props => <HomePage {...props} account={account} />} />
-              <Route exact path="/schools" render={props => <SchoolListPage {...props} account={account} />} />
-              <Route path="/schools/:owner/:name" render={props => <SchoolEditPage {...props} account={account} />} />
-              <Route exact path="/grades" render={props => <GradeListPage {...props} account={account} />} />
-              <Route path="/grades/:owner/:name" render={props => <GradeEditPage {...props} account={account} />} />
-              <Route exact path="/classes" render={props => <ClassListPage {...props} account={account} />} />
-              <Route path="/classes/:owner/:name" render={props => <ClassEditPage {...props} account={account} />} />
-              <Route exact path="/subjects" render={props => <SubjectListPage {...props} account={account} />} />
-              <Route path="/subjects/:owner/:name" render={props => <SubjectEditPage {...props} account={account} />} />
-              <Route exact path="/teachers" render={props => <TeacherListPage {...props} account={account} />} />
-              <Route path="/teachers/:owner/:name" render={props => <TeacherEditPage {...props} account={account} />} />
-              <Route exact path="/students" render={props => <StudentListPage {...props} account={account} />} />
-              <Route path="/students/:owner/:name" render={props => <StudentEditPage {...props} account={account} />} />
-              <Route exact path="/parents" render={props => <ParentListPage {...props} account={account} />} />
-              <Route path="/parents/:owner/:name" render={props => <ParentEditPage {...props} account={account} />} />
-              <Route exact path="/files" render={props => <FileListPage {...props} account={account} />} />
-              <Route path="/files/:owner/:name" render={props => <FileEditPage {...props} account={account} />} />
-              <Route exact path="/providers" render={props => <ProviderListPage {...props} account={account} />} />
-              <Route path="/providers/:owner/:name" render={props => <ProviderEditPage {...props} account={account} />} />
-            </Switch>
+        <div style={{marginLeft: contentMarginLeft, transition: "margin-left 0.2s", display: "flex", flexDirection: "column", minHeight: "100vh"}}>
+          {this.renderHeader()}
+          <Content style={{display: "flex", flexDirection: "column"}}>
+            <Card className="content-warp-card" styles={{body: {padding: 0, margin: 0}}}>
+              {this.renderRouter()}
+            </Card>
           </Content>
-        </Layout>
-      </Layout>
+        </div>
+      </>
     );
   }
 }

@@ -14,8 +14,8 @@
 
 import React from "react";
 import {Link} from "react-router-dom";
-import {Button, Popconfirm, Space, Table, Tag, Upload} from "antd";
-import {FolderOutlined, UploadOutlined} from "@ant-design/icons";
+import {Button, Image, Popconfirm, Popover, Space, Table, Tag, Upload} from "antd";
+import {CopyOutlined, FolderOutlined, UploadOutlined} from "@ant-design/icons";
 import BaseListPage from "./BaseListPage";
 import * as FileBackend from "./backend/FileBackend";
 import * as Setting from "./Setting";
@@ -70,6 +70,19 @@ class FileListPage extends BaseListPage {
       } else {
         Setting.showMessage("error", res.msg);
       }
+    });
+  }
+
+  copyFileUrl(record) {
+    const full = Setting.getAbsoluteUrl(record.url);
+    if (!full) {
+      Setting.showMessage("warning", "无文件链接");
+      return;
+    }
+    navigator.clipboard.writeText(full).then(() => {
+      Setting.showMessage("success", "已复制完整URL");
+    }).catch(() => {
+      Setting.showMessage("error", "复制失败");
     });
   }
 
@@ -142,6 +155,45 @@ class FileListPage extends BaseListPage {
         ),
       },
       {
+        title: "预览",
+        width: 180,
+        render: (_, record) => {
+          if (record.category !== "file" || !record.url) {
+            return "—";
+          }
+          if (!Setting.isImageMimeOrExt(record.fileType, record.displayName, record.name)) {
+            return "—";
+          }
+          const src = Setting.getAbsoluteUrl(record.url);
+          return (
+            <Popover
+              placement="right"
+              mouseEnterDelay={0.2}
+              content={(
+                <Image
+                  src={src}
+                  alt={record.displayName || record.name}
+                  width={420}
+                  preview={false}
+                  style={{maxHeight: 420, objectFit: "contain"}}
+                />
+              )}
+            >
+              <div style={{width: 156, height: 112, display: "flex", alignItems: "center", justifyContent: "center", background: "#f7f8fa", border: "1px solid #edf0f5", borderRadius: 6, cursor: "zoom-in"}}>
+                <Image
+                  src={src}
+                  alt={record.displayName || record.name}
+                  width={148}
+                  height={104}
+                  preview={false}
+                  style={{objectFit: "contain", borderRadius: 4}}
+                />
+              </div>
+            </Popover>
+          );
+        },
+      },
+      {
         title: "类型",
         dataIndex: "category",
         width: 90,
@@ -184,7 +236,7 @@ class FileListPage extends BaseListPage {
       },
       {
         title: "操作",
-        width: 180,
+        width: 280,
         fixed: "right",
         render: (text, record) => (
           <div>
@@ -194,6 +246,14 @@ class FileListPage extends BaseListPage {
               onClick={() => this.props.history.push(`/files/${record.owner}/${record.name}`)}
             >
               编辑
+            </Button>
+            <Button
+              style={{marginTop: 10, marginBottom: 10, marginRight: 10}}
+              icon={<CopyOutlined />}
+              disabled={!record.url}
+              onClick={() => this.copyFileUrl(record)}
+            >
+              复制链接
             </Button>
             <Popconfirm
               title={`确认删除: ${record.name} ?`}

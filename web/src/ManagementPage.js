@@ -25,7 +25,7 @@ import {
   DashboardOutlined,
   DatabaseOutlined,
   DownOutlined,
-  FileOutlined,
+  FolderOpenOutlined,
   FundOutlined,
   HeartOutlined,
   HomeOutlined,
@@ -258,7 +258,7 @@ class ManagementPage extends React.Component {
         Setting.getItem(<Link to="/parents">家长</Link>, "/parents", <HeartOutlined />),
       ]),
       Setting.getItem("存储管理", "/storage", <CloudOutlined />, [
-        Setting.getItem(<Link to="/files">文件</Link>, "/files", <FileOutlined />),
+        Setting.getItem(<Link to="/files">文件</Link>, "/files", <FolderOpenOutlined />),
       ]),
       Setting.getItem("审计日志", "/logs", <AuditOutlined />, [
         Setting.getItem(<Link to="/records">日志</Link>, "/records", <DatabaseOutlined />),

@@ -28,6 +28,30 @@ export function initServerUrl() {
   }
 }
 
+// Join API-relative paths (e.g. /api/download-file?...) with ServerUrl for display or <img src>.
+export function getAbsoluteUrl(relative) {
+  if (!relative) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(relative)) {
+    return relative;
+  }
+  const base = (ServerUrl || "").replace(/\/$/, "");
+  const path = relative.startsWith("/") ? relative : `/${relative}`;
+  return `${base}${path}`;
+}
+
+export function isImageMimeOrExt(fileType, displayName, name) {
+  const ft = (fileType || "").toLowerCase();
+  if (ft.startsWith("image/")) {
+    return true;
+  }
+  const pick = (displayName || name || "").toLowerCase();
+  const dot = pick.lastIndexOf(".");
+  const ext = dot >= 0 ? pick.slice(dot + 1) : "";
+  return ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "ico"].includes(ext);
+}
+
 function parseCookieValue(name) {
   const match = document.cookie.match(new RegExp("(^|;)\\s*" + name + "=([^;]*)"));
   return match ? match[2] : null;
@@ -99,15 +123,15 @@ export function getAlgorithm(themeAlgorithm = ["default"]) {
 }
 
 export function getHtmlTitle(htmlTitle) {
-  return htmlTitle || Conf.HtmlTitle || "教育数据管理平台";
+  return htmlTitle || "教育数据管理平台";
 }
 
 export function getFaviconUrl(themeAlgorithm, faviconUrl) {
-  return faviconUrl || Conf.FaviconUrl || "/favicon.ico";
+  return faviconUrl || "/favicon.ico";
 }
 
 export function getLogo(themeAlgorithm = ["default"], logoUrl = "") {
-  let res = logoUrl || Conf.LogoUrl || "";
+  let res = logoUrl || "";
   if (Conf.StaticBaseUrl && res.includes("https://cdn.openagentai.org")) {
     res = res.replace("https://cdn.openagentai.org", Conf.StaticBaseUrl);
   }
@@ -118,7 +142,7 @@ export function getLogo(themeAlgorithm = ["default"], logoUrl = "") {
 }
 
 export function getFooterHtml(themeAlgorithm, footerHtml) {
-  let res = footerHtml || Conf.FooterHtml;
+  let res = footerHtml || "";
   if (Conf.StaticBaseUrl && res.includes("https://cdn.openagentai.org")) {
     res = res.replace("https://cdn.openagentai.org", Conf.StaticBaseUrl);
   }

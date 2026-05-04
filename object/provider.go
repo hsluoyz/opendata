@@ -90,6 +90,22 @@ func getProvider(owner, name string) (*Provider, error) {
 }
 
 func GetDefaultStorageProvider() (*Provider, error) {
+	site, err := GetBuiltInSite()
+	if err != nil {
+		return nil, err
+	}
+	if site != nil && site.StorageProvider != "" {
+		return &Provider{
+			Owner:     site.Owner,
+			Name:      "site-built-in-storage",
+			Category:  "Storage",
+			Type:      getStorageProviderType(site.StorageProvider),
+			ClientId:  getStoragePath(site.StoragePath),
+			State:     "Active",
+			IsDefault: true,
+		}, nil
+	}
+
 	provider := &Provider{}
 	existed, err := adapter.engine.Where("category=? AND is_default=?", "Storage", true).Get(provider)
 	if err != nil {
@@ -107,6 +123,22 @@ func GetDefaultStorageProvider() (*Provider, error) {
 		return provider, nil
 	}
 	return nil, nil
+}
+
+func getStorageProviderType(storageProvider string) string {
+	switch storageProvider {
+	case "", "local", "Local File System":
+		return "Local File System"
+	default:
+		return storageProvider
+	}
+}
+
+func getStoragePath(storagePath string) string {
+	if storagePath == "" {
+		return "./files"
+	}
+	return storagePath
 }
 
 func AddProvider(provider *Provider) (bool, error) {
@@ -147,7 +179,7 @@ func InitDefaultProvider() {
 			DisplayName: "本地存储",
 			Category:    "Storage",
 			Type:        "Local File System",
-			ClientId:    "./files",
+			ClientId:    getBuiltInStoragePath(),
 			State:       "Active",
 			IsDefault:   true,
 		}
@@ -156,4 +188,12 @@ func InitDefaultProvider() {
 			panic(err)
 		}
 	}
+}
+
+func getBuiltInStoragePath() string {
+	site, err := GetBuiltInSite()
+	if err == nil && site != nil && site.StoragePath != "" {
+		return site.StoragePath
+	}
+	return getStoragePath("")
 }

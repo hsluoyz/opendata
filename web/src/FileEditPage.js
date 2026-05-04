@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from "react";
-import {Button, Card, Form, Input, Select, Spin} from "antd";
+import {Button, Card, Form, Image, Input, Select, Space, Spin} from "antd";
 import * as FileBackend from "./backend/FileBackend";
 import * as Setting from "./Setting";
 
@@ -68,6 +68,12 @@ class FileEditPage extends React.Component {
     }
 
     if (!file) {return null;}
+
+    const fullUrl = file.url ? Setting.getAbsoluteUrl(file.url) : "";
+    const showImagePreview =
+      file.category === "file" &&
+      fullUrl &&
+      Setting.isImageMimeOrExt(file.fileType, file.displayName, file.name);
 
     return (
       <div>
@@ -147,8 +153,27 @@ class FileEditPage extends React.Component {
               <Input value={file.uploader} disabled />
             </Form.Item>
             {file.url && (
-              <Form.Item label="文件链接">
-                <a href={file.url} target="_blank" rel="noopener noreferrer">{file.url}</a>
+              <Form.Item label="文件链接（完整 URL）">
+                <Input.TextArea readOnly autoSize={{minRows: 2, maxRows: 6}} value={fullUrl} />
+                <Space style={{marginTop: 8}} wrap>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      navigator.clipboard.writeText(fullUrl).then(() => {
+                        Setting.showMessage("success", "已复制完整URL");
+                      }).catch(() => Setting.showMessage("error", "复制失败"));
+                    }}
+                  >
+                    复制完整URL
+                  </Button>
+                  <Button onClick={() => Setting.openLink(fullUrl)}>在新标签页打开</Button>
+                </Space>
+                {showImagePreview && (
+                  <div style={{marginTop: 16}}>
+                    <div style={{marginBottom: 8, color: "var(--ant-color-text-secondary)"}}>图片预览</div>
+                    <Image src={fullUrl} style={{maxWidth: "100%", maxHeight: 480}} />
+                  </div>
+                )}
               </Form.Item>
             )}
             {file.size > 0 && (

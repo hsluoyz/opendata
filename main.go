@@ -60,8 +60,8 @@ func initSocks5Proxy() {
 func main() {
 	object.InitAdapter()
 	object.CreateTables()
-	object.InitDefaultProvider()
 	object.InitBuiltInSite()
+	object.InitDefaultProvider()
 
 	initSocks5Proxy()
 

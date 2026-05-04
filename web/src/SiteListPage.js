@@ -34,6 +34,8 @@ class SiteListPage extends BaseListPage {
       faviconUrl: "",
       logoUrl: "",
       footerHtml: "",
+      storageProvider: "local",
+      storagePath: "./files",
       navItems: [],
     };
   }

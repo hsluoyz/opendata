@@ -33,6 +33,13 @@ type Site struct {
 	LogoUrl    string   `xorm:"varchar(200)" json:"logoUrl"`
 	FooterHtml string   `xorm:"mediumtext" json:"footerHtml"`
 	NavItems   []string `xorm:"text" json:"navItems"`
+
+	StorageProvider string `xorm:"varchar(100)" json:"storageProvider"`
+	StoragePath     string `xorm:"varchar(500)" json:"storagePath"`
+}
+
+func (s *Site) GetId() string {
+	return fmt.Sprintf("%s/%s", s.Owner, s.Name)
 }
 
 func GetGlobalSites() ([]*Site, error) {
@@ -104,15 +111,17 @@ func InitBuiltInSite() {
 	}
 
 	site = &Site{
-		Owner:       "admin",
-		Name:        "site-built-in",
-		CreatedTime: util.GetCurrentTime(),
-		DisplayName: "默认站点",
-		ThemeColor:  "#404040",
-		HtmlTitle:   "OpenData",
-		FaviconUrl:  "",
-		LogoUrl:     "",
-		FooterHtml:  "Powered by OpenData",
+		Owner:           "admin",
+		Name:            "site-built-in",
+		CreatedTime:     util.GetCurrentTime(),
+		DisplayName:     "默认站点",
+		ThemeColor:      "#404040",
+		HtmlTitle:       "OpenData",
+		FaviconUrl:      "",
+		LogoUrl:         "",
+		FooterHtml:      "Powered by OpenData",
+		StorageProvider: "local",
+		StoragePath:     "./files",
 		NavItems: []string{
 			"/schools", "/grades", "/classes", "/subjects",
 			"/teachers", "/students", "/parents",

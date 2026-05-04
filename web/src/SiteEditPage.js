@@ -183,6 +183,28 @@ class SiteEditPage extends React.Component {
             />
           </Col>
         </Row>
+        <Row style={{marginTop: "20px"}}>
+          <Col style={{marginTop: "5px"}} span={Setting.isMobile() ? 22 : 2}>
+            存储提供商:
+          </Col>
+          <Col span={22}>
+            <Input
+              value={site.storageProvider}
+              onChange={e => this.updateSiteField("storageProvider", e.target.value)}
+            />
+          </Col>
+        </Row>
+        <Row style={{marginTop: "20px"}}>
+          <Col style={{marginTop: "5px"}} span={Setting.isMobile() ? 22 : 2}>
+            存储路径:
+          </Col>
+          <Col span={22}>
+            <Input
+              value={site.storagePath}
+              onChange={e => this.updateSiteField("storagePath", e.target.value)}
+            />
+          </Col>
+        </Row>
       </Card>
     );
   }

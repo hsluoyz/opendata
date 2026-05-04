@@ -29,12 +29,8 @@ type WebConfig struct {
 		OrganizationName string `json:"organizationName"`
 		RedirectPath     string `json:"redirectPath"`
 	} `json:"authConfig"`
-	StaticBaseUrl    string `json:"staticBaseUrl"`
-	HtmlTitle        string `json:"htmlTitle"`
-	FaviconUrl       string `json:"faviconUrl"`
-	FooterHtml       string `json:"footerHtml"`
-	ShowGithubCorner bool   `json:"showGithubCorner"`
-	IsDemoMode       bool   `json:"isDemoMode"`
+	StaticBaseUrl string `json:"staticBaseUrl"`
+	IsDemoMode    bool   `json:"isDemoMode"`
 }
 
 func GetConfigString(key string) string {
@@ -81,10 +77,6 @@ func GetWebConfig() *WebConfig {
 	config.AuthConfig.RedirectPath = GetConfigString("redirectPath")
 
 	config.StaticBaseUrl = GetConfigString("staticBaseUrl")
-	config.HtmlTitle = GetConfigString("htmlTitle")
-	config.FaviconUrl = GetConfigString("faviconUrl")
-	config.FooterHtml = GetConfigString("footerHtml")
-	config.ShowGithubCorner = GetConfigBool("showGithubCorner")
 	config.IsDemoMode = GetConfigBool("isDemoMode")
 
 	return config

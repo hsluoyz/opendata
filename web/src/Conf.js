@@ -24,11 +24,6 @@ export const ThemeDefault = {
 
 export const AuthConfig = {serverUrl: "", clientId: "", appName: "", organizationName: "", redirectPath: ""};
 export let StaticBaseUrl = "";
-export let HtmlTitle = "教育数据管理平台";
-export let FaviconUrl = "";
-export let LogoUrl = "";
-export let FooterHtml = "教育数据管理平台";
-export let ShowGithubCorner = false;
 export let IsDemoMode = false;
 
 export function setConfig(config) {
@@ -39,10 +34,5 @@ export function setConfig(config) {
     Object.assign(AuthConfig, config.authConfig);
   }
   if (config.staticBaseUrl !== undefined) {StaticBaseUrl = config.staticBaseUrl;}
-  if (config.htmlTitle !== undefined) {HtmlTitle = config.htmlTitle;}
-  if (config.faviconUrl !== undefined) {FaviconUrl = config.faviconUrl;}
-  if (config.logoUrl !== undefined) {LogoUrl = config.logoUrl;}
-  if (config.footerHtml !== undefined) {FooterHtml = config.footerHtml;}
-  if (config.showGithubCorner !== undefined) {ShowGithubCorner = config.showGithubCorner;}
   if (config.isDemoMode !== undefined) {IsDemoMode = config.isDemoMode;}
 }

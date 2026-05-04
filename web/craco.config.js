@@ -19,11 +19,11 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:14001",
+        target: "http://localhost:13000",
         changeOrigin: true,
       },
       "/swagger": {
-        target: "http://localhost:14001",
+        target: "http://localhost:13000",
         changeOrigin: true,
       },
     },

@@ -24,7 +24,7 @@ export let CasdoorSdk;
 export function initServerUrl() {
   const hostname = window.location.hostname;
   if (hostname === "localhost") {
-    ServerUrl = "http://localhost:14001";
+    ServerUrl = "http://localhost:13000";
   }
 }
 
@@ -37,7 +37,7 @@ export function getFullServerUrl() {
   if (typeof window !== "undefined" && window.location?.origin) {
     return window.location.origin;
   }
-  return "http://localhost:14001";
+  return "http://localhost:13000";
 }
 
 // Join API-relative paths with ServerUrl for display or <img src>. Absolute http(s) URLs are returned unchanged.

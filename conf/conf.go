@@ -70,7 +70,7 @@ func IsDemoMode() bool {
 
 // DefaultHttpOrigin returns http://localhost:<httpport> for default storage provider Domain (Casdoor-style).
 func DefaultHttpOrigin() string {
-	port := beego.AppConfig.DefaultInt("httpport", 14001)
+	port := beego.AppConfig.DefaultInt("httpport", 13000)
 	return fmt.Sprintf("http://localhost:%d", port)
 }
 

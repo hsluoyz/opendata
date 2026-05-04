@@ -108,7 +108,7 @@ func main() {
 		}
 	}
 
-	port := beego.AppConfig.DefaultInt("httpport", 14001)
+	port := beego.AppConfig.DefaultInt("httpport", 13000)
 	fmt.Printf("OpenData server started on port %d\n", port)
 	beego.Run(fmt.Sprintf(":%v", port))
 }

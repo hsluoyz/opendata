@@ -71,7 +71,7 @@
     "xlsx": "^0.16.9"
   },
   "scripts": {
-    "start": "cross-env PORT=13001 craco start",
+    "start": "cross-env PORT=12001 craco start",
     "build": "craco build",
     "postbuild": "node mv.js",
     "test": "craco test",

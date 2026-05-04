@@ -12,20 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const DefaultColorPrimary = "#404040";
+// Institutional education blue: readable, formal, pairs well with warm accents in CSS.
+export const DefaultColorPrimary = "#1565C0";
 
 export const ThemeDefault = {
   themeType: "default",
   colorPrimary: DefaultColorPrimary,
-  borderRadius: 10,
+  borderRadius: 12,
   isCompact: false,
 };
 
 export const AuthConfig = {serverUrl: "", clientId: "", appName: "", organizationName: "", redirectPath: ""};
 export let StaticBaseUrl = "";
-export let HtmlTitle = "OpenData";
+export let HtmlTitle = "教育数据管理平台";
 export let FaviconUrl = "";
-export let FooterHtml = "Powered by OpenData";
+export let FooterHtml = "教育数据管理平台";
 export let ShowGithubCorner = false;
 export let IsDemoMode = false;
 

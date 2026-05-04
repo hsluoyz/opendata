@@ -99,7 +99,7 @@ export function getAlgorithm(themeAlgorithm = ["default"]) {
 }
 
 export function getHtmlTitle(htmlTitle) {
-  return htmlTitle || Conf.HtmlTitle || "OpenData";
+  return htmlTitle || Conf.HtmlTitle || "教育数据管理平台";
 }
 
 export function getFaviconUrl(themeAlgorithm, faviconUrl) {

@@ -139,7 +139,7 @@ func (c *ApiController) DeleteSession() {
 	}
 
 	if len(session.SessionId) == 0 {
-		c.ResponseError("No sessions to delete")
+		c.ResponseError("没有可删除的会话")
 		return
 	}
 

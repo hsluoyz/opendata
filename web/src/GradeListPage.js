@@ -125,40 +125,53 @@ class GradeListPage extends BaseListPage {
       },
       {
         title: "操作",
-        width: 200,
+        width: 260,
+        fixed: "right",
         render: (text, record) => (
-          <span>
-            <Link to={`/classes?grade=${record.name}`} style={{marginRight: 8}}>
-              <Button size="small">查看班级</Button>
-            </Link>
+          <div>
+            <Button
+              style={{marginTop: 10, marginBottom: 10, marginRight: 10}}
+              onClick={() => this.props.history.push(`/classes?grade=${record.name}`)}
+            >
+              查看班级
+            </Button>
+            <Button
+              style={{marginTop: 10, marginBottom: 10, marginRight: 10}}
+              type="primary"
+              onClick={() => this.props.history.push(`/grades/${record.owner}/${record.name}`)}
+            >
+              编辑
+            </Button>
             <Popconfirm
-              title="确认删除该年级?"
+              title={`确认删除: ${record.name} ?`}
               onConfirm={() => this.deleteGrade(record)}
               okText="确认"
               cancelText="取消"
             >
-              <Button danger size="small">删除</Button>
+              <Button style={{marginBottom: 10}} type="primary" danger>删除</Button>
             </Popconfirm>
-          </span>
+          </div>
         ),
       },
     ];
 
     return (
       <div>
-        <div style={{marginBottom: 16}}>
-          <Button type="primary" onClick={() => this.addGrade()}>
-            添加年级
-          </Button>
-        </div>
         <Table
+          scroll={{x: "max-content"}}
           columns={columns}
           dataSource={grades?.map(g => ({...g, key: g.name}))}
           pagination={this.state.pagination}
           onChange={this.handleTableChange}
-          loading={this.state.loading}
+          loading={this.getTableLoading()}
           bordered
           size="middle"
+          title={() => (
+            <div>
+              年级列表&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button type="primary" size="small" onClick={() => this.addGrade()}>添加</Button>
+            </div>
+          )}
         />
       </div>
     );

@@ -29,7 +29,7 @@ func GetCurrentTime() string {
 func getOwnerAndNameFromId(id string) (string, string, error) {
 	parts := strings.SplitN(id, "/", 2)
 	if len(parts) != 2 {
-		return "", "", fmt.Errorf("invalid id: %s", id)
+		return "", "", fmt.Errorf("无效的标识：%s", id)
 	}
 	return parts[0], parts[1], nil
 }

@@ -139,7 +139,7 @@ func (c *ApiController) AddRecords() {
 		return
 	}
 	if len(records) == 0 {
-		c.ResponseError("No records to add")
+		c.ResponseError("没有可添加的日志记录")
 		return
 	}
 	affected, err := object.AddRecords(records)

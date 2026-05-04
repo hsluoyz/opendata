@@ -42,11 +42,14 @@ class FileEditPage extends React.Component {
     this.setState(prev => ({file: {...prev.file, [key]: value}}));
   }
 
-  save() {
+  save(exitAfterSave = false) {
     const {file} = this.state;
     FileBackend.updateFile(file.owner, file.name, file).then(res => {
       if (res.status === "ok") {
         Setting.showMessage("success", "保存成功");
+        if (exitAfterSave) {
+          this.props.history.push("/files");
+        }
       } else {
         Setting.showMessage("error", res.msg);
       }
@@ -67,13 +70,18 @@ class FileEditPage extends React.Component {
     if (!file) {return null;}
 
     return (
-      <div style={{padding: 24}}>
+      <div>
         <Card
-          title={`编辑${file.category === "folder" ? "文件夹" : "文件"}`}
-          extra={
-            <Button onClick={() => this.props.history.goBack()}>返回</Button>
+          size="small"
+          title={
+            <div>
+              {`编辑${file.category === "folder" ? "文件夹" : "文件"}`}&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button onClick={() => this.save(false)}>保存</Button>
+              <Button style={{marginLeft: 20}} type="primary" onClick={() => this.save(true)}>保存并退出</Button>
+            </div>
           }
-          style={{maxWidth: 900}}
+          style={{marginLeft: 5}}
+          type="inner"
         >
           <Form layout="vertical">
             <Form.Item label="所有者">
@@ -164,13 +172,12 @@ class FileEditPage extends React.Component {
                 placeholder="输入查看者账户名后回车"
               />
             </Form.Item>
-            <Form.Item>
-              <Button type="primary" onClick={() => this.save()}>
-                保存
-              </Button>
-            </Form.Item>
           </Form>
         </Card>
+        <div style={{marginTop: 20, marginLeft: 40}}>
+          <Button size="large" onClick={() => this.save(false)}>保存</Button>
+          <Button style={{marginLeft: 20}} type="primary" size="large" onClick={() => this.save(true)}>保存并退出</Button>
+        </div>
       </div>
     );
   }

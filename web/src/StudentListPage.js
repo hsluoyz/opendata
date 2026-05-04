@@ -160,35 +160,47 @@ class StudentListPage extends BaseListPage {
       },
       {
         title: "操作",
-        width: 120,
+        width: 180,
+        fixed: "right",
         render: (text, record) => (
-          <Popconfirm
-            title="确认删除该学生?"
-            onConfirm={() => this.deleteStudent(record)}
-            okText="确认"
-            cancelText="取消"
-          >
-            <Button danger size="small">删除</Button>
-          </Popconfirm>
+          <div>
+            <Button
+              style={{marginTop: 10, marginBottom: 10, marginRight: 10}}
+              type="primary"
+              onClick={() => this.props.history.push(`/students/${record.owner}/${record.name}`)}
+            >
+              编辑
+            </Button>
+            <Popconfirm
+              title={`确认删除: ${record.name} ?`}
+              onConfirm={() => this.deleteStudent(record)}
+              okText="确认"
+              cancelText="取消"
+            >
+              <Button style={{marginBottom: 10}} type="primary" danger>删除</Button>
+            </Popconfirm>
+          </div>
         ),
       },
     ];
 
     return (
       <div>
-        <div style={{marginBottom: 16}}>
-          <Button type="primary" onClick={() => this.addStudent()}>
-            添加学生
-          </Button>
-        </div>
         <Table
+          scroll={{x: "max-content"}}
           columns={columns}
           dataSource={students?.map(s => ({...s, key: s.name}))}
           pagination={this.state.pagination}
           onChange={this.handleTableChange}
-          loading={this.state.loading}
+          loading={this.getTableLoading()}
           bordered
           size="middle"
+          title={() => (
+            <div>
+              学生列表&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button type="primary" size="small" onClick={() => this.addStudent()}>添加</Button>
+            </div>
+          )}
         />
       </div>
     );

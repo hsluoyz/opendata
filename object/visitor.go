@@ -54,7 +54,7 @@ func getTargetFieldValue(record *Record, fieldName string) (string, error) {
 	case "region":
 		return record.Region, nil
 	}
-	return "", errors.New("no matched field")
+	return "", errors.New("没有匹配的统计字段")
 }
 
 func GetVisitors(days int, user string, fieldNames []string) (map[string][]*Visitor, error) {
@@ -93,7 +93,7 @@ func GetVisitors(days int, user string, fieldNames []string) (map[string][]*Visi
 		for _, fieldName := range fieldNames {
 			value, err := getTargetFieldValue(record, fieldName)
 			if err != nil {
-				return nil, fmt.Errorf("failed to parse record field %s: %v", fieldName, err)
+				return nil, fmt.Errorf("解析日志字段 %s 失败：%v", fieldName, err)
 			}
 			if value != "" {
 				resp[fieldName][dayIndex].FieldCount[value]++

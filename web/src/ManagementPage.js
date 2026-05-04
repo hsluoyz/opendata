@@ -329,7 +329,7 @@ class ManagementPage extends React.Component {
     const isDark = this.props.themeAlgorithm?.includes("dark");
 
     return (
-      <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: isDark ? "#141414" : "#ffffff", position: "sticky", top: 0, zIndex: 99, borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #f0f0f0", height: 52, lineHeight: "52px"}}>
+      <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: isDark ? "#141414" : "#fbfdff", position: "sticky", top: 0, zIndex: 99, borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #dbe7f7", height: 52, lineHeight: "52px", boxShadow: isDark ? "none" : "0 1px 0 rgb(21 101 192 / 6%)"}}>
         <div style={{display: "flex", alignItems: "center"}}>
           <Button
             icon={this.state.siderCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -390,8 +390,10 @@ class ManagementPage extends React.Component {
     const contentMarginLeft = this.state.siderCollapsed ? siderCollapsedWidth : siderWidth;
     const isDark = this.props.themeAlgorithm?.includes("dark");
 
+    const brandHeight = this.state.siderCollapsed ? 52 : 72;
+
     return (
-      <>
+      <div id="parent-area">
         <Sider
           collapsed={this.state.siderCollapsed}
           collapsedWidth={siderCollapsedWidth}
@@ -405,15 +407,44 @@ class ManagementPage extends React.Component {
             top: 0,
             bottom: 0,
             zIndex: 100,
-            borderRight: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #eaedf3",
-            background: isDark ? "#141414" : "#fafbfc",
+            borderRight: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #dbe7f7",
+            background: isDark ? "#141414" : "#f0f6ff",
             display: "flex",
             flexDirection: "column",
           }}
         >
-          <div style={{height: 52, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: this.state.siderCollapsed ? "center" : "flex-start", padding: this.state.siderCollapsed ? 0 : "0 16px 0 24px", overflow: "hidden", borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #eaedf3"}}>
-            <Link to="/" style={{fontWeight: 700, color: isDark ? "#ffffff" : "#404040", fontSize: this.state.siderCollapsed ? 18 : 20}}>
-              {this.state.siderCollapsed ? "OD" : "OpenData"}
+          <div
+            className="edu-sider-brand"
+            style={{
+              minHeight: brandHeight,
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: this.state.siderCollapsed ? "center" : "flex-start",
+              padding: this.state.siderCollapsed ? 0 : "10px 16px 10px 12px",
+              overflow: "hidden",
+              borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #dbe7f7",
+            }}
+          >
+            <Link
+              to="/"
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: this.state.siderCollapsed ? "center" : "flex-start",
+                width: "100%",
+              }}
+            >
+              {this.state.siderCollapsed
+                ? <span className="edu-sider-title-mark">数</span>
+                : (
+                  <div style={{paddingLeft: 10}}>
+                    <div className="edu-sider-title-main" style={{color: isDark ? "#ffffff" : "#0d47a1", fontSize: 17}}>教育数据平台</div>
+                    <div className="edu-sider-title-sub" style={{color: isDark ? "rgba(255,255,255,0.7)" : "#546e7a"}}>规范 · 阳光 · 服务师生</div>
+                  </div>
+                )}
             </Link>
           </div>
           <div className="sider-menu-container" style={{flex: 1, overflow: "auto", paddingTop: 6}}>
@@ -424,7 +455,7 @@ class ManagementPage extends React.Component {
               openKeys={this.state.menuOpenKeys}
               onOpenChange={this.onMenuOpenChange}
               theme={isDark ? "dark" : "light"}
-              style={{borderRight: 0, background: isDark ? "#141414" : "#fafbfc"}}
+              style={{borderRight: 0, background: isDark ? "#141414" : "#f0f6ff"}}
             />
           </div>
         </Sider>
@@ -436,7 +467,7 @@ class ManagementPage extends React.Component {
             </Card>
           </Content>
         </div>
-      </>
+      </div>
     );
   }
 }

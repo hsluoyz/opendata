@@ -50,11 +50,14 @@ class GradeEditPage extends React.Component {
     this.setState(prev => ({grade: {...prev.grade, [key]: value}}));
   }
 
-  save() {
+  save(exitAfterSave = false) {
     const {grade} = this.state;
     GradeBackend.updateGrade(grade.owner, grade.name, grade).then(res => {
       if (res.status === "ok") {
         Setting.showMessage("success", "保存成功");
+        if (exitAfterSave) {
+          this.props.history.push("/grades");
+        }
       } else {
         Setting.showMessage("error", res.msg);
       }
@@ -75,13 +78,18 @@ class GradeEditPage extends React.Component {
     if (!grade) {return null;}
 
     return (
-      <div style={{padding: 24}}>
+      <div>
         <Card
-          title="编辑年级"
-          extra={
-            <Button onClick={() => this.props.history.goBack()}>返回</Button>
+          size="small"
+          title={
+            <div>
+              编辑年级&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button onClick={() => this.save(false)}>保存</Button>
+              <Button style={{marginLeft: 20}} type="primary" onClick={() => this.save(true)}>保存并退出</Button>
+            </div>
           }
-          style={{maxWidth: 800}}
+          style={{marginLeft: 5}}
+          type="inner"
         >
           <Form layout="vertical">
             <Form.Item label="所有者">
@@ -114,13 +122,12 @@ class GradeEditPage extends React.Component {
                 style={{width: "100%"}}
               />
             </Form.Item>
-            <Form.Item>
-              <Button type="primary" onClick={() => this.save()}>
-                保存
-              </Button>
-            </Form.Item>
           </Form>
         </Card>
+        <div style={{marginTop: 20, marginLeft: 40}}>
+          <Button size="large" onClick={() => this.save(false)}>保存</Button>
+          <Button style={{marginLeft: 20}} type="primary" size="large" onClick={() => this.save(true)}>保存并退出</Button>
+        </div>
       </div>
     );
   }

@@ -69,7 +69,7 @@ func (c *ApiController) GetProvider() {
 		return
 	}
 	if provider != nil && provider.Category != "Storage" {
-		c.ResponseError("only Storage providers are supported")
+		c.ResponseError("仅支持存储（Storage）类型的提供商")
 		return
 	}
 	c.ResponseOk(provider)

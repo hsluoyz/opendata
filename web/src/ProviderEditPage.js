@@ -111,7 +111,7 @@ class ProviderEditPage extends React.Component {
           <Col span={22}><Input value={provider.displayName || ""} onChange={e => this.updateProviderField("displayName", e.target.value)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("类别", "OpenData 目前仅支持存储类别")}：</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("类别", "当前版本仅支持「存储」类别")}：</Col>
           <Col span={22}><Select disabled style={{width: "100%"}} value="Storage" options={[{value: "Storage", label: "存储"}]} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>

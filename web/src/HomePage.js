@@ -77,25 +77,30 @@ class HomePage extends React.Component {
     }
 
     const statItems = [
-      {title: "学校", value: stats?.schoolCount ?? 0, icon: <BankOutlined />, color: "#1677ff"},
-      {title: "年级", value: stats?.gradeCount ?? 0, icon: <ApartmentOutlined />, color: "#52c41a"},
-      {title: "班级", value: stats?.classCount ?? 0, icon: <TeamOutlined />, color: "#faad14"},
-      {title: "学科", value: stats?.subjectCount ?? 0, icon: <BookOutlined />, color: "#722ed1"},
-      {title: "教师", value: stats?.teacherCount ?? 0, icon: <UserOutlined />, color: "#13c2c2"},
-      {title: "学生", value: stats?.studentCount ?? 0, icon: <SolutionOutlined />, color: "#eb2f96"},
-      {title: "家长", value: stats?.parentCount ?? 0, icon: <HeartOutlined />, color: "#fa541c"},
-      {title: "文件", value: stats?.fileCount ?? 0, icon: <FileOutlined />, color: "#2f54eb"},
+      {title: "学校", value: stats?.schoolCount ?? 0, icon: <BankOutlined />, color: "#1565c0"},
+      {title: "年级", value: stats?.gradeCount ?? 0, icon: <ApartmentOutlined />, color: "#2e7d32"},
+      {title: "班级", value: stats?.classCount ?? 0, icon: <TeamOutlined />, color: "#f57c00"},
+      {title: "学科", value: stats?.subjectCount ?? 0, icon: <BookOutlined />, color: "#6a1b9a"},
+      {title: "教师", value: stats?.teacherCount ?? 0, icon: <UserOutlined />, color: "#00838f"},
+      {title: "学生", value: stats?.studentCount ?? 0, icon: <SolutionOutlined />, color: "#c2185b"},
+      {title: "家长", value: stats?.parentCount ?? 0, icon: <HeartOutlined />, color: "#e65100"},
+      {title: "文件", value: stats?.fileCount ?? 0, icon: <FileOutlined />, color: "#283593"},
     ];
 
     return (
       <div style={{padding: 24}}>
-        <Title level={4} style={{marginBottom: 24, color: "#333"}}>数据概览</Title>
+        <div className="edu-home-hero">
+          <h2>欢迎进入教育数据管理平台</h2>
+          <p>严谨规范的数据治理，陪伴师生阳光成长。请选择上方学校、年级、班级后开展日常管理。</p>
+        </div>
+        <Title level={4} style={{marginBottom: 18, color: "#0d47a1", fontWeight: 700}}>数据概览</Title>
         <Row gutter={[16, 16]}>
           {statItems.map((item) => (
             <Col key={item.title} xs={24} sm={12} md={8} lg={6}>
               <Card
-                style={{borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.06)"}}
-                bodyStyle={{padding: "20px 24px"}}
+                className="edu-stat-card"
+                style={{["--edu-stat-accent"]: item.color}}
+                styles={{body: {padding: "20px 24px 20px 22px"}}}
               >
                 <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
                   <Statistic
@@ -106,7 +111,7 @@ class HomePage extends React.Component {
                   <div style={{
                     fontSize: 40,
                     color: item.color,
-                    opacity: 0.2,
+                    opacity: 0.18,
                   }}>
                     {item.icon}
                   </div>

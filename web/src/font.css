@@ -1,4 +1,4 @@
-/* 默认字体 具体可能需要修改 */
+/* Default editor font stack; adjust per deployment if needed. */
 #editor {
   font-family: 'Microsoft-YaHei';
 }

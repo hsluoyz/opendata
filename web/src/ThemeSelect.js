@@ -24,7 +24,19 @@ class ThemeSelect extends React.Component {
   render() {
     const isDark = this.props.themeAlgorithm.includes("dark");
     return (
-      <div onClick={this.handleToggle} style={{cursor: "pointer", display: "flex", alignItems: "center", padding: "0 4px"}}>
+      <div
+        role="button"
+        tabIndex={0}
+        title={isDark ? "切换为浅色主题" : "切换为深色主题"}
+        onClick={this.handleToggle}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            this.handleToggle();
+          }
+        }}
+        style={{cursor: "pointer", display: "flex", alignItems: "center", padding: "0 4px"}}
+      >
         {isDark
           ? <SunOutlined style={{fontSize: "18px"}} />
           : <MoonOutlined style={{fontSize: "18px"}} />}

@@ -210,8 +210,8 @@ class SystemInfo extends React.Component {
             </Card>
           </Col>
           <Col span={24}>
-            <Card title="关于 OpenData" bordered style={{textAlign: "center"}}>
-              GitHub: <a target="_blank" rel="noreferrer" href="https://github.com/the-open-data/opendata">OpenData</a>
+            <Card title="关于本系统" bordered style={{textAlign: "center"}}>
+              开源项目：<a target="_blank" rel="noreferrer" href="https://github.com/the-open-data/opendata">OpenData（GitHub）</a>
               <br />
               版本: <a target="_blank" rel="noreferrer" href={link}>{versionText}</a>
             </Card>
@@ -242,8 +242,8 @@ class SystemInfo extends React.Component {
             </Card>
           </Col>
           <Col span={24}>
-            <Card title="关于 OpenData" bordered style={{textAlign: "center"}}>
-              GitHub: <a target="_blank" rel="noreferrer" href="https://github.com/the-open-data/opendata">OpenData</a>
+            <Card title="关于本系统" bordered style={{textAlign: "center"}}>
+              开源项目：<a target="_blank" rel="noreferrer" href="https://github.com/the-open-data/opendata">OpenData（GitHub）</a>
               <br />
               版本: <a target="_blank" rel="noreferrer" href={link}>{versionText}</a>
             </Card>

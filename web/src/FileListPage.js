@@ -184,49 +184,56 @@ class FileListPage extends BaseListPage {
       },
       {
         title: "操作",
-        width: 120,
+        width: 180,
+        fixed: "right",
         render: (text, record) => (
-          <Popconfirm
-            title="确认删除该文件?"
-            onConfirm={() => this.deleteFile(record)}
-            okText="确认"
-            cancelText="取消"
-          >
-            <Button danger size="small">删除</Button>
-          </Popconfirm>
+          <div>
+            <Button
+              style={{marginTop: 10, marginBottom: 10, marginRight: 10}}
+              type="primary"
+              onClick={() => this.props.history.push(`/files/${record.owner}/${record.name}`)}
+            >
+              编辑
+            </Button>
+            <Popconfirm
+              title={`确认删除: ${record.name} ?`}
+              onConfirm={() => this.deleteFile(record)}
+              okText="确认"
+              cancelText="取消"
+            >
+              <Button style={{marginBottom: 10}} type="primary" danger>删除</Button>
+            </Popconfirm>
+          </div>
         ),
       },
     ];
 
     return (
       <div>
-        <Space style={{marginBottom: 16}}>
-          <Button
-            icon={<FolderOutlined />}
-            onClick={() => this.addFolder()}
-          >
-            新建文件夹
-          </Button>
-          <Upload
-            name="file"
-            action={this.getUploadAction()}
-            withCredentials
-            onChange={(info) => this.handleUpload(info)}
-            showUploadList={false}
-          >
-            <Button type="primary" icon={<UploadOutlined />}>
-              上传文件
-            </Button>
-          </Upload>
-        </Space>
         <Table
+          scroll={{x: "max-content"}}
           columns={columns}
           dataSource={files?.map(f => ({...f, key: f.name}))}
           pagination={this.state.pagination}
           onChange={this.handleTableChange}
-          loading={this.state.loading}
+          loading={this.getTableLoading()}
           bordered
           size="middle"
+          title={() => (
+            <div>
+              文件列表&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button size="small" icon={<FolderOutlined />} onClick={() => this.addFolder()}>新建文件夹</Button>
+              <Upload
+                name="file"
+                action={this.getUploadAction()}
+                withCredentials
+                onChange={(info) => this.handleUpload(info)}
+                showUploadList={false}
+              >
+                <Button type="primary" size="small" icon={<UploadOutlined />} style={{marginLeft: 8}}>上传文件</Button>
+              </Upload>
+            </div>
+          )}
         />
       </div>
     );

@@ -33,15 +33,29 @@ img {
   flex-direction: column;
   height: 100%;
   min-height: 100vh;
+  background: linear-gradient(180deg, #e8f0fb 0%, #eef4fc 32%, #f7fafd 100%);
+}
+
+[data-theme="dark"] #parent-area {
+  background: #141414;
+}
+
+[data-theme="dark"] body {
+  background-color: #141414 !important;
 }
 
 .content-warp-card {
-  box-shadow: 0 2px 8px 0 rgb(0 0 0 / 8%);
+  box-shadow: 0 2px 12px 0 rgb(21 101 192 / 8%);
   flex: 1;
   align-items: stretch;
   margin: 0 3px 3px 3px !important;
-  border-radius: 12px !important;
+  border-radius: 16px !important;
   overflow: hidden;
+  border: 1px solid rgb(207 216 220 / 80%);
+}
+
+[data-theme="dark"] .content-warp-card {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] body,
@@ -70,15 +84,108 @@ img {
   overflow-y: hidden !important;
 }
 
-.language-box {
-  background: url("https://cdn.openagentai.org/img/muti_language.svg");
-  background-size: 25px, 25px;
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 45px;
-  height: 65px;
-  float: right;
-  cursor: pointer;
+/* Sider brand strip: formal accent + campus-friendly rounding */
+.edu-sider-brand {
+  position: relative;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef4fc 100%);
+}
+
+.edu-sider-brand::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(180deg, #1565c0 0%, #42a5f5 55%, #ffb74d 100%);
+}
+
+[data-theme="dark"] .edu-sider-brand {
+  background: #141414;
+}
+
+[data-theme="dark"] .edu-sider-brand::before {
+  background: linear-gradient(180deg, #42a5f5 0%, #1565c0 100%);
+}
+
+.edu-sider-title-main {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.edu-sider-title-sub {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.72;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.edu-sider-title-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 17px;
+  color: #fff;
+  background: linear-gradient(145deg, #1565c0 0%, #42a5f5 100%);
+  box-shadow: 0 2px 8px rgb(21 101 192 / 35%);
+}
+
+/* Home dashboard */
+.edu-home-hero {
+  border-radius: 14px;
+  padding: 22px 26px;
+  margin-bottom: 22px;
+  color: #fff;
+  background: linear-gradient(118deg, #0d47a1 0%, #1565c0 38%, #29b6f6 100%);
+  box-shadow: 0 8px 24px rgb(13 71 161 / 28%);
+}
+
+.edu-home-hero h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.edu-home-hero p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.92;
+  line-height: 1.65;
+}
+
+.edu-stat-card {
+  border-radius: 14px !important;
+  border: 1px solid rgb(207 216 220 / 55%) !important;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.edu-stat-card:hover {
+  box-shadow: 0 6px 18px rgb(21 101 192 / 12%) !important;
+  transform: translateY(-2px);
+}
+
+.edu-stat-card .ant-card-body {
+  position: relative;
+}
+
+.edu-stat-card .ant-card-body::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--edu-stat-accent, #1565c0);
 }
 
 .select-box {

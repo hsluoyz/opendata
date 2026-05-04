@@ -82,7 +82,7 @@ export function getProviderLogoWidget(provider) {
   const url = getProviderUrl(provider);
   if (url !== "") {
     return (
-      <Tooltip title={provider.type}>
+      <Tooltip title={Setting.getProviderTypeDisplayName(provider.type)}>
         <a target="_blank" rel="noreferrer" href={getProviderUrl(provider)}>
           <ProviderLogo provider={provider} />
         </a>
@@ -90,7 +90,7 @@ export function getProviderLogoWidget(provider) {
     );
   } else {
     return (
-      <Tooltip title={provider.type}>
+      <Tooltip title={Setting.getProviderTypeDisplayName(provider.type)}>
         <ProviderLogo provider={provider} />
       </Tooltip>
     );

@@ -70,7 +70,7 @@ export function getFooterHtml(themeAlgorithm, footerHtml) {
 }
 
 export function getAcceptLanguage() {
-  return localStorage.getItem("language") || navigator.language || "en";
+  return localStorage.getItem("language") || navigator.language || "zh-CN";
 }
 
 export async function handleFetchResponse(res) {
@@ -167,6 +167,30 @@ export function getOtherProviderInfo() {
   };
 }
 
+export function getProviderCategoryDisplayName(category) {
+  const categoryMap = {
+    Storage: "存储",
+  };
+  return categoryMap[category] || category || "";
+}
+
+export function getProviderTypeDisplayName(type) {
+  const typeMap = {
+    "Local File System": "本地文件系统",
+    "OpenAI File System": "OpenAI 文件系统",
+    Casdoor: "Casdoor",
+  };
+  return typeMap[type] || type || "";
+}
+
+export function getProviderStateDisplayName(state) {
+  const stateMap = {
+    Active: "启用",
+    Inactive: "停用",
+  };
+  return stateMap[state] || state || "";
+}
+
 export function getProviderLogoURL(provider) {
   const info = getOtherProviderInfo()[provider?.category]?.[provider?.type];
   return info?.logo || "https://cdn.openagentai.org/img/provider/local_file_system.png";
@@ -177,8 +201,8 @@ export function getProviderTypeOptions(category) {
     return [];
   }
   return [
-    {id: "Local File System", name: "Local File System"},
-    {id: "OpenAI File System", name: "OpenAI File System"},
+    {id: "Local File System", name: "本地文件系统"},
+    {id: "OpenAI File System", name: "OpenAI 文件系统"},
     {id: "Casdoor", name: "Casdoor"},
   ];
 }

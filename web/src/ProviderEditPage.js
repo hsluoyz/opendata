@@ -39,7 +39,7 @@ class ProviderEditPage extends React.Component {
         if (res.status === "ok") {
           this.setState({provider: {...res.data, category: "Storage"}});
         } else {
-          Setting.showMessage("error", `Failed to get: ${res.msg}`);
+          Setting.showMessage("error", `获取失败：${res.msg}`);
         }
       });
   }
@@ -63,14 +63,14 @@ class ProviderEditPage extends React.Component {
     ProviderBackend.updateProvider(provider.owner, this.state.providerName, provider)
       .then((res) => {
         if (res.status === "ok") {
-          Setting.showMessage("success", "Successfully saved");
+          Setting.showMessage("success", "保存成功");
           this.setState({
             providerName: provider.name,
             isNewProvider: false,
           });
           this.props.history.push(exitAfterSave ? "/providers" : `/providers/${provider.name}`);
         } else {
-          Setting.showMessage("error", `Failed to save: ${res.msg}`);
+          Setting.showMessage("error", `保存失败：${res.msg}`);
         }
       });
   }
@@ -83,10 +83,10 @@ class ProviderEditPage extends React.Component {
     ProviderBackend.deleteProvider(this.state.provider)
       .then((res) => {
         if (res.status === "ok") {
-          Setting.showMessage("success", "Cancelled successfully");
+          Setting.showMessage("success", "已取消");
           this.props.history.push("/providers");
         } else {
-          Setting.showMessage("error", `Failed to cancel: ${res.msg}`);
+          Setting.showMessage("error", `取消失败：${res.msg}`);
         }
       });
   }
@@ -96,67 +96,67 @@ class ProviderEditPage extends React.Component {
     return (
       <Card size="small" title={
         <div>
-          Edit Storage Provider&nbsp;&nbsp;&nbsp;&nbsp;
-          <Button onClick={() => this.submitProviderEdit(false)}>Save</Button>
-          <Button style={{marginLeft: 20}} type="primary" onClick={() => this.submitProviderEdit(true)}>Save & Exit</Button>
-          {this.state.isNewProvider && <Button style={{marginLeft: 20}} onClick={() => this.cancelProviderEdit()}>Cancel</Button>}
+          编辑存储提供商&nbsp;&nbsp;&nbsp;&nbsp;
+          <Button onClick={() => this.submitProviderEdit(false)}>保存</Button>
+          <Button style={{marginLeft: 20}} type="primary" onClick={() => this.submitProviderEdit(true)}>保存并退出</Button>
+          {this.state.isNewProvider && <Button style={{marginLeft: 20}} onClick={() => this.cancelProviderEdit()}>取消</Button>}
         </div>
       } style={{marginLeft: 5}} type="inner">
         <Row style={{marginTop: 10}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Name", "Unique provider name")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("名称", "唯一的提供商名称")}：</Col>
           <Col span={22}><Input value={provider.name} onChange={e => this.updateProviderField("name", e.target.value)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Display name", "Human-readable provider name")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("显示名称", "便于识别的提供商名称")}：</Col>
           <Col span={22}><Input value={provider.displayName || ""} onChange={e => this.updateProviderField("displayName", e.target.value)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Category", "Only Storage is supported in OpenData")} :</Col>
-          <Col span={22}><Select disabled style={{width: "100%"}} value="Storage" options={[{value: "Storage", label: "Storage"}]} /></Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("类别", "OpenData 目前仅支持存储类别")}：</Col>
+          <Col span={22}><Select disabled style={{width: "100%"}} value="Storage" options={[{value: "Storage", label: "存储"}]} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Type", "Storage provider type")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("类型", "存储提供商类型")}：</Col>
           <Col span={22}>
             <Select
               virtual={false}
               style={{width: "100%"}}
               value={provider.type}
               onChange={value => this.updateProviderField("type", value)}
-              options={Setting.getProviderTypeOptions("Storage").map(item => Setting.getOption(item.id, item.name))}
+              options={Setting.getProviderTypeOptions("Storage").map(item => Setting.getOption(item.name, item.id))}
             />
           </Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Storage subpath", "Local path, bucket, or provider-specific storage path")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("存储子路径", "本地路径、存储桶或提供商专用存储路径")}：</Col>
           <Col span={22}><Input value={provider.clientId || ""} onChange={e => this.updateProviderField("clientId", e.target.value)} /></Col>
         </Row>
         {provider.type === "OpenAI File System" || provider.type === "Casdoor" ? (
           <Row style={{marginTop: 20}}>
-            <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Secret key", "Provider secret key")} :</Col>
+            <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("密钥", "提供商密钥")}：</Col>
             <Col span={22}><Input.Password value={provider.clientSecret || ""} onChange={e => this.updateProviderField("clientSecret", e.target.value)} /></Col>
           </Row>
         ) : null}
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Region", "Storage region")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("区域", "存储区域")}：</Col>
           <Col span={22}><Input value={provider.region || ""} onChange={e => this.updateProviderField("region", e.target.value)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Provider URL", "Storage provider endpoint")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("提供商 URL", "存储提供商访问端点")}：</Col>
           <Col span={22}><Input prefix={<LinkOutlined />} value={provider.providerUrl || ""} onChange={e => this.updateProviderField("providerUrl", e.target.value)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Is default", "Use this provider by default")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("是否默认", "默认使用此提供商")}：</Col>
           <Col span={1}><Switch checked={provider.isDefault} onChange={checked => this.updateProviderField("isDefault", checked)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("State", "Provider state")} :</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("状态", "提供商状态")}：</Col>
           <Col span={22}>
             <Select
               virtual={false}
               style={{width: "100%"}}
               value={provider.state || "Active"}
               onChange={value => this.updateProviderField("state", value)}
-              options={[{value: "Active", label: "Active"}, {value: "Inactive", label: "Inactive"}]}
+              options={[{value: "Active", label: "启用"}, {value: "Inactive", label: "停用"}]}
             />
           </Col>
         </Row>
@@ -167,12 +167,12 @@ class ProviderEditPage extends React.Component {
   render() {
     return (
       <div>
-        {this.state.provider !== null ? this.renderProvider() : <Loading type="page" tip="Loading" />}
+        {this.state.provider !== null ? this.renderProvider() : <Loading type="page" tip="加载中" />}
         {this.state.provider !== null && (
           <div style={{marginTop: 20, marginLeft: 40}}>
-            <Button size="large" onClick={() => this.submitProviderEdit(false)}>Save</Button>
-            <Button style={{marginLeft: 20}} type="primary" size="large" onClick={() => this.submitProviderEdit(true)}>Save & Exit</Button>
-            {this.state.isNewProvider && <Button style={{marginLeft: 20}} size="large" onClick={() => this.cancelProviderEdit()}>Cancel</Button>}
+            <Button size="large" onClick={() => this.submitProviderEdit(false)}>保存</Button>
+            <Button style={{marginLeft: 20}} type="primary" size="large" onClick={() => this.submitProviderEdit(true)}>保存并退出</Button>
+            {this.state.isNewProvider && <Button style={{marginLeft: 20}} size="large" onClick={() => this.cancelProviderEdit()}>取消</Button>}
           </div>
         )}
       </div>

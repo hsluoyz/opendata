@@ -24,6 +24,6 @@ export const ThemeDefault = {
 export const AuthConfig = {serverUrl: "", clientId: "", appName: "", organizationName: "", redirectPath: ""};
 export const ShortcutPageItems = [];
 export const NavbarHtml = "";
-export const FooterHtml = "Powered by OpenData";
+export const FooterHtml = "由OpenData提供支持";
 export const HtmlTitle = "OpenData";
 export const FaviconUrl = "";

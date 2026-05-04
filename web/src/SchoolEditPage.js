@@ -100,7 +100,7 @@ class SchoolEditPage extends React.Component {
                 onChange={e => this.updateField("phone", e.target.value)}
               />
             </Form.Item>
-            <Form.Item label="Logo URL">
+            <Form.Item label="Logo 地址">
               <Input
                 value={school.logo}
                 onChange={e => this.updateField("logo", e.target.value)}

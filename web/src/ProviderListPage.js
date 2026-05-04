@@ -30,7 +30,7 @@ class ProviderListPage extends BaseListPage {
       owner: "admin",
       name: `provider_${randomName}`,
       createdTime: moment().format(),
-      displayName: `New Storage Provider - ${randomName}`,
+      displayName: `新存储提供商 - ${randomName}`,
       displayName2: "",
       category: "Storage",
       type: "Local File System",
@@ -50,13 +50,13 @@ class ProviderListPage extends BaseListPage {
     ProviderBackend.addProvider(newProvider)
       .then((res) => {
         if (res.status === "ok") {
-          Setting.showMessage("success", "Successfully added");
+          Setting.showMessage("success", "添加成功");
           this.props.history.push({
             pathname: `/providers/${newProvider.name}`,
             state: {isNewProvider: true},
           });
         } else {
-          Setting.showMessage("error", `Failed to add: ${res.msg}`);
+          Setting.showMessage("error", `添加失败：${res.msg}`);
         }
       });
   }
@@ -69,7 +69,7 @@ class ProviderListPage extends BaseListPage {
     ProviderBackend.deleteProvider(record)
       .then((res) => {
         if (res.status === "ok") {
-          Setting.showMessage("success", "Successfully deleted");
+          Setting.showMessage("success", "删除成功");
           this.setState({
             data: this.state.data.filter((item) => item.name !== record.name),
             pagination: {
@@ -78,7 +78,7 @@ class ProviderListPage extends BaseListPage {
             },
           });
         } else {
-          Setting.showMessage("error", `Failed to delete: ${res.msg}`);
+          Setting.showMessage("error", `删除失败：${res.msg}`);
         }
       });
   }
@@ -86,7 +86,7 @@ class ProviderListPage extends BaseListPage {
   renderTable(providers) {
     const columns = [
       {
-        title: "Name",
+        title: "名称",
         dataIndex: "name",
         key: "name",
         width: "180px",
@@ -95,7 +95,7 @@ class ProviderListPage extends BaseListPage {
         render: (text) => <Link to={`/providers/${text}`}>{text}</Link>,
       },
       {
-        title: "Display name",
+        title: "显示名称",
         dataIndex: "displayName",
         key: "displayName",
         width: "220px",
@@ -109,27 +109,28 @@ class ProviderListPage extends BaseListPage {
         },
       },
       {
-        title: "Category",
+        title: "类别",
         dataIndex: "category",
         key: "category",
         width: "110px",
-        filters: [{text: "Storage", value: "Storage"}],
+        filters: [{text: "存储", value: "Storage"}],
         filterMultiple: false,
         sorter: (a, b) => a.category.localeCompare(b.category),
+        render: (text) => Setting.getProviderCategoryDisplayName(text),
       },
       {
-        title: "Type",
+        title: "类型",
         dataIndex: "type",
         key: "type",
         width: "150px",
         align: "center",
-        filters: Setting.getProviderTypeOptions("Storage").map((o) => ({text: o.id, value: o.name})),
+        filters: Setting.getProviderTypeOptions("Storage").map((o) => ({text: o.name, value: o.id})),
         filterMultiple: false,
         sorter: (a, b) => a.type.localeCompare(b.type),
         render: (text, record) => Provider.getProviderLogoWidget(record),
       },
       {
-        title: "Storage subpath",
+        title: "存储子路径",
         dataIndex: "clientId",
         key: "clientId",
         width: "240px",
@@ -137,7 +138,7 @@ class ProviderListPage extends BaseListPage {
         ...this.getColumnSearchProps("clientId"),
       },
       {
-        title: "Region",
+        title: "区域",
         dataIndex: "region",
         key: "region",
         width: "120px",
@@ -145,22 +146,23 @@ class ProviderListPage extends BaseListPage {
         ...this.getColumnSearchProps("region"),
       },
       {
-        title: "Is default",
+        title: "默认",
         dataIndex: "isDefault",
         key: "isDefault",
         width: "120px",
         sorter: (a, b) => a.isDefault - b.isDefault,
-        render: (text) => <Switch disabled checkedChildren="ON" unCheckedChildren="OFF" checked={text} />,
+        render: (text) => <Switch disabled checkedChildren="是" unCheckedChildren="否" checked={text} />,
       },
       {
-        title: "State",
+        title: "状态",
         dataIndex: "state",
         key: "state",
         width: "90px",
         sorter: (a, b) => (a.state || "").localeCompare(b.state || ""),
+        render: (text) => Setting.getProviderStateDisplayName(text),
       },
       {
-        title: "Action",
+        title: "操作",
         dataIndex: "action",
         key: "action",
         width: "180px",
@@ -168,10 +170,10 @@ class ProviderListPage extends BaseListPage {
         render: (text, record) => (
           <div>
             <Button style={{marginTop: 10, marginBottom: 10, marginRight: 10}} type="primary" onClick={() => this.props.history.push(`/providers/${record.name}`)}>
-              Edit
+              编辑
             </Button>
-            <Popconfirm title={`Sure to delete: ${record.name} ?`} onConfirm={() => this.deleteProvider(record)} okText="OK" cancelText="Cancel">
-              <Button style={{marginBottom: 10}} type="primary" danger>Delete</Button>
+            <Popconfirm title={`确认删除：${record.name}？`} onConfirm={() => this.deleteProvider(record)} okText="确认" cancelText="取消">
+              <Button style={{marginBottom: 10}} type="primary" danger>删除</Button>
             </Popconfirm>
           </div>
         ),
@@ -183,7 +185,7 @@ class ProviderListPage extends BaseListPage {
       showQuickJumper: true,
       showSizeChanger: true,
       pageSizeOptions: ["10", "20", "50", "100", "1000"],
-      showTotal: () => `${this.state.pagination.total} in total`,
+      showTotal: () => `共 ${this.state.pagination.total} 条`,
     };
 
     return (
@@ -198,12 +200,12 @@ class ProviderListPage extends BaseListPage {
         pagination={paginationProps}
         title={() => (
           <div>
-            Storage Providers&nbsp;&nbsp;&nbsp;&nbsp;
-            <Button type="primary" size="small" onClick={() => this.addProvider()}>Add</Button>
+            存储提供商&nbsp;&nbsp;&nbsp;&nbsp;
+            <Button type="primary" size="small" onClick={() => this.addProvider()}>添加</Button>
             {this.state.selectedRowKeys.length > 0 && (
-              <Popconfirm title={`Sure to delete: ${this.state.selectedRowKeys.length} items ?`} onConfirm={() => this.performBulkDelete(this.state.selectedRows)} okText="OK" cancelText="Cancel">
+              <Popconfirm title={`确认删除 ${this.state.selectedRowKeys.length} 项？`} onConfirm={() => this.performBulkDelete(this.state.selectedRows)} okText="确认" cancelText="取消">
                 <Button type="primary" danger size="small" icon={<DeleteOutlined />} style={{marginLeft: 8}}>
-                  Delete ({this.state.selectedRowKeys.length})
+                  删除（{this.state.selectedRowKeys.length}）
                 </Button>
               </Popconfirm>
             )}

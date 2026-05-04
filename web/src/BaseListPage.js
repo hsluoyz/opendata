@@ -66,7 +66,7 @@ class BaseListPage extends React.Component {
   };
 
   getTableLoading = () => {
-    return this.state.loading ? {tip: "Loading"} : false;
+    return this.state.loading ? {tip: "加载中"} : false;
   };
 
   getColumnSearchProps(dataIndex) {

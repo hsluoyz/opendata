@@ -16,6 +16,7 @@ import React from "react";
 import {BrowserRouter, Redirect, Route, Switch} from "react-router-dom";
 import {StyleProvider, legacyLogicalPropertiesTransformer} from "@ant-design/cssinjs";
 import {ConfigProvider} from "antd";
+import zhCN from "antd/es/locale/zh_CN";
 import {Helmet} from "react-helmet";
 import {AiDots} from "./common/Loading";
 import * as AccountBackend from "./backend/AccountBackend";
@@ -78,6 +79,7 @@ class App extends React.Component {
           <link rel="icon" href={Setting.getFaviconUrl(themeAlgorithm)} />
         </Helmet>
         <ConfigProvider
+          locale={zhCN}
           spin={{indicator: <AiDots />}}
           theme={{
             token: {

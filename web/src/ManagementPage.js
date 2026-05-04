@@ -172,7 +172,7 @@ class ManagementPage extends React.Component {
 
   handleSignout() {
     AccountBackend.signout().then(() => {
-      Setting.showMessage("success", "Signed out");
+      Setting.showMessage("success", "已退出登录");
       this.props.onSignout?.();
       this.props.history.push("/signin");
     });
@@ -189,25 +189,25 @@ class ManagementPage extends React.Component {
 
   getMenuItems() {
     const items = [
-      Setting.getItem(<Link to="/">Home</Link>, "/", <HomeOutlined />),
-      Setting.getItem("Education", "/education", <DatabaseOutlined />, [
-        Setting.getItem(<Link to="/schools">Schools</Link>, "/schools", <BankOutlined />),
-        Setting.getItem(<Link to="/grades">Grades</Link>, "/grades", <ApartmentOutlined />),
-        Setting.getItem(<Link to="/classes">Classes</Link>, "/classes", <TeamOutlined />),
-        Setting.getItem(<Link to="/subjects">Subjects</Link>, "/subjects", <BookOutlined />),
+      Setting.getItem(<Link to="/">首页</Link>, "/", <HomeOutlined />),
+      Setting.getItem("教务管理", "/education", <DatabaseOutlined />, [
+        Setting.getItem(<Link to="/schools">学校</Link>, "/schools", <BankOutlined />),
+        Setting.getItem(<Link to="/grades">年级</Link>, "/grades", <ApartmentOutlined />),
+        Setting.getItem(<Link to="/classes">班级</Link>, "/classes", <TeamOutlined />),
+        Setting.getItem(<Link to="/subjects">学科</Link>, "/subjects", <BookOutlined />),
       ]),
-      Setting.getItem("People", "/people", <UserOutlined />, [
-        Setting.getItem(<Link to="/teachers">Teachers</Link>, "/teachers", <UserOutlined />),
-        Setting.getItem(<Link to="/students">Students</Link>, "/students", <SolutionOutlined />),
-        Setting.getItem(<Link to="/parents">Parents</Link>, "/parents", <HeartOutlined />),
+      Setting.getItem("人员管理", "/people", <UserOutlined />, [
+        Setting.getItem(<Link to="/teachers">教师</Link>, "/teachers", <UserOutlined />),
+        Setting.getItem(<Link to="/students">学生</Link>, "/students", <SolutionOutlined />),
+        Setting.getItem(<Link to="/parents">家长</Link>, "/parents", <HeartOutlined />),
       ]),
-      Setting.getItem("Storage", "/storage", <CloudOutlined />, [
-        Setting.getItem(<Link to="/files">Files</Link>, "/files", <FileOutlined />),
+      Setting.getItem("存储管理", "/storage", <CloudOutlined />, [
+        Setting.getItem(<Link to="/files">文件</Link>, "/files", <FileOutlined />),
       ]),
     ];
 
     if (Setting.isAdminUser(this.props.account)) {
-      items[3].children.push(Setting.getItem(<Link to="/providers">Storage Providers</Link>, "/providers", <CloudOutlined />));
+      items[3].children.push(Setting.getItem(<Link to="/providers">存储提供商</Link>, "/providers", <CloudOutlined />));
     }
     return items;
   }
@@ -217,7 +217,7 @@ class ManagementPage extends React.Component {
     const items = [{
       key: "/logout",
       icon: <LogoutOutlined />,
-      label: "Sign Out",
+      label: "退出登录",
       onClick: () => this.handleSignout(),
     }];
     return (
@@ -253,9 +253,9 @@ class ManagementPage extends React.Component {
           <span style={{fontWeight: 600}}>OpenData</span>
         </div>
         <Space size={8}>
-          <Select placeholder="School" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
-          <Select placeholder="Grade" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
-          <Select placeholder="Class" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
+          <Select placeholder="学校" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
+          <Select placeholder="年级" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
+          <Select placeholder="班级" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
           {this.renderAccountMenu()}
         </Space>
       </Header>
@@ -285,7 +285,7 @@ class ManagementPage extends React.Component {
         <Route path="/files/:owner/:name" render={props => <FileEditPage {...props} account={account} />} />
         <Route exact path="/providers" render={props => <ProviderListPage {...props} account={account} />} />
         <Route exact path="/providers/:providerName" render={props => <ProviderEditPage {...props} account={account} />} />
-        <Route path="" render={() => <Result status="404" title="404 NOT FOUND" extra={<a href="/"><Button type="primary">Back Home</Button></a>} />} />
+        <Route path="" render={() => <Result status="404" title="404 未找到" extra={<a href="/"><Button type="primary">返回首页</Button></a>} />} />
       </Switch>
     );
   }

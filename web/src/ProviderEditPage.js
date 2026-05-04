@@ -18,6 +18,7 @@ import {LinkOutlined} from "@ant-design/icons";
 import Loading from "./common/Loading";
 import * as ProviderBackend from "./backend/ProviderBackend";
 import * as Setting from "./Setting";
+import {renderStorageProviderFields} from "./provider/StorageProviderFields";
 
 class ProviderEditPage extends React.Component {
   constructor(props) {
@@ -37,7 +38,11 @@ class ProviderEditPage extends React.Component {
     ProviderBackend.getProvider("admin", this.state.providerName)
       .then((res) => {
         if (res.status === "ok") {
-          this.setState({provider: {...res.data, category: "Storage"}});
+          const p = {...res.data, category: "Storage"};
+          if (p.type === "Local File System" && !p.domain) {
+            p.domain = Setting.getFullServerUrl();
+          }
+          this.setState({provider: p});
         } else {
           Setting.showMessage("error", `获取失败：${res.msg}`);
         }
@@ -52,6 +57,14 @@ class ProviderEditPage extends React.Component {
         category: "Storage",
       },
     });
+  }
+
+  onStorageTypeChange(value) {
+    const p = {...this.state.provider, type: value, category: "Storage"};
+    if (value === "Local File System") {
+      p.domain = Setting.getFullServerUrl();
+    }
+    this.setState({provider: p});
   }
 
   submitProviderEdit(exitAfterSave) {
@@ -93,6 +106,8 @@ class ProviderEditPage extends React.Component {
 
   renderProvider() {
     const provider = this.state.provider;
+    const isAliyun = provider.type === "Aliyun OSS";
+
     return (
       <Card size="small" title={
         <div>
@@ -121,27 +136,26 @@ class ProviderEditPage extends React.Component {
               virtual={false}
               style={{width: "100%"}}
               value={provider.type}
-              onChange={value => this.updateProviderField("type", value)}
+              onChange={v => this.onStorageTypeChange(v)}
               options={Setting.getProviderTypeOptions("Storage").map(item => Setting.getOption(item.name, item.id))}
             />
           </Col>
         </Row>
-        <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("存储子路径", "本地路径、存储桶或提供商专用存储路径")}：</Col>
-          <Col span={22}><Input value={provider.clientId || ""} onChange={e => this.updateProviderField("clientId", e.target.value)} /></Col>
-        </Row>
-        {provider.type === "OpenAI File System" || provider.type === "Casdoor" ? (
-          <Row style={{marginTop: 20}}>
-            <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("密钥", "提供商密钥")}：</Col>
-            <Col span={22}><Input.Password value={provider.clientSecret || ""} onChange={e => this.updateProviderField("clientSecret", e.target.value)} /></Col>
-          </Row>
+        {isAliyun ? (
+          <React.Fragment>
+            <Row style={{marginTop: 20}}>
+              <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Access Key ID", "阿里云 AccessKey ID")}：</Col>
+              <Col span={22}><Input value={provider.clientId || ""} onChange={e => this.updateProviderField("clientId", e.target.value)} /></Col>
+            </Row>
+            <Row style={{marginTop: 20}}>
+              <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("Access Key Secret", "阿里云 AccessKey Secret")}：</Col>
+              <Col span={22}><Input.Password value={provider.clientSecret || ""} onChange={e => this.updateProviderField("clientSecret", e.target.value)} /></Col>
+            </Row>
+          </React.Fragment>
         ) : null}
+        {renderStorageProviderFields(provider, this.updateProviderField.bind(this))}
         <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("区域", "存储区域")}：</Col>
-          <Col span={22}><Input value={provider.region || ""} onChange={e => this.updateProviderField("region", e.target.value)} /></Col>
-        </Row>
-        <Row style={{marginTop: 20}}>
-          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("提供商 URL", "存储提供商访问端点")}：</Col>
+          <Col style={{marginTop: 5}} span={Setting.isMobile() ? 22 : 2}>{Setting.getLabel("提供商 URL", "文档或控制台链接")}：</Col>
           <Col span={22}><Input prefix={<LinkOutlined />} value={provider.providerUrl || ""} onChange={e => this.updateProviderField("providerUrl", e.target.value)} /></Col>
         </Row>
         <Row style={{marginTop: 20}}>

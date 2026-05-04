@@ -125,14 +125,11 @@ func (c *ApiController) DeleteFile() {
 		return
 	}
 
-	// delete from storage if it's a real file
-	if file.Category == "file" && file.StoragePath != "" {
+	// delete from storage if it's a real file (path = provider object key, same idea as Casdoor resource)
+	if file.Category == "file" && file.Path != "" {
 		provider, err := object.GetDefaultStorageProvider()
 		if err == nil && provider != nil {
-			sp, err := provider.GetStorageProviderObj()
-			if err == nil && sp != nil {
-				_ = sp.DeleteObject(file.StoragePath)
-			}
+			_ = object.DeleteStorageFile(provider, file.Path)
 		}
 	}
 
@@ -183,12 +180,6 @@ func (c *ApiController) UploadFile() {
 		c.ResponseError("未配置存储提供商")
 		return
 	}
-	sp, err := provider.GetStorageProviderObj()
-	if err != nil {
-		c.ResponseError(fmt.Sprintf("存储初始化失败: %v", err))
-		return
-	}
-
 	// generate unique key for the file (Casdoor-style: Unix nano string avoids Windows-invalid names from RFC3339)
 	fileName := header.Filename
 	ext := filepath.Ext(fileName)
@@ -201,7 +192,7 @@ func (c *ApiController) UploadFile() {
 		return
 	}
 
-	storagePath, err := sp.PutObject(user.Name, "", fileId, buf)
+	fileUrl, objectKey, err := object.UploadStorageFileSafe(provider, fileId, buf)
 	if err != nil {
 		c.ResponseError(fmt.Sprintf("文件存储失败: %v", err))
 		return
@@ -228,8 +219,8 @@ func (c *ApiController) UploadFile() {
 		Parent:      parent,
 		Uploader:    user.Name,
 		Tag:         tag,
-		StoragePath: storagePath,
-		Url:         "/api/download-file?path=" + storagePath,
+		Path:        objectKey,
+		Url:         fileUrl,
 		Size:        int64(buf.Len()),
 		FileType:    mimeType,
 	}
@@ -241,26 +232,6 @@ func (c *ApiController) UploadFile() {
 	}
 
 	c.ResponseOk(fileObj)
-}
-
-func (c *ApiController) DownloadFile() {
-	if !c.RequireSignedIn() {
-		return
-	}
-	path := c.Input().Get("path")
-	if path == "" {
-		c.ResponseError("文件路径不能为空")
-		return
-	}
-
-	provider, err := object.GetDefaultStorageProvider()
-	if err != nil || provider == nil {
-		c.ResponseError("未配置存储提供商")
-		return
-	}
-
-	// for local file system, serve directly
-	c.Ctx.Output.Download(path, filepath.Base(path))
 }
 
 func sanitizeFileName(name string) string {

@@ -17,22 +17,29 @@ package object
 import (
 	"fmt"
 
-	"github.com/the-open-data/opendata/storage"
+	"github.com/the-open-data/opendata/conf"
 	"xorm.io/core"
 )
 
+// Provider mirrors Casdoor storage-related fields used by object/storage_casdoor.go.
 type Provider struct {
-	Owner        string `xorm:"varchar(100) notnull pk" json:"owner"` // always "admin"
+	Owner        string `xorm:"varchar(100) notnull pk" json:"owner"`
 	Name         string `xorm:"varchar(100) notnull pk" json:"name"`
 	CreatedTime  string `xorm:"varchar(100)" json:"createdTime"`
 	DisplayName  string `xorm:"varchar(200)" json:"displayName"`
 	DisplayName2 string `xorm:"varchar(200)" json:"displayName2"`
-	Category     string `xorm:"varchar(100)" json:"category"` // "Storage"
-	Type         string `xorm:"varchar(100)" json:"type"`     // "Local File System"
+	Category     string `xorm:"varchar(100)" json:"category"`
+	Type         string `xorm:"varchar(100)" json:"type"`
 	SubType      string `xorm:"varchar(100)" json:"subType"`
-	ClientId     string `xorm:"varchar(500)" json:"clientId"` // local path or bucket
+	ClientId     string `xorm:"varchar(500)" json:"clientId"`
 	ClientSecret string `xorm:"varchar(500)" json:"clientSecret"`
-	Region       string `xorm:"varchar(100)" json:"region"`
+	RegionId     string `xorm:"varchar(100) region" json:"regionId"`
+	Endpoint     string `xorm:"varchar(1000)" json:"endpoint"`
+	IntranetEndpoint string `xorm:"varchar(100)" json:"intranetEndpoint"`
+	Domain       string `xorm:"varchar(500)" json:"domain"`
+	Bucket       string `xorm:"varchar(100)" json:"bucket"`
+	PathPrefix   string `xorm:"varchar(100)" json:"pathPrefix"`
+	Content      string `xorm:"varchar(2000)" json:"content"`
 	ProviderUrl  string `xorm:"varchar(500)" json:"providerUrl"`
 	State        string `xorm:"varchar(100)" json:"state"`
 	IsDefault    bool   `json:"isDefault"`
@@ -90,22 +97,6 @@ func getProvider(owner, name string) (*Provider, error) {
 }
 
 func GetDefaultStorageProvider() (*Provider, error) {
-	site, err := GetBuiltInSite()
-	if err != nil {
-		return nil, err
-	}
-	if site != nil && site.StorageProvider != "" {
-		return &Provider{
-			Owner:     site.Owner,
-			Name:      "site-built-in-storage",
-			Category:  "Storage",
-			Type:      getStorageProviderType(site.StorageProvider),
-			ClientId:  getStoragePath(site.StoragePath),
-			State:     "Active",
-			IsDefault: true,
-		}, nil
-	}
-
 	provider := &Provider{}
 	existed, err := adapter.engine.Where("category=? AND is_default=?", "Storage", true).Get(provider)
 	if err != nil {
@@ -114,7 +105,6 @@ func GetDefaultStorageProvider() (*Provider, error) {
 	if existed {
 		return provider, nil
 	}
-	// fallback: get first storage provider
 	existed, err = adapter.engine.Where("category=?", "Storage").Get(provider)
 	if err != nil {
 		return nil, err
@@ -123,22 +113,6 @@ func GetDefaultStorageProvider() (*Provider, error) {
 		return provider, nil
 	}
 	return nil, nil
-}
-
-func getStorageProviderType(storageProvider string) string {
-	switch storageProvider {
-	case "", "local", "Local File System":
-		return "Local File System"
-	default:
-		return storageProvider
-	}
-}
-
-func getStoragePath(storagePath string) string {
-	if storagePath == "" {
-		return "./files"
-	}
-	return storagePath
 }
 
 func AddProvider(provider *Provider) (bool, error) {
@@ -162,10 +136,6 @@ func DeleteProvider(provider *Provider) (bool, error) {
 	return affected != 0, err
 }
 
-func (p *Provider) GetStorageProviderObj() (storage.StorageProvider, error) {
-	return storage.GetStorageProvider(p.Type, p.ClientId, p.ClientSecret, p.Name)
-}
-
 func InitDefaultProvider() {
 	provider, err := GetDefaultStorageProvider()
 	if err != nil {
@@ -179,7 +149,8 @@ func InitDefaultProvider() {
 			DisplayName: "本地存储",
 			Category:    "Storage",
 			Type:        "Local File System",
-			ClientId:    getBuiltInStoragePath(),
+			Domain:      conf.DefaultHttpOrigin(),
+			PathPrefix:  "",
 			State:       "Active",
 			IsDefault:   true,
 		}
@@ -188,12 +159,4 @@ func InitDefaultProvider() {
 			panic(err)
 		}
 	}
-}
-
-func getBuiltInStoragePath() string {
-	site, err := GetBuiltInSite()
-	if err == nil && site != nil && site.StoragePath != "" {
-		return site.StoragePath
-	}
-	return getStoragePath("")
 }

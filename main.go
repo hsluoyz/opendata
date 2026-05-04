@@ -63,6 +63,8 @@ func main() {
 	object.InitBuiltInSite()
 	object.InitDefaultProvider()
 
+	beego.SetStaticPath("/files", "files")
+
 	initSocks5Proxy()
 
 	beego.InsertFilter("*", beego.BeforeRouter, routers.CorsFilter)

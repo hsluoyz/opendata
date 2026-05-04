@@ -52,7 +52,7 @@ class FileListPage extends BaseListPage {
       parent: "",
       uploader: "",
       tag: "",
-      storagePath: "",
+      path: "",
       url: "",
       size: 0,
       fileType: "",

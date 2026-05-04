@@ -28,7 +28,19 @@ export function initServerUrl() {
   }
 }
 
-// Join API-relative paths (e.g. /api/download-file?...) with ServerUrl for display or <img src>.
+// Public API origin for Casdoor-style storage Domain default (same as ServerUrl when set).
+export function getFullServerUrl() {
+  const u = (ServerUrl || "").replace(/\/$/, "");
+  if (u) {
+    return u;
+  }
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return window.location.origin;
+  }
+  return "http://localhost:14001";
+}
+
+// Join API-relative paths with ServerUrl for display or <img src>. Absolute http(s) URLs are returned unchanged.
 export function getAbsoluteUrl(relative) {
   if (!relative) {
     return "";
@@ -242,13 +254,9 @@ export function getOtherProviderInfo() {
         url: "",
         logo: "https://cdn.openagentai.org/img/provider/local_file_system.png",
       },
-      "OpenAI File System": {
-        url: "https://platform.openai.com/storage",
-        logo: "https://cdn.openagentai.org/img/provider/openai.png",
-      },
-      "Casdoor": {
-        url: "https://casdoor.org",
-        logo: "https://cdn.openagentai.org/img/provider/casdoor.png",
+      "Aliyun OSS": {
+        url: "https://www.alibabacloud.com/product/oss",
+        logo: "https://cdn.openagentai.org/img/provider/aliyun.png",
       },
     },
   };
@@ -264,8 +272,7 @@ export function getProviderCategoryDisplayName(category) {
 export function getProviderTypeDisplayName(type) {
   const typeMap = {
     "Local File System": "本地文件系统",
-    "OpenAI File System": "OpenAI 文件系统",
-    Casdoor: "Casdoor",
+    "Aliyun OSS": "阿里云 OSS",
   };
   return typeMap[type] || type || "";
 }
@@ -289,8 +296,7 @@ export function getProviderTypeOptions(category) {
   }
   return [
     {id: "Local File System", name: "本地文件系统"},
-    {id: "OpenAI File System", name: "OpenAI 文件系统"},
-    {id: "Casdoor", name: "Casdoor"},
+    {id: "Aliyun OSS", name: "阿里云 OSS"},
   ];
 }
 

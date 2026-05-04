@@ -15,6 +15,7 @@
 package conf
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -65,6 +66,12 @@ func GetConfigInt(key string) int {
 
 func IsDemoMode() bool {
 	return GetConfigBool("isDemoMode")
+}
+
+// DefaultHttpOrigin returns http://localhost:<httpport> for default storage provider Domain (Casdoor-style).
+func DefaultHttpOrigin() string {
+	port := beego.AppConfig.DefaultInt("httpport", 14001)
+	return fmt.Sprintf("http://localhost:%d", port)
 }
 
 func GetWebConfig() *WebConfig {

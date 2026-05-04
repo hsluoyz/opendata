@@ -37,8 +37,8 @@ type File struct {
 	Parent      string   `xorm:"varchar(100) index" json:"parent"`
 	Uploader    string   `xorm:"varchar(100) index" json:"uploader"` // username who uploaded
 	Tag         string   `xorm:"varchar(500)" json:"tag"`
-	StoragePath string   `xorm:"varchar(1000)" json:"storagePath"` // path in storage provider
-	Url         string   `xorm:"varchar(1000)" json:"url"` // accessible URL
+	Path        string   `xorm:"varchar(1000)" json:"path"` // storage object key for DeleteObject (Casdoor-style)
+	Url         string   `xorm:"varchar(1000)" json:"url"` // full public URL for download / preview
 	Size        int64    `xorm:"bigint" json:"size"`
 	FileType    string   `xorm:"varchar(200)" json:"fileType"` // MIME type or extension
 	Admins      []string `xorm:"mediumtext" json:"admins"`

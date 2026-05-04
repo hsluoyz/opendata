@@ -31,8 +31,10 @@ import "./App.less";
 class App extends React.Component {
   constructor(props) {
     super(props);
-    const themeAlgorithm = ["default"];
-    document.documentElement.setAttribute("data-theme", "light");
+    const savedTheme = localStorage.getItem("themeAlgorithm");
+    const themeAlgorithm = savedTheme ? JSON.parse(savedTheme) : ["default"];
+    const isDark = themeAlgorithm.includes("dark");
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
     Setting.initServerUrl();
     Setting.initWebConfig();
     Setting.initCasdoorSdk(Conf.AuthConfig);
@@ -50,7 +52,6 @@ class App extends React.Component {
 
   getAccount() {
     AccountBackend.getAccount().then(res => {
-      // Re-init after getAccount sets the web config cookie
       Setting.initWebConfig();
       Setting.initCasdoorSdk(Conf.AuthConfig);
       if (res.status === "ok") {
@@ -67,8 +68,16 @@ class App extends React.Component {
     this.setState({account});
   }
 
+  setThemeAlgorithm = (themeAlgorithm) => {
+    const isDark = themeAlgorithm.includes("dark");
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    localStorage.setItem("themeAlgorithm", JSON.stringify(themeAlgorithm));
+    this.setState({themeAlgorithm});
+  };
+
   render() {
     const {account, loading, themeAlgorithm} = this.state;
+    const isDark = themeAlgorithm.includes("dark");
 
     if (loading) {
       return (
@@ -88,13 +97,14 @@ class App extends React.Component {
           locale={zhCN}
           spin={{indicator: <AiDots />}}
           theme={{
+            algorithm: Setting.getAlgorithm(themeAlgorithm),
             token: {
-              ...getShadcnThemeToken(false),
+              ...getShadcnThemeToken(isDark),
               colorPrimary: Conf.ThemeDefault.colorPrimary,
               colorInfo: Conf.ThemeDefault.colorPrimary,
               borderRadius: Conf.ThemeDefault.borderRadius,
             },
-            components: getShadcnThemeComponents(false),
+            components: getShadcnThemeComponents(isDark),
           }}
         >
           <StyleProvider hashPriority="high" transformers={[legacyLogicalPropertiesTransformer]}>
@@ -113,6 +123,7 @@ class App extends React.Component {
                       {...props}
                       account={account}
                       themeAlgorithm={themeAlgorithm}
+                      onThemeChange={this.setThemeAlgorithm}
                       onSignout={() => this.updateAccount(null)}
                     />
                   );

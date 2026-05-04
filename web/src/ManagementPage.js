@@ -28,10 +28,12 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  SettingOutlined,
   SolutionOutlined,
   TeamOutlined,
   UserOutlined
 } from "@ant-design/icons";
+import ThemeSelect from "./ThemeSelect";
 import * as AccountBackend from "./backend/AccountBackend";
 import * as SchoolBackend from "./backend/SchoolBackend";
 import * as GradeBackend from "./backend/GradeBackend";
@@ -214,18 +216,32 @@ class ManagementPage extends React.Component {
 
   renderAccountMenu() {
     const {account} = this.props;
-    const items = [{
-      key: "/logout",
-      icon: <LogoutOutlined />,
-      label: "退出登录",
-      onClick: () => this.handleSignout(),
-    }];
+    const items = [
+      {
+        key: "/account",
+        icon: <SettingOutlined />,
+        label: "我的账号",
+        onClick: () => Setting.openLink(Setting.getMyProfileUrl(account)),
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "/logout",
+        icon: <LogoutOutlined />,
+        label: "退出登录",
+        onClick: () => this.handleSignout(),
+      },
+    ];
     return (
       <Dropdown menu={{items}}>
-        <div className="rightDropDown">
-          <Avatar style={{backgroundColor: Setting.getAvatarColor(account?.name)}} size={32}>
-            {Setting.getShortName(account?.displayName || account?.name)}
-          </Avatar>
+        <div className="rightDropDown" style={{display: "flex", alignItems: "center", cursor: "pointer", padding: "0 4px"}}>
+          {account?.avatar
+            ? <Avatar src={account.avatar} size={32} />
+            : <Avatar style={{backgroundColor: Setting.getAvatarColor(account?.name)}} size={32}>
+              {Setting.getShortName(account?.displayName || account?.name)}
+            </Avatar>
+          }
           {!Setting.isMobile() && (
             <span style={{fontSize: 14, fontWeight: 500, marginLeft: 8, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>
               {account?.displayName || account?.name}
@@ -256,6 +272,7 @@ class ManagementPage extends React.Component {
           <Select placeholder="学校" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
           <Select placeholder="年级" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
           <Select placeholder="班级" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
+          <ThemeSelect themeAlgorithm={this.props.themeAlgorithm} onChange={this.props.onThemeChange} />
           {this.renderAccountMenu()}
         </Space>
       </Header>

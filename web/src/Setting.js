@@ -69,6 +69,17 @@ export function signin() {
   return CasdoorSdk.signin(ServerUrl);
 }
 
+export function getMyProfileUrl(account) {
+  if (!CasdoorSdk || !isCasdoorAvailable()) {
+    return "#";
+  }
+  return CasdoorSdk.getMyProfileUrl(account, window.location.href);
+}
+
+export function openLink(url) {
+  window.open(url, "_blank");
+}
+
 export function setThemeColor(color) {
   const meta = document.querySelector("meta[name='theme-color']");
   if (meta) {

@@ -19,7 +19,7 @@ import "github.com/beego/beego/context"
 func CorsFilter(ctx *context.Context) {
 	ctx.Output.Header("Access-Control-Allow-Origin", ctx.Input.Header("Origin"))
 	ctx.Output.Header("Access-Control-Allow-Credentials", "true")
-	ctx.Output.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	ctx.Output.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 	ctx.Output.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 	if ctx.Input.Method() == "OPTIONS" {

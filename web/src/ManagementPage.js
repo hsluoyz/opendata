@@ -121,6 +121,10 @@ function getMenuParentKey(uri) {
   return null;
 }
 
+function canViewCityDashboard(account) {
+  return Setting.isAdminUser(account) || account?.displayName === "北京市";
+}
+
 class ManagementPage extends React.Component {
   constructor(props) {
     super(props);
@@ -252,16 +256,18 @@ class ManagementPage extends React.Component {
   };
 
   getMenuItems() {
+    const account = this.props.account;
+    const educationItem = Setting.getItem("教务管理", "/education", <DatabaseOutlined />, [
+      Setting.getItem(<Link to="/schools">学校</Link>, "/schools", <BankOutlined />),
+      Setting.getItem(<Link to="/grades">年级</Link>, "/grades", <ApartmentOutlined />),
+      Setting.getItem(<Link to="/classes">班级</Link>, "/classes", <TeamOutlined />),
+      Setting.getItem(<Link to="/subjects">学科</Link>, "/subjects", <BookOutlined />),
+    ]);
     const items = [
       Setting.getItem(<Link to="/">首页</Link>, "/", <HomeOutlined />),
-      Setting.getItem(<Link to="/dashboard-city">北京市数据大屏</Link>, "/dashboard-city", <FundOutlined />),
+      ...(canViewCityDashboard(account) ? [Setting.getItem(<Link to="/dashboard-city">北京市数据大屏</Link>, "/dashboard-city", <FundOutlined />)] : []),
       Setting.getItem(<Link to="/dashboard-district">各区数据大屏</Link>, "/dashboard-district", <DashboardOutlined />),
-      Setting.getItem("教务管理", "/education", <DatabaseOutlined />, [
-        Setting.getItem(<Link to="/schools">学校</Link>, "/schools", <BankOutlined />),
-        Setting.getItem(<Link to="/grades">年级</Link>, "/grades", <ApartmentOutlined />),
-        Setting.getItem(<Link to="/classes">班级</Link>, "/classes", <TeamOutlined />),
-        Setting.getItem(<Link to="/subjects">学科</Link>, "/subjects", <BookOutlined />),
-      ]),
+      educationItem,
       Setting.getItem("人员管理", "/people", <UserOutlined />, [
         Setting.getItem(<Link to="/teachers">教师</Link>, "/teachers", <UserOutlined />),
         Setting.getItem(<Link to="/students">学生</Link>, "/students", <SolutionOutlined />),
@@ -276,8 +282,8 @@ class ManagementPage extends React.Component {
       ]),
     ];
 
-    if (Setting.isAdminUser(this.props.account)) {
-      items[3].children.push(Setting.getItem(<Link to="/providers">存储提供商</Link>, "/providers", <CloudOutlined />));
+    if (Setting.isAdminUser(account)) {
+      educationItem.children.push(Setting.getItem(<Link to="/providers">存储提供商</Link>, "/providers", <CloudOutlined />));
       items.push(Setting.getItem("管理", "/admin", <SettingOutlined />, [
         Setting.getItem(<Link to="/sites/site-built-in">设置</Link>, "/sites/site-built-in", <LayoutOutlined />),
         Setting.getItem(<Link to="/visitors">访客</Link>, "/visitors", <FundOutlined />),
@@ -365,7 +371,11 @@ class ManagementPage extends React.Component {
     return (
       <Switch>
         <Route exact path="/" render={props => <HomePage {...props} account={account} />} />
-        <Route exact path="/dashboard-city" render={props => <DashboardCityPage {...props} account={account} />} />
+        <Route exact path="/dashboard-city" render={props => (
+          canViewCityDashboard(account)
+            ? <DashboardCityPage {...props} account={account} />
+            : <Result status="403" title="403 无权访问" extra={<a href="/dashboard-district"><Button type="primary">查看各区数据大屏</Button></a>} />
+        )} />
         <Route exact path="/dashboard-district" render={props => <DashboardDistrictPage {...props} account={account} />} />
         <Route exact path="/schools" render={props => <SchoolListPage {...props} account={account} />} />
         <Route path="/schools/:owner/:name" render={props => <SchoolEditPage {...props} account={account} />} />

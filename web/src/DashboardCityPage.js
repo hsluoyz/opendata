@@ -36,10 +36,10 @@ const DISTRICT_CENTERS = {
 };
 
 const DISTRICT_DATA = districtDataRaw.map(d => ({
-  name: d.name,
+  name: d["名称"],
   value: d["课程落实"]["达标率"],
   teachers: (d["教师人数"]["小学"] || 0) + (d["教师人数"]["初中"] || 0) + (d["教师人数"]["高中"] || 0),
-  center: DISTRICT_CENTERS[d.name] || [116.4, 40.0],
+  center: DISTRICT_CENTERS[d["名称"]] || [116.4, 40.0],
   raw: d,
 }));
 

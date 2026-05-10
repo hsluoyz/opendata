@@ -21,6 +21,22 @@ import dashboardData from "./DashboardData.json";
 const DISTRICTS_DATA = dashboardData["区县数据"];
 const CITY_DATA = dashboardData["市级数据"];
 
+function getDistrictByName(name) {
+  const normalizedName = String(name || "").trim();
+  if (!normalizedName) {
+    return null;
+  }
+  return DISTRICTS_DATA.find(d => d["名称"] === normalizedName) || null;
+}
+
+function getAccountDistrict(account) {
+  return getDistrictByName(account?.displayName);
+}
+
+function getInitialDistrict(props) {
+  return getAccountDistrict(props.account) || getDistrictByName("海淀区") || DISTRICTS_DATA[0];
+}
+
 // ── Styling constants ───────────────────────────────────────────────────────
 
 const C = {
@@ -84,6 +100,17 @@ const ANIM = `
 
   .district-select-trigger .ant-select-arrow {
     color: ${C.accent2};
+  }
+
+  .district-select-trigger.ant-select-disabled {
+    cursor: not-allowed;
+    border-color: rgba(0, 255, 184, 0.28);
+    background: rgba(0, 255, 184, 0.08);
+    box-shadow: 0 0 12px rgba(0, 255, 184, 0.08);
+  }
+
+  .district-select-trigger.ant-select-disabled .ant-select-selector {
+    cursor: not-allowed !important;
   }
 
   .district-select-popup {
@@ -582,7 +609,7 @@ class DashboardDistrictPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedDistrict: DISTRICTS_DATA.find(d => d["名称"] === "海淀区") || DISTRICTS_DATA[0],
+      selectedDistrict: getInitialDistrict(props),
       time: new Date(),
       isFullscreen: false,
     };
@@ -606,17 +633,40 @@ class DashboardDistrictPage extends React.Component {
     document.addEventListener("fullscreenchange", this.onFullscreenChange);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.account?.displayName === this.props.account?.displayName) {
+      return;
+    }
+
+    const accountDistrict = getAccountDistrict(this.props.account);
+    if (accountDistrict && accountDistrict["名称"] !== this.state.selectedDistrict?.["名称"]) {
+      this.setState({selectedDistrict: accountDistrict});
+    }
+  }
+
   componentWillUnmount() {
     clearInterval(this.clockTimer);
     document.removeEventListener("fullscreenchange", this.onFullscreenChange);
   }
 
   onDistrictChange = name => {
-    this.setState({selectedDistrict: DISTRICTS_DATA.find(d => d["名称"] === name)});
+    const accountDistrict = getAccountDistrict(this.props.account);
+    if (accountDistrict) {
+      this.setState({selectedDistrict: accountDistrict});
+      return;
+    }
+
+    const selectedDistrict = getDistrictByName(name);
+    if (selectedDistrict) {
+      this.setState({selectedDistrict});
+    }
   };
 
   render() {
     const {selectedDistrict, time, isFullscreen} = this.state;
+    const accountDistrict = getAccountDistrict(this.props.account);
+    const isDistrictAccount = !!accountDistrict;
+    const selectableDistricts = isDistrictAccount ? [accountDistrict] : DISTRICTS_DATA;
     const districtName = selectedDistrict["名称"];
     const CHART_H = 252;
 
@@ -666,10 +716,11 @@ class DashboardDistrictPage extends React.Component {
                 classNames={{popup: {root: "district-select-popup"}}}
                 value={districtName}
                 onChange={this.onDistrictChange}
+                disabled={isDistrictAccount}
                 style={{width: 170}}
                 popupMatchSelectWidth={false}
                 variant="borderless"
-                options={DISTRICTS_DATA.map(d => ({value: d["名称"], label: d["名称"]}))}
+                options={selectableDistricts.map(d => ({value: d["名称"], label: d["名称"]}))}
                 dropdownStyle={{background: "#061c3a", border: `1px solid ${C.border}`}}
                 labelRender={({label}) => (
                   <span style={{

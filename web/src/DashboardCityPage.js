@@ -269,7 +269,7 @@ class DashboardCityPage extends React.Component {
         map: "beijing_districts",
         roam: true,
         zoom: 1.15,
-        center: [116.4, 40.1],
+        center: [116.4, 40.25],
         label: {show: true, color: "#8ec5de", fontSize: 10, fontWeight: "500"},
         itemStyle: {
           areaColor: COLORS.mapArea,

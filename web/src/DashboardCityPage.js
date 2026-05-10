@@ -17,6 +17,7 @@ import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
 import {Spin} from "antd";
 import DashboardData from "./DashboardData.json";
+import GeoBeijing from "./DashboardGeo110000Full.json";
 
 // ── Real data extraction ──────────────────────────────────────────────────────
 const meta = DashboardData["元数据"];
@@ -224,10 +225,8 @@ class DashboardCityPage extends React.Component {
   componentDidMount() {
     this.clockTimer = setInterval(() => this.setState({time: new Date()}), 1000);
     document.addEventListener("fullscreenchange", this.onFullscreenChange);
-    fetch("https://geo.datav.aliyun.com/areas_v3/bound/110000_full.json")
-      .then(r => r.json())
-      .then(geo => {echarts.registerMap("beijing_districts", geo); this.setState({geoLoaded: true});})
-      .catch(() => this.setState({loadError: true}));
+    echarts.registerMap("beijing_districts", GeoBeijing);
+    this.setState({geoLoaded: true});
   }
 
   componentWillUnmount() {

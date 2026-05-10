@@ -687,7 +687,7 @@ class DashboardCityPage extends React.Component {
           </div>
 
           {/* ── Main 3-column layout ── */}
-          <div style={{display: "flex", gap: 14, alignItems: "flex-start"}}>
+          <div style={{display: "flex", gap: 14, alignItems: "stretch"}}>
 
             {/* Left column */}
             <div style={{width: 224, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12}}>
@@ -711,8 +711,8 @@ class DashboardCityPage extends React.Component {
             </div>
 
             {/* Center: map */}
-            <div style={{flex: 1, minWidth: 0}}>
-              <Panel style={{padding: 8}} glow>
+            <div style={{flex: 1, minWidth: 0, display: "flex", flexDirection: "column"}}>
+              <Panel style={{padding: 8, flex: 1, display: "flex", flexDirection: "column"}} glow>
                 <div style={{position: "absolute", top: 8, left: 8, zIndex: 2, pointerEvents: "none"}}>
                   <PanelTitle>北京市各区课程落实达标率分布</PanelTitle>
                 </div>
@@ -738,14 +738,16 @@ class DashboardCityPage extends React.Component {
                   </div>
                 )}
                 {geoLoaded && (
-                  <ReactECharts
-                    ref={this.chartRef}
-                    option={this.getMapOption()}
-                    style={{height: 460, width: "100%"}}
-                    theme="dark"
-                    opts={{renderer: "canvas"}}
-                    onEvents={{georoam: this.onMapRoam}}
-                  />
+                  <div style={{flex: 1, minHeight: 0, paddingTop: 30}}>
+                    <ReactECharts
+                      ref={this.chartRef}
+                      option={this.getMapOption()}
+                      style={{height: "100%", width: "100%"}}
+                      theme="dark"
+                      opts={{renderer: "canvas"}}
+                      onEvents={{georoam: this.onMapRoam}}
+                    />
+                  </div>
                 )}
               </Panel>
             </div>
@@ -761,14 +763,16 @@ class DashboardCityPage extends React.Component {
                   opts={{renderer: "canvas"}}
                 />
               </Panel>
-              <Panel>
+              <Panel style={{flex: 1, display: "flex", flexDirection: "column"}}>
                 <PanelTitle>实验器材更新状况</PanelTitle>
-                <ReactECharts
-                  option={this.getEquipUpdateOption()}
-                  style={{height: 188}}
-                  theme="dark"
-                  opts={{renderer: "canvas"}}
-                />
+                <div style={{flex: 1, minHeight: 0}}>
+                  <ReactECharts
+                    option={this.getEquipUpdateOption()}
+                    style={{height: "100%"}}
+                    theme="dark"
+                    opts={{renderer: "canvas"}}
+                  />
+                </div>
               </Panel>
             </div>
 

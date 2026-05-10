@@ -20,6 +20,7 @@ import {
   ApiOutlined,
   AuditOutlined,
   BankOutlined,
+  BarChartOutlined,
   BookOutlined,
   CloudOutlined,
   DashboardOutlined,
@@ -76,7 +77,7 @@ import DashboardDistrictPage from "./DashboardDistrictPage";
 
 const {Header, Content, Footer, Sider} = Layout;
 const siderMenuOpenKeysStorageKey = "siderMenuOpenKeys";
-const defaultMenuOpenKeys = ["/education", "/people", "/storage", "/logs", "/admin"];
+const defaultMenuOpenKeys = ["/overview", "/education", "/people", "/storage", "/logs", "/admin"];
 
 function readSavedMenuOpenKeys() {
   try {
@@ -117,6 +118,9 @@ function getMenuParentKey(uri) {
   }
   if (uri.includes("/sites") || uri.includes("/visitors") || uri.includes("/sysinfo") || uri.includes("/swagger")) {
     return "/admin";
+  }
+  if (uri.includes("/dashboard-city") || uri.includes("/dashboard-district")) {
+    return "/overview";
   }
   return null;
 }
@@ -263,10 +267,13 @@ class ManagementPage extends React.Component {
       Setting.getItem(<Link to="/classes">班级</Link>, "/classes", <TeamOutlined />),
       Setting.getItem(<Link to="/subjects">学科</Link>, "/subjects", <BookOutlined />),
     ]);
-    const items = [
-      Setting.getItem(<Link to="/">首页</Link>, "/", <HomeOutlined />),
+    const overviewChildren = [
       ...(canViewCityDashboard(account) ? [Setting.getItem(<Link to="/dashboard-city">北京市数据大屏</Link>, "/dashboard-city", <FundOutlined />)] : []),
       Setting.getItem(<Link to="/dashboard-district">各区数据大屏</Link>, "/dashboard-district", <DashboardOutlined />),
+    ];
+    const items = [
+      Setting.getItem(<Link to="/">首页</Link>, "/", <HomeOutlined />),
+      Setting.getItem("数据总览", "/overview", <BarChartOutlined />, overviewChildren),
       educationItem,
       Setting.getItem("人员管理", "/people", <UserOutlined />, [
         Setting.getItem(<Link to="/teachers">教师</Link>, "/teachers", <UserOutlined />),

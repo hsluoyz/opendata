@@ -15,76 +15,11 @@
 import React from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
-import {Select, Spin} from "antd";
+import {Select} from "antd";
+import dashboardData from "./DashboardData.json";
 
-// ── District master data ────────────────────────────────────────────────────
-
-// center: [lng, lat] used to focus the map on the district
-// zoom: echarts geo zoom level — smaller districts get higher zoom
-// radius: degree-radius for generating scatter school points
-const DISTRICTS = [
-  {name: "海淀区", code: "110108", schools: 142, students: 84500, teachers: 6300, classes: 3820, center: [116.298, 39.959], zoom: 5.5, radius: 0.10},
-  {name: "朝阳区", code: "110105", schools: 168, students: 98600, teachers: 7200, classes: 4460, center: [116.586, 39.921], zoom: 4.8, radius: 0.13},
-  {name: "西城区", code: "110102", schools: 52, students: 31200, teachers: 2380, classes: 1420, center: [116.366, 39.912], zoom: 8, radius: 0.04},
-  {name: "东城区", code: "110101", schools: 45, students: 28400, teachers: 2100, classes: 1280, center: [116.418, 39.917], zoom: 8, radius: 0.04},
-  {name: "丰台区", code: "110106", schools: 95, students: 56800, teachers: 4100, classes: 2560, center: [116.287, 39.858], zoom: 5.5, radius: 0.10},
-  {name: "石景山区", code: "110107", schools: 38, students: 22100, teachers: 1680, classes: 990, center: [116.222, 39.914], zoom: 7, radius: 0.06},
-  {name: "门头沟区", code: "110109", schools: 22, students: 13200, teachers: 980, classes: 590, center: [116.101, 39.940], zoom: 4, radius: 0.20},
-  {name: "房山区", code: "110111", schools: 67, students: 40100, teachers: 2980, classes: 1800, center: [116.143, 39.748], zoom: 3.8, radius: 0.22},
-  {name: "通州区", code: "110112", schools: 88, students: 52400, teachers: 3900, classes: 2360, center: [116.757, 39.909], zoom: 5, radius: 0.12},
-  {name: "顺义区", code: "110113", schools: 76, students: 45200, teachers: 3360, classes: 2040, center: [116.655, 40.130], zoom: 4.8, radius: 0.13},
-  {name: "昌平区", code: "110114", schools: 83, students: 49600, teachers: 3700, classes: 2230, center: [116.231, 40.221], zoom: 5, radius: 0.12},
-  {name: "大兴区", code: "110115", schools: 91, students: 54300, teachers: 4020, classes: 2450, center: [116.341, 39.729], zoom: 5, radius: 0.13},
-  {name: "怀柔区", code: "110116", schools: 34, students: 20200, teachers: 1520, classes: 910, center: [116.632, 40.316], zoom: 3.8, radius: 0.22},
-  {name: "平谷区", code: "110117", schools: 29, students: 17400, teachers: 1300, classes: 780, center: [117.121, 40.141], zoom: 5, radius: 0.14},
-  {name: "密云区", code: "110118", schools: 31, students: 18600, teachers: 1390, classes: 840, center: [116.843, 40.477], zoom: 4, radius: 0.20},
-  {name: "延庆区", code: "110119", schools: 19, students: 11400, teachers: 850, classes: 510, center: [115.975, 40.465], zoom: 4, radius: 0.22},
-];
-
-const SCHOOL_TYPES = [
-  {name: "幼儿园", key: "kindergarten", baseRatio: 0.28, color: "#ff6e9c"},
-  {name: "小学", key: "primary", baseRatio: 0.32, color: "#00c3ff"},
-  {name: "初中", key: "middle", baseRatio: 0.18, color: "#00ffb8"},
-  {name: "高中", key: "high", baseRatio: 0.12, color: "#ffd166"},
-  {name: "职业学校", key: "vocational", baseRatio: 0.06, color: "#b388ff"},
-  {name: "特殊学校", key: "special", baseRatio: 0.04, color: "#ff8a65"},
-];
-
-// Deterministic pseudo-random using string hash — gives stable values per name
-function hashVal(str, min, max) {
-  let h = 5381;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) + h + str.charCodeAt(i)) & 0x7fffffff;
-  }
-  return min + (h % (max - min + 1));
-}
-
-function getSchoolTypeDist(district) {
-  const total = district.schools;
-  const raw = SCHOOL_TYPES.map(t => ({
-    ...t,
-    value: Math.round(total * t.baseRatio * (0.8 + hashVal(district.name + t.key, 0, 40) / 100)),
-  }));
-  // normalise so sum == total
-  const sum = raw.reduce((s, t) => s + t.value, 0);
-  const scale = total / sum;
-  return raw.map(t => ({...t, value: Math.round(t.value * scale)}));
-}
-
-// Generate deterministic scatter points within the district's approximate area
-function getScatterPoints(district) {
-  const [lng, lat] = district.center;
-  const r = district.radius;
-  const count = Math.min(50, Math.max(12, district.schools));
-  return Array.from({length: count}, (_, i) => {
-    const angle = hashVal(district.name + "a" + i, 0, 628) / 100;
-    const d = hashVal(district.name + "d" + i, 15, 100) / 100 * r;
-    return {
-      name: `${district.name}学校${i + 1}`,
-      value: [lng + d * Math.cos(angle), lat + d * Math.sin(angle)],
-    };
-  });
-}
+const DISTRICTS_DATA = dashboardData["区县数据"];
+const CITY_DATA = dashboardData["市级数据"];
 
 // ── Styling constants ───────────────────────────────────────────────────────
 
@@ -127,16 +62,72 @@ const ANIM = `
     0%   { background-position: 0 0; }
     100% { background-position: 40px 40px; }
   }
+
+  .district-select-trigger {
+    border: 1px solid ${C.border};
+    border-radius: 7px;
+    background: rgba(0, 195, 255, 0.07);
+    box-shadow: 0 0 12px rgba(0, 195, 255, 0.08);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .district-select-trigger:hover,
+  .district-select-trigger.ant-select-focused {
+    border-color: ${C.borderBright};
+    background: rgba(0, 195, 255, 0.12);
+    box-shadow: 0 0 16px ${C.accentGlow};
+  }
+
+  .district-select-trigger .ant-select-selector {
+    padding: 0 10px !important;
+  }
+
+  .district-select-trigger .ant-select-arrow {
+    color: ${C.accent2};
+  }
+
+  .district-select-popup {
+    padding: 6px !important;
+    background: rgba(4, 20, 45, 0.98) !important;
+    border: 1px solid ${C.borderBright};
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42), 0 0 18px ${C.accentGlow};
+  }
+
+  .district-select-popup .ant-select-item {
+    min-height: 32px;
+    border-radius: 6px;
+    color: ${C.textBright} !important;
+  }
+
+  .district-select-popup .ant-select-item-option-content {
+    color: inherit !important;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .district-select-popup .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background: rgba(0, 195, 255, 0.16) !important;
+    color: #ffffff !important;
+  }
+
+  .district-select-popup .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background: rgba(0, 255, 184, 0.18) !important;
+    color: ${C.accent2} !important;
+  }
+
+  .district-select-popup .ant-select-item-option-selected .ant-select-item-option-state {
+    color: ${C.accent2};
+  }
 `;
 
 // ── Small reusable components ───────────────────────────────────────────────
 
 function Corner({pos}) {
-  const color = C.accent;
   return (
     <div style={{position: "absolute", width: 14, height: 14, animation: "dd-corner 3s ease-in-out infinite", ...pos}}>
-      <div style={{position: "absolute", background: color, height: 2, width: "100%", top: pos.bottom !== undefined ? undefined : 0, bottom: pos.bottom !== undefined ? 0 : undefined}} />
-      <div style={{position: "absolute", background: color, width: 2, height: "100%", left: pos.right !== undefined ? undefined : 0, right: pos.right !== undefined ? 0 : undefined}} />
+      <div style={{position: "absolute", background: C.accent, height: 2, width: "100%", top: pos.bottom !== undefined ? undefined : 0, bottom: pos.bottom !== undefined ? 0 : undefined}} />
+      <div style={{position: "absolute", background: C.accent, width: 2, height: "100%", left: pos.right !== undefined ? undefined : 0, right: pos.right !== undefined ? 0 : undefined}} />
     </div>
   );
 }
@@ -164,7 +155,7 @@ function Panel({children, style, glow}) {
 
 function PanelTitle({children}) {
   return (
-    <div style={{fontSize: 11, fontWeight: 700, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 7}}>
+    <div style={{fontSize: 11, fontWeight: 700, color: C.accent, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 7}}>
       <span style={{display: "inline-block", width: 3, height: 11, background: C.accent, borderRadius: 2}} />
       {children}
     </div>
@@ -173,11 +164,12 @@ function PanelTitle({children}) {
 
 function KpiStrip({district}) {
   const items = [
-    {label: "学校总数", value: district.schools, unit: "所", color: C.accent},
-    {label: "在校学生", value: district.students.toLocaleString(), unit: "人", color: C.accent2},
-    {label: "教职人员", value: district.teachers.toLocaleString(), unit: "人", color: C.accent3},
-    {label: "班级数量", value: district.classes.toLocaleString(), unit: "个", color: "#b388ff"},
-    {label: "师生比", value: `1:${Math.round(district.students / district.teachers)}`, unit: "", color: "#ff8a65"},
+    {label: "课程达标率", value: district["课程落实"]["达标率"].toFixed(1), unit: "%", color: C.accent},
+    {label: "课后服务比例", value: district["课后服务"]["比例"].toFixed(1), unit: "%", color: C.accent2},
+    {label: "科学副校长配备率", value: district["科学副校长"]["配备率"].toFixed(1), unit: "%", color: C.accent3},
+    {label: "科技辅导员配备率", value: district["科技辅导员"]["配备率"].toFixed(1), unit: "%", color: "#b388ff"},
+    {label: "机构结对比例", value: district["机构结对"]["结对比例"].toFixed(1), unit: "%", color: "#ff8a65"},
+    {label: "理工科背景占比", value: district["教师专业背景"]["理工科背景占比"].toFixed(1), unit: "%", color: "#69c0ff"},
   ];
   return (
     <div style={{display: "flex", gap: 11, marginBottom: 14}}>
@@ -197,7 +189,7 @@ function KpiStrip({district}) {
           <div style={{fontSize: 11, color: C.text, letterSpacing: "0.05em"}}>{kpi.label}</div>
           <div style={{display: "flex", alignItems: "baseline", gap: 3, marginTop: 4}}>
             <span style={{fontSize: 22, fontWeight: 700, color: kpi.color, fontVariantNumeric: "tabular-nums", animation: "dd-glow 3s ease-in-out infinite"}}>{kpi.value}</span>
-            {kpi.unit && <span style={{fontSize: 11, color: C.text}}>{kpi.unit}</span>}
+            <span style={{fontSize: 11, color: C.text}}>{kpi.unit}</span>
           </div>
         </div>
       ))}
@@ -219,21 +211,382 @@ function Clock({time}) {
   );
 }
 
+// ── Chart option builders ───────────────────────────────────────────────────
+
+function getLabFreqOption(district) {
+  const data = district["实验室使用频率"];
+  const categories = ["几乎没有", "每学期1-2次", "每月1-2次", "每周1-2次", "每周3次及以上"];
+  const colors = ["#ff4d4f", "#fa8c16", "#fadb14", "#52c41a", C.accent];
+  return {
+    backgroundColor: "transparent",
+    tooltip: {
+      trigger: "item",
+      backgroundColor: "rgba(3,20,50,0.92)",
+      borderColor: C.borderBright,
+      textStyle: {color: C.textBright, fontSize: 12},
+      formatter: p => `${p.name}<br/>${p.value.toFixed(1)}% (${p.percent}%)`,
+    },
+    legend: {
+      orient: "vertical",
+      right: 6,
+      top: "center",
+      textStyle: {color: C.text, fontSize: 9},
+      itemWidth: 8,
+      itemHeight: 8,
+    },
+    series: [{
+      type: "pie",
+      radius: ["40%", "65%"],
+      center: ["42%", "50%"],
+      data: categories.map((cat, i) => ({
+        name: cat,
+        value: data[cat] || 0,
+        itemStyle: {color: colors[i], shadowBlur: 10, shadowColor: colors[i] + "88"},
+      })),
+      label: {
+        show: true,
+        formatter: p => p.value > 5 ? `${p.value.toFixed(0)}%` : "",
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: "bold",
+      },
+      emphasis: {
+        label: {show: true, color: "#fff", fontSize: 13, fontWeight: "bold"},
+        itemStyle: {shadowBlur: 20},
+      },
+    }],
+  };
+}
+
+function getTeachingDifficultyOption(district) {
+  const keys = ["实验场地和设备不足", "耗材经费有限", "教师实验教学能力有待提升", "课时不够", "安全隐患问题"];
+  const shortNames = ["场地设备不足", "耗材经费有限", "教师能力提升", "课时不够", "安全隐患"];
+  const distData = keys.map(k => district["实验教学困难"][k] || 0);
+  const cityData = keys.map(k => CITY_DATA["实验教学困难"]["整体"][k] || 0);
+  return {
+    backgroundColor: "transparent",
+    tooltip: {
+      trigger: "item",
+      backgroundColor: "rgba(3,20,50,0.92)",
+      borderColor: C.borderBright,
+      textStyle: {color: C.textBright, fontSize: 11},
+    },
+    legend: {
+      bottom: 2,
+      textStyle: {color: C.text, fontSize: 10},
+      data: ["本区", "全市平均"],
+      itemWidth: 10,
+      itemHeight: 10,
+    },
+    radar: {
+      indicator: shortNames.map(name => ({name, max: 100})),
+      shape: "polygon",
+      center: ["50%", "50%"],
+      radius: "60%",
+      axisName: {color: C.text, fontSize: 10},
+      splitArea: {areaStyle: {color: [
+        "rgba(0,195,255,0.02)", "rgba(0,195,255,0.04)",
+        "rgba(0,195,255,0.06)", "rgba(0,195,255,0.08)", "rgba(0,195,255,0.10)",
+      ]}},
+      splitLine: {lineStyle: {color: "rgba(0,195,255,0.15)"}},
+      axisLine: {lineStyle: {color: "rgba(0,195,255,0.2)"}},
+    },
+    series: [{
+      type: "radar",
+      data: [
+        {
+          name: "本区",
+          value: distData,
+          symbol: "circle",
+          symbolSize: 5,
+          itemStyle: {color: C.accent},
+          lineStyle: {color: C.accent, width: 2},
+          areaStyle: {color: "rgba(0,195,255,0.18)"},
+        },
+        {
+          name: "全市平均",
+          value: cityData,
+          symbol: "circle",
+          symbolSize: 4,
+          itemStyle: {color: C.accent3},
+          lineStyle: {color: C.accent3, width: 1.5, type: "dashed"},
+          areaStyle: {color: "rgba(255,209,102,0.08)"},
+        },
+      ],
+    }],
+  };
+}
+
+function getEquipmentUpdateOption(district) {
+  const data = district["实验器材更新"];
+  const items = [
+    {name: "每年更新", color: C.accent2},
+    {name: "不定期更新", color: C.accent},
+    {name: "近三年未更新", color: C.accent3},
+    {name: "从未更新", color: "#ff4d4f"},
+  ];
+  return {
+    backgroundColor: "transparent",
+    tooltip: {
+      trigger: "item",
+      backgroundColor: "rgba(3,20,50,0.92)",
+      borderColor: C.borderBright,
+      textStyle: {color: C.textBright, fontSize: 12},
+      formatter: p => `${p.name}: ${p.value.toFixed(1)}%`,
+    },
+    legend: {
+      orient: "vertical",
+      right: 6,
+      top: "center",
+      textStyle: {color: C.text, fontSize: 9},
+      itemWidth: 8,
+      itemHeight: 8,
+    },
+    series: [{
+      type: "pie",
+      radius: ["40%", "65%"],
+      center: ["42%", "50%"],
+      data: items.map(item => ({
+        name: item.name,
+        value: data[item.name] || 0,
+        itemStyle: {color: item.color, shadowBlur: 10, shadowColor: item.color + "88"},
+      })),
+      label: {
+        show: true,
+        formatter: p => p.value > 5 ? `${p.value.toFixed(0)}%` : "",
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: "bold",
+      },
+      emphasis: {
+        label: {show: true, color: "#fff", fontSize: 13, fontWeight: "bold"},
+        itemStyle: {shadowBlur: 20},
+      },
+    }],
+  };
+}
+
+function getLabBuildingOption(district) {
+  const data = district["实验室建设"];
+  const grades = ["小学", "初中", "高中"];
+  return {
+    backgroundColor: "transparent",
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {type: "shadow"},
+      backgroundColor: "rgba(3,20,50,0.92)",
+      borderColor: C.borderBright,
+      textStyle: {color: C.textBright, fontSize: 11},
+      formatter: params => `${params[0].axisValue}<br/>` + params.map(p => `${p.marker}${p.seriesName}: ${p.value.toFixed(1)}%`).join("<br/>"),
+    },
+    legend: {
+      bottom: 2,
+      textStyle: {color: C.text, fontSize: 10},
+      itemWidth: 10,
+      itemHeight: 10,
+    },
+    grid: {top: 14, bottom: 42, left: 16, right: 16, containLabel: true},
+    xAxis: {
+      type: "category",
+      data: grades,
+      axisLabel: {color: C.text, fontSize: 11},
+      axisTick: {show: false},
+      axisLine: {lineStyle: {color: C.border}},
+    },
+    yAxis: {
+      type: "value",
+      min: 0,
+      max: 100,
+      axisLabel: {color: "#607080", fontSize: 9, formatter: v => `${v}%`},
+      splitLine: {lineStyle: {color: "rgba(255,255,255,0.05)"}},
+    },
+    series: [
+      {
+        name: "实验室间数达标率",
+        type: "bar",
+        barGap: "15%",
+        barCategoryGap: "30%",
+        data: grades.map(g => ({
+          value: data["实验室间数达标率"][g] || 0,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              {offset: 0, color: C.accent},
+              {offset: 1, color: "#004466"},
+            ]),
+            borderRadius: [4, 4, 0, 0],
+          },
+        })),
+        label: {show: true, position: "top", color: C.accent, fontSize: 9, formatter: p => `${p.value.toFixed(0)}%`},
+      },
+      {
+        name: "生均面积达标率",
+        type: "bar",
+        data: grades.map(g => ({
+          value: data["生均使用面积达标率"][g] || 0,
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              {offset: 0, color: C.accent2},
+              {offset: 1, color: "#004433"},
+            ]),
+            borderRadius: [4, 4, 0, 0],
+          },
+        })),
+        label: {show: true, position: "top", color: C.accent2, fontSize: 9, formatter: p => `${p.value.toFixed(0)}%`},
+      },
+    ],
+  };
+}
+
+function getActivitiesOption(district) {
+  const jinlai = district["请进来活动"];
+  const zhuqu = district["走出去活动"];
+  const cityJinlai = CITY_DATA["请进来活动"]["整体"];
+  const cityZhuqu = CITY_DATA["走出去活动"]["整体"];
+
+  const jinlaiEntries = Object.entries(jinlai);
+  const zhuquEntries = Object.entries(zhuqu);
+  const allEntries = [...jinlaiEntries, ...zhuquEntries];
+  const jinlaiCount = jinlaiEntries.length;
+
+  const names = allEntries.map(([k]) => k);
+  const distValues = allEntries.map(([, v]) => v);
+  const cityValues = allEntries.map(([k]) => {
+    if (k in cityJinlai) {return cityJinlai[k];}
+    if (k in cityZhuqu) {return cityZhuqu[k];}
+    return 0;
+  });
+
+  return {
+    backgroundColor: "transparent",
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {type: "shadow"},
+      backgroundColor: "rgba(3,20,50,0.92)",
+      borderColor: C.borderBright,
+      textStyle: {color: C.textBright, fontSize: 11},
+      formatter: params => {
+        const idx = params[0].dataIndex;
+        return `${names[idx]}<br/>` + params.map(p => `${p.marker}${p.seriesName}: ${p.value.toFixed(1)}%`).join("<br/>");
+      },
+    },
+    legend: {
+      right: 5,
+      top: 0,
+      textStyle: {color: C.text, fontSize: 10},
+      itemWidth: 10,
+      itemHeight: 10,
+    },
+    grid: {top: 24, bottom: 6, left: 8, right: 8, containLabel: true},
+    xAxis: {
+      type: "value",
+      min: 0,
+      max: 100,
+      axisLabel: {color: "#607080", fontSize: 8, formatter: v => `${v}%`},
+      splitLine: {lineStyle: {color: "rgba(255,255,255,0.05)"}},
+    },
+    yAxis: {
+      type: "category",
+      data: names,
+      axisLabel: {color: C.text, fontSize: 9},
+      axisTick: {show: false},
+      axisLine: {lineStyle: {color: C.border}},
+    },
+    series: [
+      {
+        name: "本区",
+        type: "bar",
+        barMaxWidth: 9,
+        data: distValues.map((v, i) => ({
+          value: v,
+          itemStyle: {
+            color: i < jinlaiCount
+              ? new echarts.graphic.LinearGradient(1, 0, 0, 0, [{offset: 0, color: C.accent}, {offset: 1, color: "#003355"}])
+              : new echarts.graphic.LinearGradient(1, 0, 0, 0, [{offset: 0, color: C.accent2}, {offset: 1, color: "#003322"}]),
+            borderRadius: [0, 3, 3, 0],
+          },
+        })),
+        label: {
+          show: true,
+          position: "right",
+          color: C.text,
+          fontSize: 8,
+          formatter: p => `${p.value.toFixed(0)}%`,
+        },
+      },
+      {
+        name: "全市平均",
+        type: "bar",
+        barMaxWidth: 9,
+        data: cityValues.map(v => ({
+          value: v,
+          itemStyle: {color: "rgba(255,209,102,0.35)", borderRadius: [0, 3, 3, 0]},
+        })),
+      },
+    ],
+  };
+}
+
+function getRankingOption(districts, selected) {
+  const sorted = [...districts].sort((a, b) => a["课程落实"]["达标率"] - b["课程落实"]["达标率"]);
+  return {
+    backgroundColor: "transparent",
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {type: "shadow"},
+      backgroundColor: "rgba(3,20,50,0.92)",
+      borderColor: C.borderBright,
+      textStyle: {color: C.textBright, fontSize: 11},
+      formatter: p => `${p[0].name}：课程达标率 ${p[0].value.toFixed(1)}%`,
+    },
+    grid: {top: 6, bottom: 6, left: 8, right: 50, containLabel: true},
+    xAxis: {
+      type: "value",
+      min: 85,
+      max: 100,
+      axisLabel: {color: "#607080", fontSize: 8, formatter: v => `${v}%`},
+      splitLine: {lineStyle: {color: "rgba(255,255,255,0.05)"}},
+    },
+    yAxis: {
+      type: "category",
+      data: sorted.map(d => d["名称"]),
+      axisLabel: {
+        color: name => name === selected ? C.accent : C.text,
+        fontSize: 9,
+        fontWeight: name => name === selected ? "bold" : "normal",
+      },
+      axisTick: {show: false},
+      axisLine: {lineStyle: {color: C.border}},
+    },
+    series: [{
+      type: "bar",
+      barMaxWidth: 11,
+      data: sorted.map(d => ({
+        value: d["课程落实"]["达标率"],
+        itemStyle: {
+          color: d["名称"] === selected
+            ? new echarts.graphic.LinearGradient(1, 0, 0, 0, [{offset: 0, color: C.accent}, {offset: 1, color: "#004466"}])
+            : new echarts.graphic.LinearGradient(1, 0, 0, 0, [{offset: 0, color: "#1565c088"}, {offset: 1, color: "#0a254066"}]),
+          borderRadius: [0, 3, 3, 0],
+          shadowBlur: d["名称"] === selected ? 10 : 0,
+          shadowColor: d["名称"] === selected ? C.accent : "transparent",
+        },
+      })),
+      label: {show: true, position: "right", color: C.text, fontSize: 8, formatter: p => `${p.value.toFixed(1)}%`},
+    }],
+  };
+}
+
 // ── Main page ───────────────────────────────────────────────────────────────
 
 class DashboardDistrictPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedDistrict: DISTRICTS.find(d => d.name === "海淀区"),
-      geoLoaded: false,
-      geoLoading: false,
-      loadError: false,
+      selectedDistrict: DISTRICTS_DATA.find(d => d["名称"] === "海淀区") || DISTRICTS_DATA[0],
       time: new Date(),
       isFullscreen: false,
     };
     this.containerRef = React.createRef();
-    this.cityGeo = null;
   }
 
   onFullscreenChange = () => {
@@ -251,7 +604,6 @@ class DashboardDistrictPage extends React.Component {
   componentDidMount() {
     this.clockTimer = setInterval(() => this.setState({time: new Date()}), 1000);
     document.addEventListener("fullscreenchange", this.onFullscreenChange);
-    this.loadCityGeo();
   }
 
   componentWillUnmount() {
@@ -259,185 +611,14 @@ class DashboardDistrictPage extends React.Component {
     document.removeEventListener("fullscreenchange", this.onFullscreenChange);
   }
 
-  loadCityGeo() {
-    if (echarts.getMap("beijing_city")) {
-      this.setState({geoLoaded: true, geoLoading: false});
-      return;
-    }
-    this.setState({geoLoading: true, loadError: false});
-    fetch("https://geo.datav.aliyun.com/areas_v3/bound/110000_full.json")
-      .then(r => r.json())
-      .then(geo => {
-        this.cityGeo = geo;
-        echarts.registerMap("beijing_city", geo);
-        this.setState({geoLoaded: true, geoLoading: false});
-      })
-      .catch(() => this.setState({geoLoading: false, loadError: true}));
-  }
-
   onDistrictChange = name => {
-    const district = DISTRICTS.find(d => d.name === name);
-    this.setState({selectedDistrict: district});
+    this.setState({selectedDistrict: DISTRICTS_DATA.find(d => d["名称"] === name)});
   };
 
-  getMapOption() {
-    const {selectedDistrict} = this.state;
-    const scatter = getScatterPoints(selectedDistrict);
-    return {
-      backgroundColor: "transparent",
-      tooltip: {
-        trigger: "item",
-        backgroundColor: "rgba(3, 20, 50, 0.92)",
-        borderColor: C.borderBright,
-        borderWidth: 1,
-        padding: [10, 14],
-        textStyle: {color: C.textBright, fontSize: 13},
-        formatter: params => {
-          const d = DISTRICTS.find(x => x.name === params.name);
-          if (!d) {return params.name || "";}
-          const isSelected = d.name === selectedDistrict.name;
-          return [
-            `<div style="font-weight:700;font-size:14px;color:${isSelected ? C.accent : C.text};margin-bottom:6px">${d.name}${isSelected ? " ★" : ""}</div>`,
-            `<div style="color:${C.text}">学校数量：<span style="color:#fff;font-weight:600">${d.schools} 所</span></div>`,
-            `<div style="color:${C.text}">在校学生：<span style="color:#fff;font-weight:600">${d.students.toLocaleString()} 人</span></div>`,
-            `<div style="color:${C.text}">教职人员：<span style="color:#fff;font-weight:600">${d.teachers.toLocaleString()} 人</span></div>`,
-          ].join("");
-        },
-      },
-      geo: {
-        map: "beijing_city",
-        roam: true,
-        center: selectedDistrict.center,
-        zoom: selectedDistrict.zoom,
-        label: {
-          show: true,
-          color: "#5a8aaa",
-          fontSize: 9,
-          fontWeight: "500",
-          formatter: params => params.name === selectedDistrict.name ? `{sel|${params.name}}` : params.name,
-          rich: {sel: {color: "#fff", fontWeight: "bold", fontSize: 11}},
-        },
-        itemStyle: {areaColor: "#061830", borderColor: "#0d2a4a", borderWidth: 0.8},
-        emphasis: {
-          label: {show: true, color: "#fff", fontSize: 11, fontWeight: "bold"},
-          itemStyle: {areaColor: "#0a3560", borderColor: C.accent, borderWidth: 1.5, shadowColor: C.borderBright, shadowBlur: 12},
-        },
-        select: {disabled: true},
-        regions: [{
-          name: selectedDistrict.name,
-          itemStyle: {areaColor: "#1565c0", borderColor: C.accent, borderWidth: 2, shadowColor: C.mapHighlightGlow || "rgba(0,195,255,0.7)", shadowBlur: 28},
-          label: {show: true, color: "#fff", fontSize: 12, fontWeight: "bold"},
-        }],
-      },
-      series: [
-        {
-          name: "各区",
-          type: "map",
-          map: "beijing_city",
-          geoIndex: 0,
-          data: DISTRICTS.map(d => ({name: d.name, value: d.schools})),
-          silent: true,
-        },
-        {
-          name: "学校散点",
-          type: "effectScatter",
-          coordinateSystem: "geo",
-          data: scatter,
-          symbolSize: 5,
-          showEffectOn: "render",
-          rippleEffect: {brushType: "stroke", scale: 3, period: 3, color: C.accent},
-          itemStyle: {color: C.accent, shadowBlur: 8, shadowColor: C.accent},
-          zlevel: 2,
-          tooltip: {show: false},
-        },
-      ],
-    };
-  }
-
-  getPieOption() {
-    const dist = getSchoolTypeDist(this.state.selectedDistrict);
-    return {
-      backgroundColor: "transparent",
-      tooltip: {
-        trigger: "item",
-        backgroundColor: "rgba(3,20,50,0.92)",
-        borderColor: C.borderBright,
-        borderWidth: 1,
-        textStyle: {color: C.textBright, fontSize: 12},
-        formatter: p => `${p.name}：${p.value} 所 (${p.percent}%)`,
-      },
-      legend: {
-        bottom: 0,
-        left: "center",
-        textStyle: {color: C.text, fontSize: 10},
-        itemWidth: 10,
-        itemHeight: 10,
-      },
-      series: [{
-        type: "pie",
-        radius: ["38%", "62%"],
-        center: ["50%", "44%"],
-        data: dist.map(t => ({name: t.name, value: t.value, itemStyle: {color: t.color, shadowBlur: 10, shadowColor: t.color + "88"}})),
-        label: {show: false},
-        emphasis: {
-          label: {show: true, color: "#fff", fontSize: 13, fontWeight: "bold"},
-          itemStyle: {shadowBlur: 20},
-        },
-      }],
-    };
-  }
-
-  getRankingOption() {
-    const selected = this.state.selectedDistrict.name;
-    const sorted = [...DISTRICTS].sort((a, b) => b.schools - a.schools);
-    return {
-      backgroundColor: "transparent",
-      grid: {top: 6, bottom: 16, left: 52, right: 38},
-      xAxis: {
-        type: "value",
-        axisLabel: {color: "#607080", fontSize: 8},
-        splitLine: {lineStyle: {color: "rgba(255,255,255,0.05)"}},
-      },
-      yAxis: {
-        type: "category",
-        data: sorted.map(d => d.name).reverse(),
-        axisLabel: {
-          color: params => params === selected ? C.accent : C.text,
-          fontSize: 9,
-          fontWeight: params => params === selected ? "bold" : "normal",
-        },
-        axisTick: {show: false},
-        axisLine: {lineStyle: {color: C.border}},
-      },
-      series: [{
-        type: "bar",
-        barMaxWidth: 11,
-        data: sorted.map(d => ({
-          value: d.schools,
-          itemStyle: {
-            color: d.name === selected
-              ? new echarts.graphic.LinearGradient(1, 0, 0, 0, [{offset: 0, color: C.accent}, {offset: 1, color: "#004466"}])
-              : new echarts.graphic.LinearGradient(1, 0, 0, 0, [{offset: 0, color: "#1565c088"}, {offset: 1, color: "#0a254066"}]),
-            borderRadius: [0, 3, 3, 0],
-            shadowBlur: d.name === selected ? 10 : 0,
-            shadowColor: d.name === selected ? C.accent : "transparent",
-          },
-        })).reverse(),
-        label: {show: true, position: "right", color: C.text, fontSize: 8, formatter: "{c}"},
-      }],
-      tooltip: {
-        trigger: "axis",
-        backgroundColor: "rgba(3,20,50,0.92)",
-        borderColor: C.borderBright,
-        textStyle: {color: C.textBright, fontSize: 11},
-        formatter: p => `${p[0].name}：${p[0].value} 所学校`,
-      },
-    };
-  }
-
   render() {
-    const {selectedDistrict, geoLoaded, geoLoading, loadError, time, isFullscreen} = this.state;
-    const typeDist = getSchoolTypeDist(selectedDistrict);
+    const {selectedDistrict, time, isFullscreen} = this.state;
+    const districtName = selectedDistrict["名称"];
+    const CHART_H = 252;
 
     return (
       <div ref={this.containerRef} style={{
@@ -473,23 +654,22 @@ class DashboardDistrictPage extends React.Component {
             <div style={{display: "flex", alignItems: "center", gap: 16}}>
               <div>
                 <div style={{fontSize: 20, fontWeight: 800, color: C.textBright, letterSpacing: "0.06em", lineHeight: 1}}>
-                  {selectedDistrict.name}教育数据大屏
+                  {districtName} · 科学教育数据大屏
                 </div>
                 <div style={{fontSize: 11, color: C.text, marginTop: 4, letterSpacing: "0.08em"}}>
-                  DISTRICT EDUCATION DATA PLATFORM
+                  2025年中小学科学教育工作诊断 — 北京市区县数据
                 </div>
               </div>
               <Select
-                value={selectedDistrict.name}
+                className="district-select-trigger"
+                popupClassName="district-select-popup"
+                classNames={{popup: {root: "district-select-popup"}}}
+                value={districtName}
                 onChange={this.onDistrictChange}
-                style={{width: 130}}
+                style={{width: 170}}
                 popupMatchSelectWidth={false}
                 variant="borderless"
-                styles={{
-                  popup: {root: {background: "#061c3a", border: `1px solid ${C.border}`}},
-                }}
-                className="district-select"
-                options={DISTRICTS.map(d => ({value: d.name, label: d.name}))}
+                options={DISTRICTS_DATA.map(d => ({value: d["名称"], label: d["名称"]}))}
                 dropdownStyle={{background: "#061c3a", border: `1px solid ${C.border}`}}
                 labelRender={({label}) => (
                   <span style={{
@@ -507,8 +687,8 @@ class DashboardDistrictPage extends React.Component {
 
             <div style={{display: "flex", alignItems: "center", gap: 16}}>
               <div style={{textAlign: "center"}}>
-                <div style={{fontSize: 11, color: C.text, letterSpacing: "0.06em"}}>数据更新</div>
-                <div style={{fontSize: 12, color: C.accent2, fontWeight: 600, marginTop: 2}}>实时同步</div>
+                <div style={{fontSize: 11, color: C.text, letterSpacing: "0.06em"}}>报告期</div>
+                <div style={{fontSize: 12, color: C.accent2, fontWeight: 600, marginTop: 2}}>2025年度</div>
               </div>
               <div style={{width: 1, height: 34, background: C.border}} />
               <Clock time={time} />
@@ -538,119 +718,72 @@ class DashboardDistrictPage extends React.Component {
           {/* ── KPI strip ── */}
           <KpiStrip district={selectedDistrict} />
 
-          {/* ── Main layout ── */}
-          <div style={{display: "flex", gap: 13, alignItems: "flex-start"}}>
+          {/* ── Row 1: 实验室使用频率 | 教学困难雷达 | 器材更新 ── */}
+          <div style={{display: "flex", gap: 13, marginBottom: 13, alignItems: "flex-start"}}>
+            <Panel style={{flex: 1}}>
+              <PanelTitle>实验室使用频率分布</PanelTitle>
+              <ReactECharts
+                option={getLabFreqOption(selectedDistrict)}
+                style={{height: CHART_H}}
+                theme="dark"
+                opts={{renderer: "canvas"}}
+              />
+            </Panel>
 
-            {/* Left */}
-            <div style={{width: 210, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12}}>
-              <Panel>
-                <PanelTitle>学校类型分布</PanelTitle>
-                <ReactECharts
-                  option={this.getPieOption()}
-                  style={{height: 220}}
-                  theme="dark"
-                  opts={{renderer: "canvas"}}
-                />
-              </Panel>
-              <Panel>
-                <PanelTitle>各学段在校生</PanelTitle>
-                <ReactECharts
-                  option={{
-                    backgroundColor: "transparent",
-                    grid: {top: 6, bottom: 18, left: 44, right: 10},
-                    xAxis: {
-                      type: "value",
-                      axisLabel: {color: "#607080", fontSize: 8, formatter: v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v},
-                      splitLine: {lineStyle: {color: "rgba(255,255,255,0.05)"}},
-                    },
-                    yAxis: {
-                      type: "category",
-                      data: ["幼儿园", "小学", "初中", "高中", "职业"],
-                      axisLabel: {color: C.text, fontSize: 9},
-                      axisTick: {show: false},
-                      axisLine: {lineStyle: {color: C.border}},
-                    },
-                    series: [{
-                      type: "bar",
-                      barMaxWidth: 12,
-                      data: getSchoolTypeDist(selectedDistrict).slice(0, 5).map((t, i) => ({
-                        value: Math.round(t.value * selectedDistrict.students / selectedDistrict.schools * (0.85 + i * 0.04)),
-                        itemStyle: {color: t.color, borderRadius: [0, 4, 4, 0]},
-                      })),
-                      label: {show: false},
-                    }],
-                    tooltip: {
-                      trigger: "axis",
-                      backgroundColor: "rgba(3,20,50,0.92)",
-                      borderColor: C.borderBright,
-                      textStyle: {color: C.textBright, fontSize: 11},
-                    },
-                  }}
-                  style={{height: 150}}
-                  theme="dark"
-                />
-              </Panel>
-            </div>
+            <Panel style={{flex: 1.3}} glow>
+              <PanelTitle>实验教学困难分析（本区 vs 全市平均）</PanelTitle>
+              <ReactECharts
+                option={getTeachingDifficultyOption(selectedDistrict)}
+                style={{height: CHART_H}}
+                theme="dark"
+                opts={{renderer: "canvas"}}
+              />
+            </Panel>
 
-            {/* Center map */}
-            <div style={{flex: 1, minWidth: 0}}>
-              <Panel style={{padding: 10}} glow>
-                <PanelTitle>{selectedDistrict.name} — 学校分布（北京市定位视图）</PanelTitle>
-                {loadError && (
-                  <div style={{color: C.text, textAlign: "center", padding: "60px 0", fontSize: 13}}>
-                    地图数据加载失败，请检查网络连接后刷新。
-                  </div>
-                )}
-                {(geoLoading || (!geoLoaded && !loadError)) && (
-                  <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: 460}}>
-                    <Spin size="large" />
-                  </div>
-                )}
-                {geoLoaded && !loadError && (
-                  <ReactECharts
-                    option={this.getMapOption()}
-                    style={{height: 460, width: "100%"}}
-                    theme="dark"
-                    opts={{renderer: "canvas"}}
-                  />
-                )}
-              </Panel>
-            </div>
-
-            {/* Right */}
-            <div style={{width: 210, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12}}>
-              <Panel>
-                <PanelTitle>全市各区学校排行</PanelTitle>
-                {geoLoaded
-                  ? <ReactECharts option={this.getRankingOption()} style={{height: 260}} theme="dark" />
-                  : <div style={{height: 260, display: "flex", alignItems: "center", justifyContent: "center"}}><Spin /></div>
-                }
-              </Panel>
-              <Panel>
-                <PanelTitle>学校类型详情</PanelTitle>
-                <div style={{maxHeight: 200, overflowY: "auto"}}>
-                  {typeDist.map((t, i) => (
-                    <div key={t.name} style={{
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                      padding: "6px 0",
-                      borderBottom: i < typeDist.length - 1 ? `1px solid ${C.border}` : "none",
-                      animation: "dd-in 0.4s ease both",
-                      animationDelay: `${i * 0.06}s`,
-                    }}>
-                      <div style={{display: "flex", alignItems: "center", gap: 6}}>
-                        <span style={{display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: t.color, boxShadow: `0 0 6px ${t.color}`}} />
-                        <span style={{fontSize: 12, color: C.text}}>{t.name}</span>
-                      </div>
-                      <div style={{textAlign: "right"}}>
-                        <span style={{fontSize: 13, color: t.color, fontWeight: 600}}>{t.value}</span>
-                        <span style={{fontSize: 10, color: "#607080", marginLeft: 2}}>所</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Panel>
-            </div>
+            <Panel style={{flex: 1}}>
+              <PanelTitle>实验器材更新情况</PanelTitle>
+              <ReactECharts
+                option={getEquipmentUpdateOption(selectedDistrict)}
+                style={{height: CHART_H}}
+                theme="dark"
+                opts={{renderer: "canvas"}}
+              />
+            </Panel>
           </div>
+
+          {/* ── Row 2: 实验室建设 | 校外活动 | 全区排行 ── */}
+          <div style={{display: "flex", gap: 13, alignItems: "flex-start"}}>
+            <Panel style={{flex: 1}}>
+              <PanelTitle>实验室建设达标率（按学段）</PanelTitle>
+              <ReactECharts
+                option={getLabBuildingOption(selectedDistrict)}
+                style={{height: CHART_H}}
+                theme="dark"
+                opts={{renderer: "canvas"}}
+              />
+            </Panel>
+
+            <Panel style={{flex: 1.5}}>
+              <PanelTitle>校外活动参与率（请进来 · 走出去）</PanelTitle>
+              <ReactECharts
+                option={getActivitiesOption(selectedDistrict)}
+                style={{height: CHART_H}}
+                theme="dark"
+                opts={{renderer: "canvas"}}
+              />
+            </Panel>
+
+            <Panel style={{flex: 1.2}}>
+              <PanelTitle>全区课程达标率排行</PanelTitle>
+              <ReactECharts
+                option={getRankingOption(DISTRICTS_DATA, districtName)}
+                style={{height: CHART_H}}
+                theme="dark"
+                opts={{renderer: "canvas"}}
+              />
+            </Panel>
+          </div>
+
         </div>
       </div>
     );

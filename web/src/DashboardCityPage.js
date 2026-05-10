@@ -698,7 +698,9 @@ class DashboardCityPage extends React.Component {
             {/* Center: map */}
             <div style={{flex: 1, minWidth: 0}}>
               <Panel style={{padding: 8}} glow>
-                <PanelTitle>北京市各区课程落实达标率分布</PanelTitle>
+                <div style={{position: "absolute", top: 8, left: 8, zIndex: 2, pointerEvents: "none"}}>
+                  <PanelTitle>北京市各区课程落实达标率分布</PanelTitle>
+                </div>
                 {loadError && (
                   <div style={{color: COLORS.text, textAlign: "center", padding: "60px 0", fontSize: 13}}>
                     地图数据加载失败，请检查网络连接后刷新。

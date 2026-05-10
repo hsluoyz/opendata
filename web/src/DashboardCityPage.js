@@ -210,9 +210,24 @@ class DashboardCityPage extends React.Component {
     this.state = {geoLoaded: false, loadError: false, time: new Date(), isFullscreen: false};
     this.chartRef = React.createRef();
     this.containerRef = React.createRef();
+    this.mapViewport = null;
   }
 
   onFullscreenChange = () => this.setState({isFullscreen: !!document.fullscreenElement});
+
+  onMapRoam = () => {
+    const chart = this.chartRef.current?.getEchartsInstance();
+    if (!chart) {return;}
+    const opt = chart.getOption();
+    const geo = opt.geo?.[0];
+    if (geo) {this.mapViewport = {zoom: geo.zoom, center: geo.center};}
+  };
+
+  resetMapView = () => {
+    this.mapViewport = null;
+    const chart = this.chartRef.current?.getEchartsInstance();
+    if (chart) {chart.setOption({geo: [{zoom: 1.05, center: [116.4, 40.25]}]}, false);}
+  };
 
   toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -268,8 +283,8 @@ class DashboardCityPage extends React.Component {
       geo: {
         map: "beijing_districts",
         roam: true,
-        zoom: 1.15,
-        center: [116.4, 40.25],
+        zoom: this.mapViewport?.zoom ?? 1.05,
+        center: this.mapViewport?.center ?? [116.4, 40.25],
         label: {show: true, color: "#8ec5de", fontSize: 10, fontWeight: "500"},
         itemStyle: {
           areaColor: COLORS.mapArea,
@@ -701,6 +716,17 @@ class DashboardCityPage extends React.Component {
                 <div style={{position: "absolute", top: 8, left: 8, zIndex: 2, pointerEvents: "none"}}>
                   <PanelTitle>北京市各区课程落实达标率分布</PanelTitle>
                 </div>
+                <button
+                  onClick={this.resetMapView}
+                  style={{
+                    position: "absolute", top: 8, right: 8, zIndex: 2,
+                    background: "rgba(0,195,255,0.12)", border: "1px solid rgba(0,195,255,0.4)",
+                    borderRadius: 4, color: COLORS.accent, fontSize: 11, padding: "3px 8px",
+                    cursor: "pointer", letterSpacing: "0.05em",
+                  }}
+                >
+                  重置视图
+                </button>
                 {loadError && (
                   <div style={{color: COLORS.text, textAlign: "center", padding: "60px 0", fontSize: 13}}>
                     地图数据加载失败，请检查网络连接后刷新。
@@ -718,6 +744,7 @@ class DashboardCityPage extends React.Component {
                     style={{height: 460, width: "100%"}}
                     theme="dark"
                     opts={{renderer: "canvas"}}
+                    onEvents={{georoam: this.onMapRoam}}
                   />
                 )}
               </Panel>

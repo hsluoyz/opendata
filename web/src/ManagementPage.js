@@ -269,24 +269,27 @@ class ManagementPage extends React.Component {
     ]);
     const overviewChildren = [
       ...(canViewCityDashboard(account) ? [Setting.getItem(<Link to="/dashboard-city">北京市数据大屏</Link>, "/dashboard-city", <FundOutlined />)] : []),
-      Setting.getItem(<Link to="/dashboard-district">各区数据大屏</Link>, "/dashboard-district", <DashboardOutlined />),
+      Setting.getItem(<Link to="/dashboard-district">{canViewCityDashboard(account) ? "各区数据大屏" : "本区数据大屏"}</Link>, "/dashboard-district", <DashboardOutlined />),
     ];
+    const isCityAccount = canViewCityDashboard(account);
     const items = [
       Setting.getItem(<Link to="/">首页</Link>, "/", <HomeOutlined />),
       Setting.getItem("数据总览", "/overview", <BarChartOutlined />, overviewChildren),
-      educationItem,
-      Setting.getItem("人员管理", "/people", <UserOutlined />, [
-        Setting.getItem(<Link to="/teachers">教师</Link>, "/teachers", <UserOutlined />),
-        Setting.getItem(<Link to="/students">学生</Link>, "/students", <SolutionOutlined />),
-        Setting.getItem(<Link to="/parents">家长</Link>, "/parents", <HeartOutlined />),
-      ]),
-      Setting.getItem("存储管理", "/storage", <CloudOutlined />, [
-        Setting.getItem(<Link to="/files">文件</Link>, "/files", <FolderOpenOutlined />),
-      ]),
-      Setting.getItem("审计日志", "/logs", <AuditOutlined />, [
-        Setting.getItem(<Link to="/records">日志</Link>, "/records", <DatabaseOutlined />),
-        Setting.getItem(<Link to="/sessions">会话</Link>, "/sessions", <OrderedListOutlined />),
-      ]),
+      ...(isCityAccount ? [
+        educationItem,
+        Setting.getItem("人员管理", "/people", <UserOutlined />, [
+          Setting.getItem(<Link to="/teachers">教师</Link>, "/teachers", <UserOutlined />),
+          Setting.getItem(<Link to="/students">学生</Link>, "/students", <SolutionOutlined />),
+          Setting.getItem(<Link to="/parents">家长</Link>, "/parents", <HeartOutlined />),
+        ]),
+        Setting.getItem("存储管理", "/storage", <CloudOutlined />, [
+          Setting.getItem(<Link to="/files">文件</Link>, "/files", <FolderOpenOutlined />),
+        ]),
+        Setting.getItem("审计日志", "/logs", <AuditOutlined />, [
+          Setting.getItem(<Link to="/records">日志</Link>, "/records", <DatabaseOutlined />),
+          Setting.getItem(<Link to="/sessions">会话</Link>, "/sessions", <OrderedListOutlined />),
+        ]),
+      ] : []),
     ];
 
     if (Setting.isAdminUser(account)) {
@@ -350,6 +353,7 @@ class ManagementPage extends React.Component {
     const {schools, grades, classes, selectedSchool, selectedGrade, selectedClass} = this.state;
     const filteredClasses = selectedGrade ? classes.filter(c => c.grade === selectedGrade || !c.grade) : classes;
     const isDark = this.props.themeAlgorithm?.includes("dark");
+    const isCityAccount = canViewCityDashboard(this.props.account);
 
     return (
       <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: isDark ? "#141414" : "#fbfdff", position: "sticky", top: 0, zIndex: 99, borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #dbe7f7", height: 52, lineHeight: "52px", boxShadow: isDark ? "none" : "0 1px 0 rgb(21 101 192 / 6%)"}}>
@@ -363,9 +367,13 @@ class ManagementPage extends React.Component {
           <BreadcrumbBar uri={this.props.location.pathname} />
         </div>
         <Space size={8}>
-          <Select placeholder="学校" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
-          <Select placeholder="年级" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
-          <Select placeholder="班级" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
+          {isCityAccount && (
+            <>
+              <Select placeholder="学校" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
+              <Select placeholder="年级" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
+              <Select placeholder="班级" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
+            </>
+          )}
           <ThemeSelect themeAlgorithm={this.props.themeAlgorithm} onChange={this.props.onThemeChange} />
           {this.renderAccountMenu()}
         </Space>

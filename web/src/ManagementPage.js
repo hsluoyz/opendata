@@ -47,7 +47,7 @@ import * as GradeBackend from "./backend/GradeBackend";
 import * as ClassBackend from "./backend/ClassBackend";
 import * as Setting from "./Setting";
 import BreadcrumbBar from "./common/BreadcrumbBar";
-import HomePage from "./HomePage";
+import HomePageNew from "./HomePageNew";
 import SchoolListPage from "./SchoolListPage";
 import SchoolEditPage from "./SchoolEditPage";
 import GradeListPage from "./GradeListPage";
@@ -385,7 +385,7 @@ class ManagementPage extends React.Component {
     const {account} = this.props;
     return (
       <Switch>
-        <Route exact path="/" render={props => <HomePage {...props} account={account} />} />
+        <Route exact path="/" render={props => <HomePageNew {...props} account={account} />} />
         <Route exact path="/dashboard-city" render={props => (
           canViewCityDashboard(account)
             ? <DashboardCityPage {...props} account={account} />

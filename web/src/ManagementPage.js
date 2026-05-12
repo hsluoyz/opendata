@@ -75,6 +75,9 @@ import SystemInfo from "./SystemInfo";
 import DashboardCityPage from "./DashboardCityPage";
 import DashboardDistrictPage from "./DashboardDistrictPage";
 import DashboardSchoolPage from "./DashboardSchoolPage";
+import haidianRawData from "./DashboardSchoolHaidianData.json";
+
+const HAIDIAN_SCHOOL_NAMES = new Set((haidianRawData["学校列表"] || []).map(s => s["学校名称"]));
 
 const {Header, Content, Footer, Sider} = Layout;
 const siderMenuOpenKeysStorageKey = "siderMenuOpenKeys";
@@ -128,6 +131,10 @@ function getMenuParentKey(uri) {
 
 function canViewCityDashboard(account) {
   return Setting.isAdminUser(account) || account?.displayName === "北京市";
+}
+
+function canViewSchoolDashboard(account) {
+  return Setting.isAdminUser(account) || account?.displayName === "北京市" || account?.displayName === "海淀区" || HAIDIAN_SCHOOL_NAMES.has(account?.displayName);
 }
 
 class ManagementPage extends React.Component {
@@ -270,8 +277,8 @@ class ManagementPage extends React.Component {
     ]);
     const overviewChildren = [
       ...(canViewCityDashboard(account) ? [Setting.getItem(<Link to="/dashboard-city">北京市数据大屏</Link>, "/dashboard-city", <FundOutlined />)] : []),
-      Setting.getItem(<Link to="/dashboard-district">{canViewCityDashboard(account) ? "各区数据大屏" : "本区数据大屏"}</Link>, "/dashboard-district", <DashboardOutlined />),
-      Setting.getItem(<Link to="/dashboard-school">各校数据大屏</Link>, "/dashboard-school", <BarChartOutlined />),
+      ...(!HAIDIAN_SCHOOL_NAMES.has(account?.displayName) ? [Setting.getItem(<Link to="/dashboard-district">{canViewCityDashboard(account) ? "各区数据大屏" : "本区数据大屏"}</Link>, "/dashboard-district", <DashboardOutlined />)] : []),
+      ...(canViewSchoolDashboard(account) ? [Setting.getItem(<Link to="/dashboard-school">{HAIDIAN_SCHOOL_NAMES.has(account?.displayName) ? "本校数据大屏" : "各校数据大屏"}</Link>, "/dashboard-school", <BarChartOutlined />)] : []),
     ];
     const isCityAccount = canViewCityDashboard(account);
     const items = [
@@ -393,8 +400,16 @@ class ManagementPage extends React.Component {
             ? <DashboardCityPage {...props} account={account} />
             : <Result status="403" title="403 无权访问" extra={<a href="/dashboard-district"><Button type="primary">查看各区数据大屏</Button></a>} />
         )} />
-        <Route exact path="/dashboard-district" render={props => <DashboardDistrictPage {...props} account={account} />} />
-        <Route exact path="/dashboard-school" render={props => <DashboardSchoolPage {...props} account={account} />} />
+        <Route exact path="/dashboard-district" render={props => (
+          HAIDIAN_SCHOOL_NAMES.has(account?.displayName)
+            ? <Result status="403" title="403 无权访问" extra={<a href="/dashboard-school"><Button type="primary">查看本校数据大屏</Button></a>} />
+            : <DashboardDistrictPage {...props} account={account} />
+        )} />
+        <Route exact path="/dashboard-school" render={props => (
+          canViewSchoolDashboard(account)
+            ? <DashboardSchoolPage {...props} account={account} />
+            : <Result status="403" title="403 无权访问" extra={<a href="/dashboard-district"><Button type="primary">查看数据大屏</Button></a>} />
+        )} />
         <Route exact path="/schools" render={props => <SchoolListPage {...props} account={account} />} />
         <Route path="/schools/:owner/:name" render={props => <SchoolEditPage {...props} account={account} />} />
         <Route exact path="/grades" render={props => <GradeListPage {...props} account={account} />} />

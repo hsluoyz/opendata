@@ -689,8 +689,9 @@ function SchoolInfoPanel({school}) {
 class DashboardSchoolPage extends React.Component {
   constructor(props) {
     super(props);
+    const accountSchool = SCHOOLS_DATA.find(s => s["学校名称"] === props.account?.displayName) || null;
     this.state = {
-      selectedSchool: SCHOOLS_DATA[0],
+      selectedSchool: accountSchool || SCHOOLS_DATA[0],
       time: new Date(),
       isFullscreen: false,
     };
@@ -726,6 +727,7 @@ class DashboardSchoolPage extends React.Component {
 
   render() {
     const {selectedSchool, time, isFullscreen} = this.state;
+    const isSchoolAccount = SCHOOLS_DATA.some(s => s["学校名称"] === this.props.account?.displayName);
     const schoolName = selectedSchool["学校名称"];
     const schoolType = selectedSchool["基本情况"]["办学类型"];
     const CHART_H = 240;
@@ -776,6 +778,7 @@ class DashboardSchoolPage extends React.Component {
                 classNames={{popup: {root: "school-select-popup"}}}
                 value={schoolName}
                 onChange={this.onSchoolChange}
+                disabled={isSchoolAccount}
                 style={{width: 230}}
                 popupMatchSelectWidth={false}
                 variant="borderless"
@@ -789,7 +792,7 @@ class DashboardSchoolPage extends React.Component {
                     fontWeight: 700,
                     fontSize: 14,
                     letterSpacing: "0.03em",
-                  }}>{schoolName} ▾</span>
+                  }}>{schoolName}{isSchoolAccount ? "" : " ▾"}</span>
                 )}
               />
             </div>

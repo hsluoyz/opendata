@@ -43,22 +43,22 @@ const bd = (color, w = "1px") => `${w} solid ${color}`;
 const SectionLabel = ({color = C.green, children, style = {}}) => (
   <div style={{display: "flex", alignItems: "center", gap: 6, marginBottom: 8, ...style}}>
     <div style={{width: 3, alignSelf: "stretch", minHeight: 16, backgroundColor: color, borderRadius: 2}} />
-    <span style={{...BASE, color, fontWeight: "bold", fontSize: "11pt"}}>{children}</span>
+    <span style={{...BASE, color, fontWeight: "bold", fontSize: "14pt"}}>{children}</span>
   </div>
 );
 
 const EcoCell = ({num, title, desc, titleColor, borderColor, bg}) => (
   <div style={{border: bd(borderColor), backgroundColor: bg, padding: "8px 10px", flex: 1}}>
-    <div style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "11pt", marginBottom: 4}}>{num} {title}</div>
-    <div style={{...BASE, color: C.slate, fontSize: "7.5pt", lineHeight: 1.5}}>{desc}</div>
+    <div style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "14pt", marginBottom: 4}}>{num} {title}</div>
+    <div style={{...BASE, color: C.slate, fontSize: "9.5pt", lineHeight: 1.5}}>{desc}</div>
   </div>
 );
 
 const SixCell = ({num, tag, title, items, numColor, bg, borderColor}) => (
   <div style={{border: bd(borderColor), backgroundColor: bg, padding: "8px 12px", flex: 1, textAlign: "center"}}>
-    <div style={{...BASE, color: numColor, fontWeight: "bold", fontSize: "8pt", marginBottom: 2}}>{num} {tag}</div>
-    <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "10pt", lineHeight: 1.4, marginBottom: 4}}>{title}</div>
-    <div style={{...BASE, color: C.mid, fontSize: "7.5pt"}}>{items.join("｜")}</div>
+    <div style={{...BASE, color: numColor, fontWeight: "bold", fontSize: "10pt", marginBottom: 2}}>{num} {tag}</div>
+    <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "12pt", lineHeight: 1.4, marginBottom: 4}}>{title}</div>
+    <div style={{...BASE, color: C.mid, fontSize: "9.5pt"}}>{items.join("｜")}</div>
   </div>
 );
 
@@ -115,23 +115,23 @@ class HomePageNew extends React.Component {
         {/* ── 封面标题区（三栏） ── */}
         <div style={{display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8}}>
           <div style={{minWidth: 130}}>
-            <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "12pt"}}>评估生态体系</div>
-            <div style={{...BASE, color: C.mid, fontSize: "8pt", marginTop: 3}}>诊断 · 监测 · 反馈 · 改进</div>
+            <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "15pt"}}>评估生态体系</div>
+            <div style={{...BASE, color: C.mid, fontSize: "10pt", marginTop: 3}}>诊断 · 监测 · 反馈 · 改进</div>
           </div>
           <div style={{flex: 1, textAlign: "center", padding: "0 20px"}}>
-            <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "22pt", lineHeight: 1.3}}>
+            <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "27pt", lineHeight: 1.3}}>
               区域科学教育发展水平评估体系
             </div>
-            <div style={{...BASE, color: C.light, fontSize: "9pt", marginTop: 6}}>
+            <div style={{...BASE, color: C.light, fontSize: "11pt", marginTop: 6}}>
               Regional Science Education Development Assessment Ecosystem
             </div>
-            <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "10pt", marginTop: 8, lineHeight: 1.6}}>
+            <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "12pt", marginTop: 8, lineHeight: 1.6}}>
               以发展框架为牵引、以年度数据监测为基础、以大数据平台为支撑、以报告反馈为闭环的区域科学教育治理支持体系
             </div>
           </div>
           <div style={{minWidth: 130, textAlign: "right"}}>
-            <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "11pt", lineHeight: "22pt"}}>北京市中小学</div>
-            <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "11pt", lineHeight: "22pt"}}>科学教育研究指导中心</div>
+            <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "14pt", lineHeight: "22pt"}}>北京市中小学</div>
+            <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "14pt", lineHeight: "22pt"}}>科学教育研究指导中心</div>
           </div>
         </div>
 
@@ -141,7 +141,7 @@ class HomePageNew extends React.Component {
           {/* 左列: 体系总述 + 指标统计 + 构建逻辑 */}
           <div style={{flex: "0 0 42%", minWidth: 0}}>
             <SectionLabel>体系总述</SectionLabel>
-            <p style={{...BASE, color: C.slate, fontSize: "8.5pt", lineHeight: 1.65, textAlign: "justify", marginBottom: 14}}>
+            <p style={{...BASE, color: C.slate, fontSize: "10.5pt", lineHeight: 1.65, textAlign: "justify", marginBottom: 14}}>
               《区域科学教育发展水平评估生态体系》立足教育强国、科技强国和人才强国战略要求，围绕科学教育&quot;育人目标—关键要素—运行机制—治理保障&quot;的内在逻辑，构建由发展框架、年度数据监测、大数据平台、报告反馈与改进应用组成的闭环体系。体系以学生科学核心素养发展为根本，以教师专业发展、课程教学、资源配置、协同育人与治理能力为关键支撑，推动区域科学教育从经验判断走向证据治理、从阶段评估走向持续改进，为科学教育高质量发展提供可诊断、可监测、可反馈、可改进、可引领的行动坐标。
             </p>
 
@@ -153,8 +153,8 @@ class HomePageNew extends React.Component {
                 {num: "88", label: "三级指标", bg: C.bgYellow, color: C.orange},
               ].map(({num, label, bg, color}) => (
                 <div key={label} style={{flex: 1, backgroundColor: bg, padding: "12px 6px", textAlign: "center"}}>
-                  <div style={{...BASE, color, fontWeight: "bold", fontSize: "24pt", lineHeight: 1.1}}>{num}</div>
-                  <div style={{...BASE, color: C.slate, fontWeight: "bold", fontSize: "8.5pt", marginTop: 4}}>{label}</div>
+                  <div style={{...BASE, color, fontWeight: "bold", fontSize: "30pt", lineHeight: 1.1}}>{num}</div>
+                  <div style={{...BASE, color: C.slate, fontWeight: "bold", fontSize: "10.5pt", marginTop: 4}}>{label}</div>
                 </div>
               ))}
             </div>
@@ -168,7 +168,7 @@ class HomePageNew extends React.Component {
               "治理嵌入：将评价结果嵌入区域教育治理决策",
               "开放演进：面向政策更新、技术迭代与实践反馈持续优化",
             ].map((text, i) => (
-              <div key={i} style={{...BASE, color: C.slate, fontSize: "8pt", lineHeight: "16pt", paddingLeft: 8}}>
+              <div key={i} style={{...BASE, color: C.slate, fontSize: "10pt", lineHeight: "16pt", paddingLeft: 8}}>
                 {"● "}{text}
               </div>
             ))}
@@ -204,10 +204,10 @@ class HomePageNew extends React.Component {
 
             {/* 流程文字 */}
             <div style={{textAlign: "center", padding: "8px 0"}}>
-              <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "11pt", letterSpacing: 0.5}}>
+              <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "14pt", letterSpacing: 0.5}}>
                 框架定向 → 数据监测 → 平台分析 → 报告反馈 → 改进再监测
               </div>
-              <div style={{...BASE, color: C.mid, fontSize: "9pt", marginTop: 6}}>
+              <div style={{...BASE, color: C.mid, fontSize: "11pt", marginTop: 6}}>
                 形成&quot;指标定义—数据生成—智能分析—反馈改进—动态优化&quot;的证据治理闭环。
               </div>
             </div>
@@ -232,10 +232,10 @@ class HomePageNew extends React.Component {
         </div>
 
         {/* ── 维度内涵大表标题 ── */}
-        <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "12pt", textAlign: "center", marginBottom: 4}}>
+        <div style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "15pt", textAlign: "center", marginBottom: 4}}>
           区域科学教育发展水平评估生态体系 维度内涵 · 一二级指标对应 · 闭环实施
         </div>
-        <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "11pt", textAlign: "center", marginBottom: 10}}>
+        <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "14pt", textAlign: "center", marginBottom: 10}}>
           一 维度内涵与发展导向
         </div>
 
@@ -251,7 +251,7 @@ class HomePageNew extends React.Component {
           <thead>
             <tr style={{backgroundColor: C.green}}>
               {["序号", "一级指标（维度）", "二级指标", "内涵描述", "发展导向"].map((h) => (
-                <th key={h} style={{...BASE, color: "#FFF", fontWeight: "bold", fontSize: "8pt",
+                <th key={h} style={{...BASE, color: "#FFF", fontWeight: "bold", fontSize: "10pt",
                   padding: "6px 8px", textAlign: "center", border: bd(C.borderGray)}}>
                   {h}
                 </th>
@@ -262,34 +262,34 @@ class HomePageNew extends React.Component {
             {dimRows.map(({id, bg, titleColor, title, sub, items, desc, direction}) => (
               <tr key={id} style={{verticalAlign: "middle"}}>
                 <td style={{backgroundColor: bg, border: bd(C.borderGray), padding: "8px 4px", textAlign: "center"}}>
-                  <span style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "7pt"}}>{id}</span>
+                  <span style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "9pt"}}>{id}</span>
                 </td>
                 <td style={{backgroundColor: bg, border: bd(C.borderGray), padding: "8px", textAlign: "center"}}>
-                  <div style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "8pt", lineHeight: 1.4}}>{title}</div>
-                  <div style={{...BASE, color: C.slate, fontSize: "7pt", marginTop: 2}}>—— {sub}</div>
+                  <div style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "10pt", lineHeight: 1.4}}>{title}</div>
+                  <div style={{...BASE, color: C.slate, fontSize: "9pt", marginTop: 2}}>—— {sub}</div>
                 </td>
                 <td style={{backgroundColor: bg, border: bd(C.borderGray), padding: "8px 6px", textAlign: "center"}}>
                   {items.map((item, i) => (
-                    <div key={i} style={{...BASE, color: C.dark, fontSize: "7pt", lineHeight: "16pt"}}>{item}</div>
+                    <div key={i} style={{...BASE, color: C.dark, fontSize: "9pt", lineHeight: "16pt"}}>{item}</div>
                   ))}
                 </td>
                 <td style={{border: bd(C.borderGray), padding: "8px 10px", verticalAlign: "middle"}}>
-                  <span style={{...BASE, color: C.dark, fontSize: "7.5pt", lineHeight: 1.6}}>{desc}</span>
+                  <span style={{...BASE, color: C.dark, fontSize: "9.5pt", lineHeight: 1.6}}>{desc}</span>
                 </td>
                 <td style={{backgroundColor: bg, border: bd(C.borderGray), padding: "8px 6px", textAlign: "center", verticalAlign: "middle"}}>
-                  <span style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "7pt"}}>{direction}</span>
+                  <span style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "9pt"}}>{direction}</span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div style={{...BASE, color: C.mid, fontSize: "7pt", marginBottom: 16, paddingLeft: 2}}>
+        <div style={{...BASE, color: C.mid, fontSize: "9pt", marginBottom: 16, paddingLeft: 2}}>
           注：框架共设 6 个一级指标、17 个二级指标、88 个三级指标；三级指标作为年度监测与平台分析的基本观测单元，详见配套《区域科学教育发展水平框架指标说明》。
         </div>
 
         {/* ── 二 闭环实施机制 ── */}
-        <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "11pt", marginBottom: 8}}>
+        <div style={{...BASE, color: C.green, fontWeight: "bold", fontSize: "14pt", marginBottom: 8}}>
           二 闭环实施机制
         </div>
         <div style={{display: "flex", marginBottom: 0}}>
@@ -300,8 +300,8 @@ class HomePageNew extends React.Component {
             {title: "报告反馈", sub: "输出诊断建议，推动治理改进", color: C.orange, bg: C.bgYellow, borderColor: C.orange},
           ].map(({title, sub, color, bg, borderColor}) => (
             <div key={title} style={{flex: 1, border: bd(borderColor), backgroundColor: bg, padding: "8px 10px", textAlign: "center"}}>
-              <div style={{...BASE, color, fontWeight: "bold", fontSize: "9pt", marginBottom: 4}}>{title}</div>
-              <div style={{...BASE, color: C.slate, fontSize: "7pt"}}>{sub}</div>
+              <div style={{...BASE, color, fontWeight: "bold", fontSize: "11pt", marginBottom: 4}}>{title}</div>
+              <div style={{...BASE, color: C.slate, fontSize: "9pt"}}>{sub}</div>
             </div>
           ))}
         </div>
@@ -313,7 +313,7 @@ class HomePageNew extends React.Component {
             {text: "形成区域报告、学校反馈和改进清单", borderColor: C.orange},
           ].map(({text, borderColor}) => (
             <div key={text} style={{flex: 1, backgroundColor: C.bgFog, borderTop: bd(borderColor), padding: "4px 8px", textAlign: "center"}}>
-              <span style={{...BASE, color: C.dark, fontSize: "7pt"}}>{text}</span>
+              <span style={{...BASE, color: C.dark, fontSize: "9pt"}}>{text}</span>
             </div>
           ))}
         </div>
@@ -338,17 +338,17 @@ class HomePageNew extends React.Component {
             },
           ].map(({bullet, bulletColor, title, titleColor, bg, borderColor, text}) => (
             <div key={title} style={{flex: 1, border: bd(borderColor), backgroundColor: bg, padding: "10px 14px"}}>
-              <div style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "9pt", marginBottom: 6}}>
+              <div style={{...BASE, color: titleColor, fontWeight: "bold", fontSize: "11pt", marginBottom: 6}}>
                 <span style={{color: bulletColor}}>{bullet} </span>{title}
               </div>
-              <div style={{...BASE, color: C.slate, fontSize: "7pt", lineHeight: 1.7}}>{text}</div>
+              <div style={{...BASE, color: C.slate, fontSize: "9pt", lineHeight: 1.7}}>{text}</div>
             </div>
           ))}
         </div>
 
         {/* ── 页脚 ── */}
         <div style={{backgroundColor: "#B6DDE8", padding: "10px 0", textAlign: "center", marginTop: 0}}>
-          <span style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "10pt"}}>
+          <span style={{...BASE, color: C.dark, fontWeight: "bold", fontSize: "12pt"}}>
             北京市中小学科学教育研究指导中心 二〇二六年五月
           </span>
         </div>

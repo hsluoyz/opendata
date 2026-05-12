@@ -74,6 +74,7 @@ import VisitorPage from "./VisitorPage";
 import SystemInfo from "./SystemInfo";
 import DashboardCityPage from "./DashboardCityPage";
 import DashboardDistrictPage from "./DashboardDistrictPage";
+import DashboardSchoolPage from "./DashboardSchoolPage";
 
 const {Header, Content, Footer, Sider} = Layout;
 const siderMenuOpenKeysStorageKey = "siderMenuOpenKeys";
@@ -119,7 +120,7 @@ function getMenuParentKey(uri) {
   if (uri.includes("/sites") || uri.includes("/visitors") || uri.includes("/sysinfo") || uri.includes("/swagger")) {
     return "/admin";
   }
-  if (uri.includes("/dashboard-city") || uri.includes("/dashboard-district")) {
+  if (uri.includes("/dashboard-city") || uri.includes("/dashboard-district") || uri.includes("/dashboard-school")) {
     return "/overview";
   }
   return null;
@@ -270,6 +271,7 @@ class ManagementPage extends React.Component {
     const overviewChildren = [
       ...(canViewCityDashboard(account) ? [Setting.getItem(<Link to="/dashboard-city">北京市数据大屏</Link>, "/dashboard-city", <FundOutlined />)] : []),
       Setting.getItem(<Link to="/dashboard-district">{canViewCityDashboard(account) ? "各区数据大屏" : "本区数据大屏"}</Link>, "/dashboard-district", <DashboardOutlined />),
+      Setting.getItem(<Link to="/dashboard-school">各校数据大屏</Link>, "/dashboard-school", <BarChartOutlined />),
     ];
     const isCityAccount = canViewCityDashboard(account);
     const items = [
@@ -392,6 +394,7 @@ class ManagementPage extends React.Component {
             : <Result status="403" title="403 无权访问" extra={<a href="/dashboard-district"><Button type="primary">查看各区数据大屏</Button></a>} />
         )} />
         <Route exact path="/dashboard-district" render={props => <DashboardDistrictPage {...props} account={account} />} />
+        <Route exact path="/dashboard-school" render={props => <DashboardSchoolPage {...props} account={account} />} />
         <Route exact path="/schools" render={props => <SchoolListPage {...props} account={account} />} />
         <Route path="/schools/:owner/:name" render={props => <SchoolEditPage {...props} account={account} />} />
         <Route exact path="/grades" render={props => <GradeListPage {...props} account={account} />} />

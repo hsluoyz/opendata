@@ -639,7 +639,7 @@ function SchoolInfoPanel({school}) {
   const areaPerStudent = students > 0 ? (labArea / students).toFixed(2) : "—";
 
   return (
-    <div style={{padding: "2px 0", overflowY: "auto", maxHeight: "100%"}}>
+    <div style={{padding: "2px 0"}}>
       <InfoRow label="科学副校长">
         <Badge text={vpOk ? "已配置" : "未配置"} ok={vpOk} />
         {vpSrc && <span style={{fontSize: 10, color: "#607080"}}>{vpSrc}</span>}

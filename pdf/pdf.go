@@ -47,6 +47,7 @@ func GetDistrictReportPdfBytes(districtName string, frontendBaseUrl string) ([]b
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(pageUrl),
 		chromedp.WaitReady(`#reportEnd`, chromedp.ByID),
+		chromedp.Sleep(3*time.Second),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
 			buf, _, err = page.PrintToPDF().

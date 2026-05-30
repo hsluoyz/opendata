@@ -28,6 +28,7 @@ import (
 	"github.com/the-open-data/opendata/conf"
 	"github.com/the-open-data/opendata/object"
 	"github.com/the-open-data/opendata/routers"
+	"github.com/the-open-data/opendata/util"
 	"golang.org/x/net/proxy"
 )
 
@@ -109,6 +110,12 @@ func main() {
 	}
 
 	port := beego.AppConfig.DefaultInt("httpport", 13000)
+
+	err = util.StopOldInstance(port)
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("OpenData server started on port %d\n", port)
 	beego.Run(fmt.Sprintf(":%v", port))
 }

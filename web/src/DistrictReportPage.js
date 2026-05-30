@@ -1508,10 +1508,17 @@ function DistrictReportPage({match, isRaw = false}) {
               </div>
               {NAV_TOC.map(({title, subs}) => (
                 <div key={title} style={{marginBottom: 10}}>
-                  <div style={{fontWeight: 700, color: C.text, fontSize: 13}}>{title}</div>
-                  {subs.map(({label, detail}) => (
-                    <div key={label} style={{fontSize: 12, color: C.muted, paddingLeft: 22, marginTop: 3, lineHeight: 1.7}}>
-                    · {label}{detail ? `：${detail}` : ""}
+                  <div style={{fontWeight: 700, color: C.text, fontSize: 13, marginBottom: 4}}>{title}</div>
+                  {subs.map(({label, subsubs}) => (
+                    <div key={label}>
+                      <div style={{fontSize: 12, color: C.muted, paddingLeft: 18, marginTop: 3, lineHeight: 1.7, fontWeight: 500}}>
+                        · {label}
+                      </div>
+                      {subsubs && subsubs.map(({label: ssLabel}) => (
+                        <div key={ssLabel} style={{fontSize: 12, color: "#94a3b8", paddingLeft: 36, marginTop: 1, lineHeight: 1.7}}>
+                          · {ssLabel}
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>

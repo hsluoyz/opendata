@@ -16,6 +16,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/the-open-data/opendata/pdf"
@@ -35,6 +36,8 @@ func (c *ApiController) DownloadDistrictReport() {
 	host := c.Ctx.Request.Host
 	frontendBaseUrl := fmt.Sprintf("%s://%s", scheme, host)
 
+	pageUrl := fmt.Sprintf("%s/district-report-raw/%s", frontendBaseUrl, url.PathEscape(districtName))
+	log.Printf("[INFO] DownloadDistrictReport: chromedp navigating to %s", pageUrl)
 	pdfBytes, err := pdf.GetDistrictReportPdfBytes(districtName, frontendBaseUrl)
 	if err != nil {
 		c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json")

@@ -397,7 +397,7 @@ function SecCourseTeaching({d}) {
             <ReactECharts
               option={pieOpt({data: freqKeys.map((k, i) => ({name: k, value: freq[k] || 0, color: freqClrs[i]}))})}
               style={{height: 200}}
-              opts={{renderer: "canvas"}}
+              opts={{renderer: "svg"}}
             />
           </ChartCard>
           <DataTable
@@ -462,7 +462,7 @@ function SecCourseTeaching({d}) {
               <ReactECharts
                 option={pieOpt({data: consKeys.map((k, i) => ({name: k, value: cons[k] || 0, color: consClrs[i]}))})}
                 style={{height: 200}}
-                opts={{renderer: "canvas"}}
+                opts={{renderer: "svg"}}
               />
             </ChartCard>
             <ChartCard title="图3  实验耗材采购率对比（%）" style={{flex: 1}}>
@@ -477,7 +477,7 @@ function SecCourseTeaching({d}) {
                   maxVal: 105,
                 })}
                 style={{height: 200}}
-                opts={{renderer: "canvas"}}
+                opts={{renderer: "svg"}}
               />
             </ChartCard>
           </div>
@@ -502,7 +502,7 @@ function SecCourseTeaching({d}) {
                 ],
               })}
               style={{height: 210}}
-              opts={{renderer: "canvas"}}
+              opts={{renderer: "svg"}}
             />
           </ChartCard>
           <DataTable
@@ -602,7 +602,7 @@ function SecTeachers({d}) {
               ],
             })}
             style={{height: 210}}
-            opts={{renderer: "canvas"}}
+            opts={{renderer: "svg"}}
           />
         </ChartCard>
       </SubSub>
@@ -757,7 +757,7 @@ function SecResources({d}) {
               grid: {top: 30, bottom: 38, left: 6, right: 36, containLabel: true},
             })}
             style={{height: 240}}
-            opts={{renderer: "canvas"}}
+            opts={{renderer: "svg"}}
           />
         </ChartCard>
       </SubSub>
@@ -794,7 +794,7 @@ function SecResources({d}) {
             <ReactECharts
               option={pieOpt({data: equipKeys.map((k, i) => ({name: k, value: equip[k] || 0, color: equipClrs[i]}))})}
               style={{height: 190}}
-              opts={{renderer: "canvas"}}
+              opts={{renderer: "svg"}}
             />
           </ChartCard>
           <ChartCard title="图8  实验器材更新情况对比（本区 vs 全市）" style={{flex: 1.3}}>
@@ -807,7 +807,7 @@ function SecResources({d}) {
                 ],
               })}
               style={{height: 190}}
-              opts={{renderer: "canvas"}}
+              opts={{renderer: "svg"}}
             />
           </ChartCard>
         </div>
@@ -884,7 +884,7 @@ function SecSocial({d}) {
               grid: {top: 8, bottom: 30, left: 6, right: 44, containLabel: true},
             })}
             style={{height: Math.max(160, jinlaiKeys.length * 34 + 50)}}
-            opts={{renderer: "canvas"}}
+            opts={{renderer: "svg"}}
           />
         </ChartCard>
         <DataTable
@@ -911,7 +911,7 @@ function SecSocial({d}) {
               grid: {top: 8, bottom: 30, left: 6, right: 44, containLabel: true},
             })}
             style={{height: Math.max(130, zhuquKeys.length * 42 + 50)}}
-            opts={{renderer: "canvas"}}
+            opts={{renderer: "svg"}}
           />
         </ChartCard>
         <DataTable

@@ -141,7 +141,7 @@ function Para({children, style}) {
 }
 
 function StatRow({children}) {
-  return <div style={{display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap"}}>{children}</div>;
+  return <div style={{display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", pageBreakInside: "avoid", breakInside: "avoid"}}>{children}</div>;
 }
 
 function Kpi({label, value, unit = "%", sub, color = C.accent}) {
@@ -161,7 +161,7 @@ function Kpi({label, value, unit = "%", sub, color = C.accent}) {
 
 function DataTable({headers, rows, caption, style}) {
   return (
-    <div style={{marginBottom: 14, overflowX: "auto", ...style}}>
+    <div style={{marginBottom: 14, overflowX: "auto", pageBreakInside: "avoid", breakInside: "avoid", ...style}}>
       {caption && (
         <div style={{fontSize: 12, color: C.muted, marginBottom: 5, textAlign: "center", fontWeight: 600}}>{caption}</div>
       )}

@@ -75,6 +75,7 @@ import SystemInfo from "./SystemInfo";
 import DashboardCityPage from "./DashboardCityPage";
 import DashboardDistrictPage from "./DashboardDistrictPage";
 import DashboardSchoolPage from "./DashboardSchoolPage";
+import DistrictReportPage from "./DistrictReportPage";
 import haidianRawData from "./DashboardSchoolHaidianData.json";
 
 const HAIDIAN_SCHOOL_NAMES = new Set((haidianRawData["学校列表"] || []).map(s => s["学校名称"]));
@@ -404,6 +405,9 @@ class ManagementPage extends React.Component {
           HAIDIAN_SCHOOL_NAMES.has(account?.displayName)
             ? <Result status="403" title="403 无权访问" extra={<a href="/dashboard-school"><Button type="primary">查看本校数据大屏</Button></a>} />
             : <DashboardDistrictPage {...props} account={account} />
+        )} />
+        <Route exact path="/district-report/:districtName" render={props => (
+          <DistrictReportPage {...props} account={account} />
         )} />
         <Route exact path="/dashboard-school" render={props => (
           canViewSchoolDashboard(account)

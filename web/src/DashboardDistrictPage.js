@@ -16,6 +16,7 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
 import {Select} from "antd";
+import {withRouter} from "react-router-dom";
 import dashboardData from "./DashboardData.json";
 
 const DISTRICTS_DATA = dashboardData["区县数据"];
@@ -745,6 +746,26 @@ class DashboardDistrictPage extends React.Component {
               <Clock time={time} />
               <div style={{width: 1, height: 34, background: C.border}} />
               <button
+                onClick={() => this.props.history.push(`/district-report/${encodeURIComponent(districtName)}`)}
+                title="查看诊断报告"
+                style={{
+                  background: "rgba(0,255,184,0.10)",
+                  border: "1px solid rgba(0,255,184,0.45)",
+                  borderRadius: 6,
+                  color: C.accent2,
+                  cursor: "pointer",
+                  padding: "5px 12px",
+                  fontSize: 13,
+                  transition: "border-color 0.2s, box-shadow 0.2s, background 0.2s",
+                  lineHeight: 1.4,
+                  fontWeight: 600,
+                }}
+                onMouseEnter={e => {e.currentTarget.style.borderColor = C.accent2; e.currentTarget.style.boxShadow = "0 0 12px rgba(0,255,184,0.35)"; e.currentTarget.style.background = "rgba(0,255,184,0.18)";}}
+                onMouseLeave={e => {e.currentTarget.style.borderColor = "rgba(0,255,184,0.45)"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "rgba(0,255,184,0.10)";}}
+              >
+                📄 诊断报告
+              </button>
+              <button
                 onClick={this.toggleFullscreen}
                 title={isFullscreen ? "退出全屏" : "全屏展示"}
                 style={{
@@ -841,4 +862,4 @@ class DashboardDistrictPage extends React.Component {
   }
 }
 
-export default DashboardDistrictPage;
+export default withRouter(DashboardDistrictPage);

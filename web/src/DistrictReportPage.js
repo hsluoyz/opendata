@@ -58,7 +58,7 @@ function pct(v, dec = 2) {
 function absDiffPp(a, b, dec = 2) {
   if (a === null || a === undefined || b === null || b === undefined) {return "—";}
   const d = a - b;
-  return `${d >= 0 ? "+" : ""}${d.toFixed(dec)}pp`;
+  return `${d >= 0 ? "+" : ""}${d.toFixed(dec)}百分点`;
 }
 
 // ── Layout atoms ──────────────────────────────────────────────────────────────
@@ -231,7 +231,7 @@ function CmpCell({val, refVal, dec = 2}) {
   return (
     <span style={{color, fontWeight: 600}}>
       {pct(val, dec)}{" "}
-      <span style={{fontSize: 10}}>({d >= 0 ? "+" : ""}{d.toFixed(dec)}pp)</span>
+      <span style={{fontSize: 10}}>({d >= 0 ? "+" : ""}{d.toFixed(dec)}百分点)</span>
     </span>
   );
 }
@@ -372,7 +372,7 @@ function SecCourseTeaching({d}) {
           <Kpi
             label="与全市差距"
             value={(dRate - cityRate) >= 0 ? `+${f(dRate - cityRate)}` : f(dRate - cityRate)}
-            unit="pp"
+            unit="百分点"
             color={(dRate - cityRate) >= 0 ? C.green : C.red}
           />
         </StatRow>
@@ -1021,7 +1021,7 @@ function SecIssues({d}) {
                   <div style={{fontSize: 12, color: C.muted, marginTop: 3}}>
                     本区 <b style={{color: C.red}}>{pct(c.val)}</b>
                     {" · "}全市 <b>{pct(c.cityVal)}</b>
-                    {" · "}差距 <b style={{color: C.red}}>{Math.abs(c.val - c.cityVal).toFixed(2)}pp</b>
+                    {" · "}差距 <b style={{color: C.red}}>{Math.abs(c.val - c.cityVal).toFixed(2)}百分点</b>
                   </div>
                 </div>
               </div>

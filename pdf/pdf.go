@@ -61,6 +61,7 @@ func GetDistrictReportPdfBytes(districtName string, baseUrl string) ([]byte, err
 				WithMarginBottom(0.5).
 				WithMarginLeft(0.8).
 				WithMarginRight(0.8).
+				WithScale(0.85).
 				WithPrintBackground(true).
 				Do(ctx)
 			if err != nil {

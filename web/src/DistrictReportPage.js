@@ -1239,7 +1239,7 @@ function NavSidebar() {
 
   const inner = (
     <div style={{
-      width: 210,
+      width: 230,
       maxHeight: `calc(100vh - ${NAV_OFFSET + 8}px)`,
       overflowY: "auto",
       background: "#fff",
@@ -1249,7 +1249,7 @@ function NavSidebar() {
       padding: "14px 0 14px",
     }}>
       <div style={{
-        fontSize: 12, fontWeight: 800, color: C.primary,
+        fontSize: 14, fontWeight: 800, color: C.primary,
         padding: "0 14px 10px", borderBottom: `1px solid ${C.border}`,
         marginBottom: 8, letterSpacing: "0.05em",
       }}>
@@ -1265,7 +1265,7 @@ function NavSidebar() {
               onClick={() => handleClick(id)}
               style={{
                 padding: "6px 14px",
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 700,
                 color: secActive ? C.accent : C.text,
                 cursor: "pointer",
@@ -1277,7 +1277,6 @@ function NavSidebar() {
             {subs.map(({id: subId, label, subsubs}) => {
               const hasSubsubs = subsubs && subsubs.length > 0;
               const subHasActive = hasSubsubs && subsubs.some(ss => ss.id === activeId);
-              // Highlight sub only if active is sub itself (no subsub active in this sub)
               const subHighlight = activeId === subId;
               return (
                 <div key={subId}>
@@ -1292,7 +1291,7 @@ function NavSidebar() {
                     }}
                   >
                     <div style={{
-                      fontSize: 11,
+                      fontSize: 13,
                       color: (subHighlight && !subHasActive) ? C.accent : (subHasActive ? C.accent : C.muted),
                       fontWeight: (subHighlight && !subHasActive) ? 700 : (subHasActive ? 600 : 400),
                       lineHeight: 1.5,
@@ -1315,7 +1314,7 @@ function NavSidebar() {
                         }}
                       >
                         <div style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           color: isActive ? C.accent : "#94a3b8",
                           fontWeight: isActive ? 700 : 400,
                           lineHeight: 1.5,
@@ -1335,7 +1334,7 @@ function NavSidebar() {
   );
 
   return (
-    <div style={{width: 210, flexShrink: 0}}>
+    <div style={{width: 230, flexShrink: 0}}>
       <Affix offsetTop={NAV_OFFSET}>
         {inner}
       </Affix>

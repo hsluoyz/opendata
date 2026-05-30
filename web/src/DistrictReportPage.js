@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import React from "react";
+import {Button} from "antd";
+import {DownloadOutlined} from "@ant-design/icons";
 import {Helmet} from "react-helmet";
 import ReactECharts from "echarts-for-react";
 import dashboardData from "./DashboardData.json";
@@ -793,10 +795,31 @@ function Cover({d}) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-function DistrictReportPage({match}) {
+function DistrictReportPage({match, isRaw = false}) {
+  const [downloading, setDownloading] = React.useState(false);
+
   const districtName = match?.params?.districtName
     ? decodeURIComponent(match.params.districtName)
     : null;
+
+  const handleDownload = () => {
+    setDownloading(true);
+    fetch(`/api/download-district-report?districtName=${encodeURIComponent(districtName)}`)
+      .then(res => {
+        if (!res.ok) {throw new Error("下载失败");}
+        return res.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${districtName}科学教育诊断报告.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(err => alert(err.message))
+      .finally(() => setDownloading(false));
+  };
 
   const d = districtName
     ? DISTRICTS_DATA.find(x => x["名称"] === districtName)
@@ -827,6 +850,18 @@ function DistrictReportPage({match}) {
   return (
     <div style={{background: "#f8fafc", minHeight: "100vh", padding: "24px 0 40px", fontFamily: "'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif"}}>
       <Helmet><title>{districtName ? `${districtName}区级报告 - 教育数据管理平台` : "区级报告 - 教育数据管理平台"}</title></Helmet>
+      {!isRaw && (
+        <div style={{maxWidth: 960, margin: "0 auto 12px", display: "flex", justifyContent: "flex-end", paddingRight: 4}}>
+          <Button
+            type="primary"
+            icon={<DownloadOutlined />}
+            loading={downloading}
+            onClick={handleDownload}
+          >
+            下载PDF报告
+          </Button>
+        </div>
+      )}
       <div style={{maxWidth: 960, margin: "0 auto", background: "#fff", boxShadow: "0 2px 12px rgba(0,0,0,0.10)", borderRadius: 8}}>
 
         <Cover d={d} />
@@ -870,6 +905,7 @@ function DistrictReportPage({match}) {
           <SecIssues d={d} />
         </div>
       </div>
+      <div id="reportEnd" />
     </div>
   );
 }

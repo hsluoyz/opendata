@@ -141,4 +141,7 @@ func initAPI() {
 
 	// Health
 	beego.Router("/api/health", &controllers.ApiController{}, "GET:Health")
+
+	// Report
+	beego.Router("/api/download-district-report", &controllers.ApiController{}, "GET:DownloadDistrictReport")
 }

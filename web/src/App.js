@@ -27,6 +27,7 @@ import {getShadcnThemeComponents, getShadcnThemeToken} from "./shadcnTheme";
 import AuthCallback from "./AuthCallback";
 import SigninPage from "./SigninPage";
 import ManagementPage from "./ManagementPage";
+import DistrictReportRawPage from "./DistrictReportRawPage";
 import "./App.less";
 
 class App extends React.Component {
@@ -125,6 +126,7 @@ class App extends React.Component {
             <BrowserRouter>
               <Switch>
                 <Route exact path="/callback" component={AuthCallback} />
+                <Route exact path="/district-report-raw/:districtName" component={DistrictReportRawPage} />
                 <Route path="/signin" render={props => (
                   account ? <Redirect to="/" /> : <SigninPage {...props} />
                 )} />

@@ -29,16 +29,11 @@ func (c *ApiController) DownloadDistrictReport() {
 		return
 	}
 
-	scheme := "https"
-	if c.Ctx.Request.TLS == nil && c.Ctx.Request.Header.Get("X-Forwarded-Proto") != "https" {
-		scheme = "http"
-	}
-	host := c.Ctx.Request.Host
-	frontendBaseUrl := fmt.Sprintf("%s://%s", scheme, host)
+	baseUrl := c.GetBaseUrl()
 
-	pageUrl := fmt.Sprintf("%s/district-report-raw/%s", frontendBaseUrl, url.PathEscape(districtName))
+	pageUrl := fmt.Sprintf("%s/district-report-raw/%s", baseUrl, url.PathEscape(districtName))
 	log.Printf("[INFO] DownloadDistrictReport: chromedp navigating to %s", pageUrl)
-	pdfBytes, err := pdf.GetDistrictReportPdfBytes(districtName, frontendBaseUrl)
+	pdfBytes, err := pdf.GetDistrictReportPdfBytes(districtName, baseUrl)
 	if err != nil {
 		c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
 		c.Ctx.ResponseWriter.WriteHeader(500)

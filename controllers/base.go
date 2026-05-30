@@ -17,7 +17,9 @@ package controllers
 import (
 	"encoding/gob"
 	"encoding/json"
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/beego/beego"
 	"github.com/the-open-data/opendata/auth"
@@ -110,6 +112,18 @@ func (c *ApiController) RequireAdmin() bool {
 		return false
 	}
 	return true
+}
+
+func (c *ApiController) GetBaseUrl() string {
+	scheme := "https"
+	if c.Ctx.Request.TLS == nil && c.Ctx.Request.Header.Get("X-Forwarded-Proto") != "https" {
+		scheme = "http"
+	}
+	host := c.Ctx.Request.Host
+	if strings.HasPrefix(host, "localhost") {
+		return "http://localhost:12001"
+	}
+	return fmt.Sprintf("%s://%s", scheme, host)
 }
 
 func DenyRequest(ctx interface{}) {}

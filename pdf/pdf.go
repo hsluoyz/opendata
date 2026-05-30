@@ -24,8 +24,8 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-func GetDistrictReportPdfBytes(districtName string, frontendBaseUrl string) ([]byte, error) {
-	pageUrl := fmt.Sprintf("%s/district-report-raw/%s", frontendBaseUrl, url.PathEscape(districtName))
+func GetDistrictReportPdfBytes(districtName string, baseUrl string) ([]byte, error) {
+	pageUrl := fmt.Sprintf("%s/district-report-raw/%s", baseUrl, url.PathEscape(districtName))
 
 	options := append(
 		chromedp.DefaultExecAllocatorOptions[:],

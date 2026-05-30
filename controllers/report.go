@@ -28,7 +28,14 @@ func (c *ApiController) DownloadDistrictReport() {
 		return
 	}
 
-	pdfBytes, err := pdf.GetDistrictReportPdfBytes(districtName)
+	scheme := "https"
+	if c.Ctx.Request.TLS == nil && c.Ctx.Request.Header.Get("X-Forwarded-Proto") != "https" {
+		scheme = "http"
+	}
+	host := c.Ctx.Request.Host
+	frontendBaseUrl := fmt.Sprintf("%s://%s", scheme, host)
+
+	pdfBytes, err := pdf.GetDistrictReportPdfBytes(districtName, frontendBaseUrl)
 	if err != nil {
 		c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
 		c.Ctx.ResponseWriter.WriteHeader(500)

@@ -20,13 +20,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/beego/beego"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 )
 
-func GetDistrictReportPdfBytes(districtName string) ([]byte, error) {
-	frontendBaseUrl := beego.AppConfig.DefaultString("frontendBaseUrl", "http://localhost:12001")
+func GetDistrictReportPdfBytes(districtName string, frontendBaseUrl string) ([]byte, error) {
 	pageUrl := fmt.Sprintf("%s/district-report-raw/%s", frontendBaseUrl, url.PathEscape(districtName))
 
 	options := append(

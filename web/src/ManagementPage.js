@@ -130,6 +130,13 @@ function getMenuParentKey(uri) {
   return null;
 }
 
+function isSelectActive(pathname) {
+  if (!pathname) {
+    return false;
+  }
+  return /^\/(schools|grades|classes|subjects|providers|teachers|students|parents|files)/.test(pathname);
+}
+
 function canViewCityDashboard(account) {
   return Setting.isAdminUser(account) || account?.displayName === "北京市";
 }
@@ -364,6 +371,16 @@ class ManagementPage extends React.Component {
     const filteredClasses = selectedGrade ? classes.filter(c => c.grade === selectedGrade || !c.grade) : classes;
     const isDark = this.props.themeAlgorithm?.includes("dark");
     const isCityAccount = canViewCityDashboard(this.props.account);
+    const selectActive = isSelectActive(this.props.location.pathname);
+
+    const schoolValue = selectActive ? (selectedSchool || "") : "";
+    const gradeValue = selectActive ? (selectedGrade || "") : "";
+    const classValue = selectActive ? (selectedClass || "") : "";
+
+    const allOption = {value: "", label: "全部"};
+    const schoolOptions = [allOption, ...schools.map(s => ({value: s.name, label: s.displayName || s.name}))];
+    const gradeOptions = [allOption, ...grades.map(g => ({value: g.name, label: g.displayName || g.name}))];
+    const classOptions = [allOption, ...filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))];
 
     return (
       <Header style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 8px 0 0", backgroundColor: isDark ? "#141414" : "#fbfdff", position: "sticky", top: 0, zIndex: 99, borderBottom: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid #dbe7f7", height: 52, lineHeight: "52px", boxShadow: isDark ? "none" : "0 1px 0 rgb(21 101 192 / 6%)"}}>
@@ -379,9 +396,9 @@ class ManagementPage extends React.Component {
         <Space size={8}>
           {isCityAccount && (
             <>
-              <Select placeholder="学校" value={selectedSchool || undefined} onChange={value => Setting.setSchool(value || "")} allowClear style={{width: 160}} options={schools.map(s => ({value: s.name, label: s.displayName || s.name}))} />
-              <Select placeholder="年级" value={selectedGrade || undefined} onChange={value => Setting.setGrade(value || "")} allowClear style={{width: 130}} disabled={!selectedSchool} options={grades.map(g => ({value: g.name, label: g.displayName || g.name}))} />
-              <Select placeholder="班级" value={selectedClass || undefined} onChange={value => Setting.setClass(value || "")} allowClear style={{width: 130}} disabled={!selectedGrade} options={filteredClasses.map(c => ({value: c.name, label: c.displayName || c.name}))} />
+              <Select value={schoolValue} onChange={value => Setting.setSchool(value || "")} disabled={!selectActive} style={{width: 160}} options={schoolOptions} />
+              <Select value={gradeValue} onChange={value => Setting.setGrade(value || "")} disabled={!selectActive || !selectedSchool} style={{width: 130}} options={gradeOptions} />
+              <Select value={classValue} onChange={value => Setting.setClass(value || "")} disabled={!selectActive || !selectedGrade} style={{width: 130}} options={classOptions} />
             </>
           )}
           <ThemeSelect themeAlgorithm={this.props.themeAlgorithm} onChange={this.props.onThemeChange} />

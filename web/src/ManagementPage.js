@@ -423,9 +423,21 @@ class ManagementPage extends React.Component {
             ? <Result status="403" title="403 无权访问" extra={<a href="/dashboard-school"><Button type="primary">查看本校数据大屏</Button></a>} />
             : <DashboardDistrictPage {...props} account={account} />
         )} />
-        <Route exact path="/district-report/:districtName" render={props => (
-          <DistrictReportPage {...props} account={account} />
-        )} />
+        <Route exact path="/district-report/:districtName" render={props => {
+          const urlDistrict = decodeURIComponent(props.match.params.districtName);
+          const canViewAllDistricts = Setting.isAdminUser(account) || account?.displayName === "北京市";
+          if (!canViewAllDistricts && account?.displayName !== urlDistrict) {
+            return (
+              <Result
+                status="403"
+                title="403 无权访问"
+                subTitle="您只能查看本区的诊断报告。"
+                extra={<a href={`/district-report/${encodeURIComponent(account?.displayName)}`}><Button type="primary">查看本区报告</Button></a>}
+              />
+            );
+          }
+          return <DistrictReportPage {...props} account={account} />;
+        }} />
         <Route exact path="/dashboard-school" render={props => (
           canViewSchoolDashboard(account)
             ? <DashboardSchoolPage {...props} account={account} />

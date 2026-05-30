@@ -1141,12 +1141,12 @@ function SecIssues({d}) {
 }
 
 // ── Cover ─────────────────────────────────────────────────────────────────────
-function Cover({d}) {
+function Cover({d, isRaw = false}) {
   return (
     <div style={{
       background: `linear-gradient(140deg, ${C.primary} 0%, ${C.accent} 100%)`,
       color: "#fff", padding: "60px 60px 50px",
-      borderRadius: "8px 8px 0 0",
+      borderRadius: isRaw ? 0 : "8px 8px 0 0",
       position: "relative", overflow: "hidden",
     }}>
       <div style={{position: "absolute", top: -40, right: -40, width: 220, height: 220, background: "rgba(255,255,255,0.05)", borderRadius: "50%"}} />
@@ -1244,14 +1244,16 @@ function DistrictReportPage({match, isRaw = false}) {
 
   return (
     <div style={{
-      background: "#f0f4f8", minHeight: "100vh",
-      padding: "24px 0 48px",
+      background: isRaw ? "transparent" : "#f0f4f8",
+      minHeight: isRaw ? undefined : "100vh",
+      padding: isRaw ? 0 : "24px 0 48px",
       fontFamily: "'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif",
     }}>
       <Helmet>
         <title>
           {districtName ? `${districtName}区级报告 - 教育数据管理平台` : "区级报告 - 教育数据管理平台"}
         </title>
+        {isRaw && <style>{"body { background-color: #fff !important; }"}</style>}
       </Helmet>
 
       {!isRaw && (
@@ -1268,10 +1270,13 @@ function DistrictReportPage({match, isRaw = false}) {
       )}
 
       <div style={{
-        maxWidth: 980, margin: "0 auto", background: "#fff",
-        boxShadow: "0 2px 16px rgba(0,0,0,0.10)", borderRadius: 8,
+        maxWidth: isRaw ? "none" : 980,
+        margin: isRaw ? 0 : "0 auto",
+        background: "#fff",
+        boxShadow: isRaw ? "none" : "0 2px 16px rgba(0,0,0,0.10)",
+        borderRadius: isRaw ? 0 : 8,
       }}>
-        <Cover d={d} />
+        <Cover d={d} isRaw={isRaw} />
 
         <div style={{padding: "44px 60px"}}>
 

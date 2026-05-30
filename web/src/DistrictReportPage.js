@@ -120,9 +120,9 @@ function Sub({title, children, id}) {
   );
 }
 
-function SubSub({num, title, children}) {
+function SubSub({num, title, children, id}) {
   return (
-    <div style={{marginBottom: 22, pageBreakInside: "avoid", breakInside: "avoid"}}>
+    <div id={id} style={{marginBottom: 22, pageBreakInside: "avoid", breakInside: "avoid"}}>
       <H3 num={num} title={title} />
       <div style={{paddingLeft: 28}}>{children}</div>
     </div>
@@ -237,7 +237,8 @@ function CmpCell({val, refVal, dec = 2}) {
 
 // ── ECharts option builders ───────────────────────────────────────────────────
 function barOpt({categories, series, horizontal = false, maxVal = 100, grid, unit = "%"}) {
-  const baseGrid = {top: 30, bottom: 8, left: 6, right: 36, containLabel: true};
+  const hasLegend = series.length > 1;
+  const baseGrid = {top: 30, bottom: hasLegend ? 28 : 8, left: 6, right: 36, containLabel: true};
   const fmtLabel = v => `${(v || 0).toFixed(1)}${unit}`;
   const xAxis = horizontal
     ? {type: "value", max: maxVal, axisLabel: {formatter: v => `${v}${unit}`, fontSize: 10, color: C.gray}, splitLine: {lineStyle: {color: "#e2e8f0"}}}
@@ -248,7 +249,7 @@ function barOpt({categories, series, horizontal = false, maxVal = 100, grid, uni
   return {
     backgroundColor: "transparent",
     grid: grid || baseGrid,
-    legend: series.length > 1 ? {bottom: 0, textStyle: {fontSize: 10, color: C.text}, itemWidth: 10, itemHeight: 10} : undefined,
+    legend: hasLegend ? {bottom: 0, textStyle: {fontSize: 10, color: C.text}, itemWidth: 10, itemHeight: 10} : undefined,
     tooltip: {
       trigger: "axis",
       backgroundColor: "rgba(255,255,255,0.97)",
@@ -356,7 +357,7 @@ function SecCourseTeaching({d}) {
 
   return (
     <Sub id="sub-1-1" title="（一）课程教学">
-      <SubSub num="1" title="课程落实">
+      <SubSub id="subsub-1-1-1" num="1" title="课程落实">
         <Para>
           2025年，{d["名称"]}共有<b>{pct(dRate)}</b>的义务教育学校科学类课程课时数达到《义务教育课程方案和课程标准（2022年版）》的要求，
           {dRate >= cityRate
@@ -384,7 +385,7 @@ function SecCourseTeaching({d}) {
         />
       </SubSub>
 
-      <SubSub num="2" title="实验教学">
+      <SubSub id="subsub-1-1-2" num="2" title="实验教学">
         <H3 num="(1)" title="实验室使用频率" />
         <div style={{paddingLeft: 28}}>
           <Para>
@@ -523,7 +524,7 @@ function SecCourseTeaching({d}) {
         </div>
       </SubSub>
 
-      <SubSub num="3" title="课程建设">
+      <SubSub id="subsub-1-1-3" num="3" title="课程建设">
         <Para>
           截至2025年10月，{d["名称"]}已开设中小学科学类地方课程。
           2025年以来，本区有<b>{pct(dSchoolCurRate)}</b>的中小学校开发了与科学相关的校本课程，
@@ -576,7 +577,7 @@ function SecTeachers({d}) {
 
   return (
     <Sub id="sub-1-2" title="（二）师资建设">
-      <SubSub num="1" title="师资规模">
+      <SubSub id="subsub-1-2-1" num="1" title="师资规模">
         <Para>
           2024—2025学年，{d["名称"]}中小学科学类课程教师共<b>{totalTeachers}</b>人，
           其中小学{d["教师人数"]["小学"]}人、初中{d["教师人数"]["初中"]}人、高中{d["教师人数"]["高中"]}人。
@@ -610,7 +611,7 @@ function SecTeachers({d}) {
         </ChartCard>
       </SubSub>
 
-      <SubSub num="2" title="专业背景">
+      <SubSub id="subsub-1-2-2" num="2" title="专业背景">
         <Para>
           {d["名称"]}科学类课程教师中，具有理工科专业背景的教师占比为<b>{pct(bg["理工科背景占比"])}</b>，
           全市平均水平为{pct(cityBg["理工科背景占比"])}，
@@ -648,7 +649,7 @@ function SecTeachers({d}) {
         />
       </SubSub>
 
-      <SubSub num="3" title="科学副校长与科技辅导员">
+      <SubSub id="subsub-1-2-3" num="3" title="科学副校长与科技辅导员">
         <Para>
           {d["名称"]}科学副校长配备率为<b>{pct(vp)}</b>，
           全市平均水平为{pct(cityVp)}，
@@ -713,7 +714,7 @@ function SecResources({d}) {
 
   return (
     <Sub id="sub-1-3" title="（三）资源设备">
-      <SubSub num="1" title="实验室建设">
+      <SubSub id="subsub-1-3-1" num="1" title="实验室建设">
         <Para>
           根据《义务教育学校实验室装备规范》（JY/T0385-2006），{d["名称"]}中小学实验室间数达标率整体为
           <b>{pct(labRooms["整体"] || 0)}</b>，
@@ -765,7 +766,7 @@ function SecResources({d}) {
         </ChartCard>
       </SubSub>
 
-      <SubSub num="2" title="实验仪器配备">
+      <SubSub id="subsub-1-3-2" num="2" title="实验仪器配备">
         <Para>
           {d["名称"]}中小学实验仪器配备达标率：小学为<b>{pct(inst["小学"])}</b>（全市{pct(cityInst["小学"])}），
           初中为<b>{pct(inst["初中"])}</b>（全市{pct(cityInst["初中"])}），
@@ -833,7 +834,7 @@ function SecSocial({d}) {
 
   return (
     <Sub id="sub-1-4" title="（四）社会协同">
-      <SubSub num="1" title="机构结对">
+      <SubSub id="subsub-1-4-1" num="1" title="机构结对">
         <Para>
           2025年，{d["名称"]}校外科技教育机构与学校结对比例为<b>{pct(pair["结对比例"])}</b>，
           全市平均水平为{pct(cityPair["结对比例"])}，
@@ -868,7 +869,7 @@ function SecSocial({d}) {
         />
       </SubSub>
 
-      <SubSub num="2" title="科学实践活动">
+      <SubSub id="subsub-1-4-2" num="2" title="科学实践活动">
         <Para>
           2025年，{d["名称"]}积极开展&ldquo;请进来&rdquo;和&ldquo;走出去&rdquo;科学实践活动。
           全市共有<b>{pct(CITY["请进来活动"]["比例"])}</b>（{CITY["请进来活动"]["学校数"]}所）的中小学开展了&ldquo;请进来&rdquo;科学实践活动；
@@ -1149,10 +1150,24 @@ const NAV_TOC = [
     id: "sec-1",
     title: "一、工作基本情况",
     subs: [
-      {id: "sub-1-1", label: "（一）课程教学", detail: "1.课程落实　2.实验教学　3.课程建设"},
-      {id: "sub-1-2", label: "（二）师资建设", detail: "1.师资规模　2.专业背景　3.科学副校长与科技辅导员"},
-      {id: "sub-1-3", label: "（三）资源设备", detail: "1.实验室建设　2.实验仪器配备"},
-      {id: "sub-1-4", label: "（四）社会协同", detail: "1.机构结对　2.科学实践活动"},
+      {id: "sub-1-1", label: "（一）课程教学", subsubs: [
+        {id: "subsub-1-1-1", label: "1. 课程落实"},
+        {id: "subsub-1-1-2", label: "2. 实验教学"},
+        {id: "subsub-1-1-3", label: "3. 课程建设"},
+      ]},
+      {id: "sub-1-2", label: "（二）师资建设", subsubs: [
+        {id: "subsub-1-2-1", label: "1. 师资规模"},
+        {id: "subsub-1-2-2", label: "2. 专业背景"},
+        {id: "subsub-1-2-3", label: "3. 科学副校长与科技辅导员"},
+      ]},
+      {id: "sub-1-3", label: "（三）资源设备", subsubs: [
+        {id: "subsub-1-3-1", label: "1. 实验室建设"},
+        {id: "subsub-1-3-2", label: "2. 实验仪器配备"},
+      ]},
+      {id: "sub-1-4", label: "（四）社会协同", subsubs: [
+        {id: "subsub-1-4-1", label: "1. 机构结对"},
+        {id: "subsub-1-4-2", label: "2. 科学实践活动"},
+      ]},
     ],
   },
   {
@@ -1174,14 +1189,24 @@ const NAV_OFFSET = 52 + 16;
 function NavSidebar() {
   const [activeId, setActiveId] = React.useState(null);
 
-  // Only track level-2 sub IDs for active highlight
+  // Collect all trackable IDs: subsubs first (most specific), then subs
+  const allTrackedIds = React.useMemo(() => {
+    const ids = [];
+    NAV_TOC.forEach(({subs}) => {
+      subs.forEach(s => {
+        if (s.subsubs) {s.subsubs.forEach(ss => ids.push(ss.id));}
+        ids.push(s.id);
+      });
+    });
+    return ids;
+  }, []);
+
   React.useEffect(() => {
-    const subIds = NAV_TOC.flatMap(({subs}) => subs.map(s => s.id));
     const observers = [];
     const visibleSet = new Set();
 
     const update = () => {
-      for (const id of subIds) {
+      for (const id of allTrackedIds) {
         if (visibleSet.has(id)) {
           setActiveId(id);
           return;
@@ -1189,7 +1214,7 @@ function NavSidebar() {
       }
     };
 
-    subIds.forEach(id => {
+    allTrackedIds.forEach(id => {
       const el = document.getElementById(id);
       if (!el) {return;}
       const obs = new IntersectionObserver(
@@ -1198,13 +1223,12 @@ function NavSidebar() {
           update();
         },
         {rootMargin: `-${NAV_OFFSET}px 0px -50% 0px`});
-
       obs.observe(el);
       observers.push(obs);
     });
 
     return () => observers.forEach(o => o.disconnect());
-  }, []);
+  }, [allTrackedIds]);
 
   const handleClick = (id) => {
     const el = document.getElementById(id);
@@ -1229,10 +1253,12 @@ function NavSidebar() {
         padding: "0 14px 10px", borderBottom: `1px solid ${C.border}`,
         marginBottom: 8, letterSpacing: "0.05em",
       }}>
-        目录导航
+        目录
       </div>
       {NAV_TOC.map(({id, title, subs}) => {
-        const parentActive = subs.some(s => s.id === activeId);
+        const secActive = subs.some(s =>
+          s.id === activeId || (s.subsubs && s.subsubs.some(ss => ss.id === activeId))
+        );
         return (
           <div key={id}>
             <div
@@ -1241,40 +1267,64 @@ function NavSidebar() {
                 padding: "6px 14px",
                 fontSize: 12,
                 fontWeight: 700,
-                color: parentActive ? C.accent : C.text,
+                color: secActive ? C.accent : C.text,
                 cursor: "pointer",
                 lineHeight: 1.5,
               }}
             >
               {title}
             </div>
-            {subs.map(({id: subId, label, detail}) => {
-              const isActive = activeId === subId;
+            {subs.map(({id: subId, label, subsubs}) => {
+              const hasSubsubs = subsubs && subsubs.length > 0;
+              const subHasActive = hasSubsubs && subsubs.some(ss => ss.id === activeId);
+              // Highlight sub only if active is sub itself (no subsub active in this sub)
+              const subHighlight = activeId === subId;
               return (
-                <div
-                  key={subId}
-                  onClick={() => handleClick(subId)}
-                  style={{
-                    padding: "5px 14px 5px 20px",
-                    cursor: "pointer",
-                    borderLeft: `3px solid ${isActive ? C.accent : "transparent"}`,
-                    background: isActive ? "#f0f7ff" : "transparent",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <div style={{
-                    fontSize: 11,
-                    color: isActive ? C.accent : C.muted,
-                    fontWeight: isActive ? 700 : 400,
-                    lineHeight: 1.5,
-                  }}>
-                    {label}
-                  </div>
-                  {detail && (
-                    <div style={{fontSize: 10, color: "#94a3b8", lineHeight: 1.4, marginTop: 1}}>
-                      {detail}
+                <div key={subId}>
+                  <div
+                    onClick={() => handleClick(subId)}
+                    style={{
+                      padding: "5px 14px 5px 20px",
+                      cursor: "pointer",
+                      borderLeft: `3px solid ${(subHighlight && !subHasActive) ? C.accent : "transparent"}`,
+                      background: (subHighlight && !subHasActive) ? "#f0f7ff" : "transparent",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <div style={{
+                      fontSize: 11,
+                      color: (subHighlight && !subHasActive) ? C.accent : (subHasActive ? C.accent : C.muted),
+                      fontWeight: (subHighlight && !subHasActive) ? 700 : (subHasActive ? 600 : 400),
+                      lineHeight: 1.5,
+                    }}>
+                      {label}
                     </div>
-                  )}
+                  </div>
+                  {hasSubsubs && subsubs.map(({id: ssId, label: ssLabel}) => {
+                    const isActive = activeId === ssId;
+                    return (
+                      <div
+                        key={ssId}
+                        onClick={() => handleClick(ssId)}
+                        style={{
+                          padding: "4px 14px 4px 30px",
+                          cursor: "pointer",
+                          borderLeft: `3px solid ${isActive ? C.accent : "transparent"}`,
+                          background: isActive ? "#f0f7ff" : "transparent",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        <div style={{
+                          fontSize: 10,
+                          color: isActive ? C.accent : "#94a3b8",
+                          fontWeight: isActive ? 700 : 400,
+                          lineHeight: 1.5,
+                        }}>
+                          {ssLabel}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}

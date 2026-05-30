@@ -138,6 +138,10 @@ export function getHtmlTitle(htmlTitle) {
   return htmlTitle || "教育数据管理平台";
 }
 
+export function getPageTitle(pageTitle) {
+  return `${pageTitle} - ${getHtmlTitle()}`;
+}
+
 export function getFaviconUrl(themeAlgorithm, faviconUrl) {
   return faviconUrl || "/favicon.ico";
 }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
 import {Spin} from "antd";
@@ -600,6 +601,7 @@ class DashboardCityPage extends React.Component {
         overflow: "hidden",
         fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif",
       }}>
+        <Helmet><title>北京市数据大屏 - 教育数据管理平台</title></Helmet>
         <style>{ANIMATION_STYLES}</style>
 
         {/* animated grid */}

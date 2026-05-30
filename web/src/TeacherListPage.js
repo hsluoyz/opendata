@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Link} from "react-router-dom";
 import {Button, Popconfirm, Table} from "antd";
 import BaseListPage from "./BaseListPage";
@@ -160,6 +161,7 @@ class TeacherListPage extends BaseListPage {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("教师列表")}</title></Helmet>
         <Table
           scroll={{x: "max-content"}}
           columns={columns}

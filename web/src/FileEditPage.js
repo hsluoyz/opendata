@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Button, Card, Form, Image, Input, Select, Space, Spin} from "antd";
 import * as FileBackend from "./backend/FileBackend";
 import * as Setting from "./Setting";
@@ -77,6 +78,7 @@ class FileEditPage extends React.Component {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle(this.state.file?.displayName ? `编辑文件 - ${this.state.file.displayName}` : "编辑文件")}</title></Helmet>
         <Card
           size="small"
           title={

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Result, Spin} from "antd";
 import * as Setting from "./Setting";
 
@@ -40,6 +41,7 @@ class SigninPage extends React.Component {
     }
     return (
       <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100vh"}}>
+        <Helmet><title>{Setting.getPageTitle("登录")}</title></Helmet>
         <Spin size="large" tip="正在跳转到登录页面..." />
       </div>
     );

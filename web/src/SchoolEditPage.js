@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Button, Card, Form, Input, Spin} from "antd";
 import * as SchoolBackend from "./backend/SchoolBackend";
 import * as Setting from "./Setting";
@@ -71,6 +72,7 @@ class SchoolEditPage extends React.Component {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle(this.state.school?.displayName ? `编辑学校 - ${this.state.school.displayName}` : "编辑学校")}</title></Helmet>
         <Card
           size="small"
           title={

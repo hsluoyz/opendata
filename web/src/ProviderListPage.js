@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Link} from "react-router-dom";
 import {Button, Popconfirm, Switch, Table} from "antd";
 import moment from "moment";
@@ -205,31 +206,34 @@ class ProviderListPage extends BaseListPage {
     };
 
     return (
-      <Table
-        scroll={{x: "max-content"}}
-        columns={columns}
-        dataSource={providers}
-        rowKey="name"
-        rowSelection={this.getRowSelection()}
-        size="middle"
-        bordered
-        pagination={paginationProps}
-        title={() => (
-          <div>
-            存储提供商&nbsp;&nbsp;&nbsp;&nbsp;
-            <Button type="primary" size="small" onClick={() => this.addProvider()}>添加</Button>
-            {this.state.selectedRowKeys.length > 0 && (
-              <Popconfirm title={`确认删除 ${this.state.selectedRowKeys.length} 项？`} onConfirm={() => this.performBulkDelete(this.state.selectedRows)} okText="确认" cancelText="取消">
-                <Button type="primary" danger size="small" icon={<DeleteOutlined />} style={{marginLeft: 8}}>
-                  删除（{this.state.selectedRowKeys.length}）
-                </Button>
-              </Popconfirm>
-            )}
-          </div>
-        )}
-        loading={this.getTableLoading()}
-        onChange={this.handleTableChange}
-      />
+      <div>
+        <Helmet><title>{Setting.getPageTitle("存储提供商")}</title></Helmet>
+        <Table
+          scroll={{x: "max-content"}}
+          columns={columns}
+          dataSource={providers}
+          rowKey="name"
+          rowSelection={this.getRowSelection()}
+          size="middle"
+          bordered
+          pagination={paginationProps}
+          title={() => (
+            <div>
+              存储提供商&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button type="primary" size="small" onClick={() => this.addProvider()}>添加</Button>
+              {this.state.selectedRowKeys.length > 0 && (
+                <Popconfirm title={`确认删除 ${this.state.selectedRowKeys.length} 项？`} onConfirm={() => this.performBulkDelete(this.state.selectedRows)} okText="确认" cancelText="取消">
+                  <Button type="primary" danger size="small" icon={<DeleteOutlined />} style={{marginLeft: 8}}>
+                    删除（{this.state.selectedRowKeys.length}）
+                  </Button>
+                </Popconfirm>
+              )}
+            </div>
+          )}
+          loading={this.getTableLoading()}
+          onChange={this.handleTableChange}
+        />
+      </div>
     );
   }
 

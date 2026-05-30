@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Alert, Button, Popconfirm, Table, Typography} from "antd";
 import {CloseCircleFilled, DeleteOutlined} from "@ant-design/icons";
 import * as Setting from "./Setting";
@@ -234,6 +235,7 @@ class RecordListPage extends BaseListPage {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("操作日志")}</title></Helmet>
         <Table
           scroll={{x: "max-content"}}
           columns={columns}

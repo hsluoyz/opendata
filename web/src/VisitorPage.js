@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Col, Row, Select, Statistic} from "antd";
 import BaseListPage from "./BaseListPage";
 import * as Setting from "./Setting";
@@ -239,6 +240,7 @@ class VisitorPage extends BaseListPage {
   render() {
     return (
       <div style={{backgroundColor: this.props.themeAlgorithm && this.props.themeAlgorithm.includes("dark") ? "black" : "white"}}>
+        <Helmet><title>{Setting.getPageTitle("访客统计")}</title></Helmet>
         <Row style={{marginTop: "20px"}}>
           <Col span={1} />
           <Col span={17}>

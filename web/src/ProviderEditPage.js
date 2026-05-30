@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Button, Card, Col, Input, Row, Select, Switch} from "antd";
 import {LinkOutlined} from "@ant-design/icons";
 import Loading from "./common/Loading";
@@ -181,6 +182,7 @@ class ProviderEditPage extends React.Component {
   render() {
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("编辑存储提供商")}</title></Helmet>
         {this.state.provider !== null ? this.renderProvider() : <Loading type="page" tip="加载中" />}
         {this.state.provider !== null && (
           <div style={{marginTop: 20, marginLeft: 40}}>

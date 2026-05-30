@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Button, Card, Form, Input, InputNumber, Select, Spin} from "antd";
 import * as GradeBackend from "./backend/GradeBackend";
 import * as SchoolBackend from "./backend/SchoolBackend";
@@ -79,6 +80,7 @@ class GradeEditPage extends React.Component {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle(this.state.grade?.displayName ? `编辑年级 - ${this.state.grade.displayName}` : "编辑年级")}</title></Helmet>
         <Card
           size="small"
           title={

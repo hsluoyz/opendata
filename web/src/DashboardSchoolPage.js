@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
 import {Select} from "antd";
@@ -746,6 +747,7 @@ class DashboardSchoolPage extends React.Component {
         overflow: "hidden",
         fontFamily: "'PingFang SC', 'Microsoft YaHei', sans-serif",
       }}>
+        <Helmet><title>各校数据大屏 - 教育数据管理平台</title></Helmet>
         <style>{ANIM}</style>
 
         {/* grid bg */}

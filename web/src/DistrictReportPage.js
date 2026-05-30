@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import ReactECharts from "echarts-for-react";
 import dashboardData from "./DashboardData.json";
 
@@ -825,6 +826,7 @@ function DistrictReportPage({match}) {
 
   return (
     <div style={{background: "#f8fafc", minHeight: "100vh", padding: "24px 0 40px", fontFamily: "'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif"}}>
+      <Helmet><title>{districtName ? `${districtName}区级报告 - 教育数据管理平台` : "区级报告 - 教育数据管理平台"}</title></Helmet>
       <div style={{maxWidth: 960, margin: "0 auto", background: "#fff", boxShadow: "0 2px 12px rgba(0,0,0,0.10)", borderRadius: 8}}>
 
         <Cover d={d} />

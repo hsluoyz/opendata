@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Link} from "react-router-dom";
 import {Button, Image, Popconfirm, Popover, Space, Table, Tag, Upload} from "antd";
 import {CopyOutlined, FolderOutlined, UploadOutlined} from "@ant-design/icons";
@@ -270,6 +271,7 @@ class FileListPage extends BaseListPage {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("文件列表")}</title></Helmet>
         <Table
           scroll={{x: "max-content"}}
           columns={columns}

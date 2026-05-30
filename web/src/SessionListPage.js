@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Button, Popconfirm, Table, Tag} from "antd";
 import {DeleteOutlined} from "@ant-design/icons";
 import BaseListPage from "./BaseListPage";
@@ -113,6 +114,7 @@ class SessionListPage extends BaseListPage {
 
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("会话记录")}</title></Helmet>
         <Table
           scroll={{x: "max-content"}}
           columns={columns}

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Card, Col, Progress, Row, Table} from "antd";
 import Loading from "./common/Loading";
 import * as SystemBackend from "./backend/SystemInfo";
@@ -115,6 +116,7 @@ class SystemInfo extends React.Component {
     ];
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("系统信息")}</title></Helmet>
         <div style={{marginBottom: 8}}>总吞吐量: <strong>{totalThroughput || 0} req/s</strong></div>
         <Table
           dataSource={apiThroughput || []}

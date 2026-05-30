@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 import {Button, Card, Col, Image, Input, Row, Select, Space} from "antd";
 import {LinkOutlined} from "@ant-design/icons";
 import * as SiteBackend from "./backend/SiteBackend";
@@ -239,6 +240,7 @@ class SiteEditPage extends React.Component {
   render() {
     return (
       <div>
+        <Helmet><title>{Setting.getPageTitle("站点设置")}</title></Helmet>
         {this.state.site !== null ? this.renderSite() : <Loading type="page" tip="加载中..." />}
         {this.state.site !== null && (
           <div style={{marginTop: "20px", marginLeft: "40px"}}>

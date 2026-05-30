@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import {Helmet} from "react-helmet";
 
 const FONT = "\"Microsoft YaHei\", sans-serif";
 const BASE = {fontFamily: FONT, fontStyle: "normal", textDecoration: "none", margin: 0};
@@ -111,6 +112,7 @@ class HomePageNew extends React.Component {
   render() {
     return (
       <div style={{fontFamily: FONT, padding: "20px 28px", boxSizing: "border-box", color: C.dark}}>
+        <Helmet><title>首页 - 教育数据管理平台</title></Helmet>
 
         {/* ── 封面标题区（三栏） ── */}
         <div style={{display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8}}>

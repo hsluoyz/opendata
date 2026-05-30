@@ -32,7 +32,7 @@ func (c *ApiController) DownloadDistrictReport() {
 	if err != nil {
 		c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
 		c.Ctx.ResponseWriter.WriteHeader(500)
-		c.Ctx.ResponseWriter.Write([]byte(fmt.Sprintf(`{"status":"error","msg":"生成PDF失败: %s"}`, err.Error())))
+		c.Ctx.ResponseWriter.Write([]byte(fmt.Sprintf(`{"status":"error","msg":"%s"}`, err.Error())))
 		return
 	}
 

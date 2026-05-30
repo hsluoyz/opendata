@@ -60,11 +60,14 @@ func GetDistrictReportPdfBytes(districtName string) ([]byte, error) {
 				WithMarginRight(0.8).
 				WithPrintBackground(true).
 				Do(ctx)
-			return err
+			if err != nil {
+				return fmt.Errorf("PrintToPDF failed: %w", err)
+			}
+			return nil
 		}),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("chromedp failed for URL [%s]: %w", pageUrl, err)
 	}
 
 	return buf, nil

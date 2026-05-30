@@ -306,6 +306,7 @@ function pieOpt({data}) {
       })),
       label: {
         show: true,
+        position: "inside",
         formatter: p => p.value > 4 ? `${p.value.toFixed(0)}%` : "",
         color: "#fff", fontSize: 10, fontWeight: "bold",
       },

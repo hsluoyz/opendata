@@ -30,7 +30,9 @@ func (c *ApiController) DownloadDistrictReport() {
 
 	pdfBytes, err := pdf.GetDistrictReportPdfBytes(districtName)
 	if err != nil {
-		c.ResponseError(fmt.Sprintf("生成PDF失败: %s", err.Error()))
+		c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json")
+		c.Ctx.ResponseWriter.WriteHeader(500)
+		c.Ctx.ResponseWriter.Write([]byte(fmt.Sprintf(`{"status":"error","msg":"生成PDF失败: %s"}`, err.Error())))
 		return
 	}
 

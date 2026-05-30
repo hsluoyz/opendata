@@ -18,6 +18,7 @@ import {DownloadOutlined} from "@ant-design/icons";
 import {Helmet} from "react-helmet";
 import ReactECharts from "echarts-for-react";
 import dashboardData from "./DashboardData.json";
+import * as Setting from "./Setting";
 
 const DISTRICTS_DATA = dashboardData["区县数据"];
 const CITY = dashboardData["市级数据"];
@@ -1400,8 +1401,11 @@ function DistrictReportPage({match, isRaw = false}) {
   const handleDownload = () => {
     setDownloading(true);
     fetch(`/api/download-district-report?districtName=${encodeURIComponent(districtName)}`)
-      .then(res => {
-        if (!res.ok) {throw new Error("下载失败");}
+      .then(async res => {
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({msg: "下载失败"}));
+          throw new Error(json.msg || "下载失败");
+        }
         return res.blob();
       })
       .then(blob => {
@@ -1412,7 +1416,7 @@ function DistrictReportPage({match, isRaw = false}) {
         a.click();
         URL.revokeObjectURL(url);
       })
-      .catch(err => alert(err.message))
+      .catch(err => Setting.showMessage("error", err.message))
       .finally(() => setDownloading(false));
   };
 

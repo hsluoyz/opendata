@@ -122,7 +122,7 @@ function Sub({title, children, id}) {
 
 function SubSub({num, title, children}) {
   return (
-    <div style={{marginBottom: 22}}>
+    <div style={{marginBottom: 22, pageBreakInside: "avoid", breakInside: "avoid"}}>
       <H3 num={num} title={title} />
       <div style={{paddingLeft: 28}}>{children}</div>
     </div>
@@ -204,7 +204,9 @@ function ChartCard({title, children, style}) {
   return (
     <div style={{
       background: "#fff", border: `1px solid ${C.border}`,
-      borderRadius: 6, padding: "12px 14px", marginBottom: 14, ...style,
+      borderRadius: 6, padding: "12px 14px", marginBottom: 14,
+      pageBreakInside: "avoid", breakInside: "avoid",
+      ...style,
     }}>
       {title && (
         <div style={{fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 8, textAlign: "center"}}>
@@ -457,7 +459,7 @@ function SecCourseTeaching({d}) {
               : <span>低于全市平均水平，差距{(cityConsRate - dConsRate).toFixed(2)}个百分点。</span>
             }
           </Para>
-          <div style={{display: "flex", gap: 14}}>
+          <div style={{display: "flex", gap: 14, pageBreakInside: "avoid", breakInside: "avoid"}}>
             <ChartCard title={`图2  ${d["名称"]}中小学实验耗材采购金额分布（%）`} style={{flex: 1}}>
               <ReactECharts
                 option={pieOpt({data: consKeys.map((k, i) => ({name: k, value: cons[k] || 0, color: consClrs[i]}))})}
@@ -789,7 +791,7 @@ function SecResources({d}) {
           全市平均每年定期更新比例为{pct(cityEquip["每年更新"])}，
           从未更新比例为{pct(cityEquip["从未更新"])}。
         </Para>
-        <div style={{display: "flex", gap: 14}}>
+        <div style={{display: "flex", gap: 14, pageBreakInside: "avoid", breakInside: "avoid"}}>
           <ChartCard title={`图7  ${d["名称"]}实验器材更新情况（%）`} style={{flex: 1}}>
             <ReactECharts
               option={pieOpt({data: equipKeys.map((k, i) => ({name: k, value: equip[k] || 0, color: equipClrs[i]}))})}

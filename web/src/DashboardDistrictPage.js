@@ -35,7 +35,10 @@ function getAccountDistrict(account) {
 }
 
 function getInitialDistrict(props) {
-  return getAccountDistrict(props.account) || getDistrictByName("海淀区") || DISTRICTS_DATA[0];
+  const accountDistrict = getAccountDistrict(props.account);
+  if (accountDistrict) {return accountDistrict;}
+  const saved = localStorage.getItem("dashboard_district");
+  return (saved && getDistrictByName(saved)) || getDistrictByName("海淀区") || DISTRICTS_DATA[0];
 }
 
 // ── Styling constants ───────────────────────────────────────────────────────
@@ -659,6 +662,7 @@ class DashboardDistrictPage extends React.Component {
 
     const selectedDistrict = getDistrictByName(name);
     if (selectedDistrict) {
+      localStorage.setItem("dashboard_district", name);
       this.setState({selectedDistrict});
     }
   };

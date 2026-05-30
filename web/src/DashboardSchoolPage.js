@@ -690,8 +690,10 @@ class DashboardSchoolPage extends React.Component {
   constructor(props) {
     super(props);
     const accountSchool = SCHOOLS_DATA.find(s => s["学校名称"] === props.account?.displayName) || null;
+    const savedSchoolName = localStorage.getItem("dashboard_school");
+    const savedSchool = savedSchoolName ? SCHOOLS_DATA.find(s => s["学校名称"] === savedSchoolName) : null;
     this.state = {
-      selectedSchool: accountSchool || SCHOOLS_DATA[0],
+      selectedSchool: accountSchool || savedSchool || SCHOOLS_DATA[0],
       time: new Date(),
       isFullscreen: false,
     };
@@ -722,7 +724,10 @@ class DashboardSchoolPage extends React.Component {
 
   onSchoolChange = name => {
     const selected = SCHOOLS_DATA.find(s => s["学校名称"] === name);
-    if (selected) {this.setState({selectedSchool: selected});}
+    if (selected) {
+      localStorage.setItem("dashboard_school", name);
+      this.setState({selectedSchool: selected});
+    }
   };
 
   render() {

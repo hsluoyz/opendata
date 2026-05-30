@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 )
@@ -45,6 +46,9 @@ func GetDistrictReportPdfBytes(districtName string, baseUrl string) ([]byte, err
 
 	var buf []byte
 	err := chromedp.Run(ctx,
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			return network.SetCacheDisabled(true).Do(ctx)
+		}),
 		chromedp.Navigate(pageUrl),
 		chromedp.WaitReady(`#reportEnd`, chromedp.ByID),
 		chromedp.Sleep(3*time.Second),

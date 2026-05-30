@@ -102,18 +102,18 @@ function H3({num, title}) {
   );
 }
 
-function Section({num, title, children}) {
+function Section({num, title, children, id}) {
   return (
-    <div style={{marginBottom: 40}}>
+    <div id={id} style={{marginBottom: 40}}>
       <H1 num={num} title={title} />
       {children}
     </div>
   );
 }
 
-function Sub({title, children}) {
+function Sub({title, children, id}) {
   return (
-    <div style={{marginBottom: 28}}>
+    <div id={id} style={{marginBottom: 28}}>
       <H2 title={title} />
       {children}
     </div>
@@ -352,7 +352,7 @@ function SecCourseTeaching({d}) {
   const dAfterRate = d["课后服务"]["比例"];
 
   return (
-    <Sub title="（一）课程教学">
+    <Sub id="sub-1-1" title="（一）课程教学">
       <SubSub num="1" title="课程落实">
         <Para>
           2025年，{d["名称"]}共有<b>{pct(dRate)}</b>的义务教育学校科学类课程课时数达到《义务教育课程方案和课程标准（2022年版）》的要求，
@@ -572,7 +572,7 @@ function SecTeachers({d}) {
   const totalTeachers = (d["教师人数"]["小学"] || 0) + (d["教师人数"]["初中"] || 0) + (d["教师人数"]["高中"] || 0);
 
   return (
-    <Sub title="（二）师资建设">
+    <Sub id="sub-1-2" title="（二）师资建设">
       <SubSub num="1" title="师资规模">
         <Para>
           2024—2025学年，{d["名称"]}中小学科学类课程教师共<b>{totalTeachers}</b>人，
@@ -709,7 +709,7 @@ function SecResources({d}) {
   const cityEquip = CITY["实验器材更新"]["整体"];
 
   return (
-    <Sub title="（三）资源设备">
+    <Sub id="sub-1-3" title="（三）资源设备">
       <SubSub num="1" title="实验室建设">
         <Para>
           根据《义务教育学校实验室装备规范》（JY/T0385-2006），{d["名称"]}中小学实验室间数达标率整体为
@@ -829,7 +829,7 @@ function SecSocial({d}) {
   const zhuquKeys = Object.keys(zhuqu);
 
   return (
-    <Sub title="（四）社会协同">
+    <Sub id="sub-1-4" title="（四）社会协同">
       <SubSub num="1" title="机构结对">
         <Para>
           2025年，{d["名称"]}校外科技教育机构与学校结对比例为<b>{pct(pair["结对比例"])}</b>，
@@ -983,8 +983,8 @@ function SecIssues({d}) {
   const cityIssues = CITY["主要问题"] || [];
 
   return (
-    <Section num="二、" title="重点关注方面">
-      <Sub title="（一）主要结论">
+    <Section id="sec-2" num="二、" title="重点关注方面">
+      <Sub id="sub-2-1" title="（一）主要结论">
         <Para>
           根据{META["报告日期"]}调查结果，{d["名称"]}在中小学科学教育工作中取得积极进展，
           但仍存在以下需重点关注的问题：
@@ -1049,7 +1049,7 @@ function SecIssues({d}) {
         )}
       </Sub>
 
-      <Sub title="（二）与全市平均水平对比分析">
+      <Sub id="sub-2-2" title="（二）与全市平均水平对比分析">
         {below.length > 0 && (
           <>
             <div style={{fontWeight: 700, color: C.red, margin: "0 0 8px", fontSize: 13}}>
@@ -1088,7 +1088,7 @@ function SecIssues({d}) {
         )}
       </Sub>
 
-      <Sub title="（三）全市区县排名情况">
+      <Sub id="sub-2-3" title="（三）全市区县排名情况">
         <Para>下表为{d["名称"]}在全市各区县主要指标中的排名情况：</Para>
         <DataTable
           headers={["指标", "本区数值", "全市平均", "全市排名", "评级"]}
@@ -1097,7 +1097,7 @@ function SecIssues({d}) {
       </Sub>
 
       {CITY["低于全国平均事项"] && CITY["低于全国平均事项"].length > 0 && (
-        <Sub title="（四）全市低于全国平均水平事项">
+        <Sub id="sub-2-4" title="（四）全市低于全国平均水平事项">
           <Para>以下为全市层面低于全国平均水平的事项，需引起重视：</Para>
           {CITY["低于全国平均事项"].map((item, i) => (
             <div key={i} style={{
@@ -1113,7 +1113,7 @@ function SecIssues({d}) {
         </Sub>
       )}
 
-      <Sub title="（五）组织保障情况">
+      <Sub id="sub-2-5" title="（五）组织保障情况">
         <Para>
           2025年，全市层面，{pct(CITY["组织保障"]["部门统筹机制建立比例"])}的区县已建立部门统筹协调科学教育抓落实的工作机制，
           较2024年（{pct(CITY["组织保障"]["部门统筹机制建立比例"] - CITY["组织保障"]["部门统筹同比变化"])}）
@@ -1137,6 +1137,150 @@ function SecIssues({d}) {
         </StatRow>
       </Sub>
     </Section>
+  );
+}
+
+// ── Nav Sidebar ───────────────────────────────────────────────────────────────
+const NAV_TOC = [
+  {
+    id: "sec-1",
+    title: "一、工作基本情况",
+    subs: [
+      {id: "sub-1-1", label: "（一）课程教学", detail: "1.课程落实　2.实验教学　3.课程建设"},
+      {id: "sub-1-2", label: "（二）师资建设", detail: "1.师资规模　2.专业背景　3.科学副校长与科技辅导员"},
+      {id: "sub-1-3", label: "（三）资源设备", detail: "1.实验室建设　2.实验仪器配备"},
+      {id: "sub-1-4", label: "（四）社会协同", detail: "1.机构结对　2.科学实践活动"},
+    ],
+  },
+  {
+    id: "sec-2",
+    title: "二、重点关注方面",
+    subs: [
+      {id: "sub-2-1", label: "（一）主要结论"},
+      {id: "sub-2-2", label: "（二）与全市平均水平对比分析"},
+      {id: "sub-2-3", label: "（三）全市区县排名情况"},
+      {id: "sub-2-4", label: "（四）全市低于全国平均水平事项"},
+      {id: "sub-2-5", label: "（五）组织保障情况"},
+    ],
+  },
+];
+
+function NavSidebar() {
+  const [activeId, setActiveId] = React.useState(null);
+
+  React.useEffect(() => {
+    const allIds = NAV_TOC.flatMap(({id, subs}) => [id, ...subs.map(s => s.id)]);
+    const observers = [];
+    const visibleSet = new Set();
+
+    const update = () => {
+      for (const id of allIds) {
+        if (visibleSet.has(id)) {
+          setActiveId(id);
+          return;
+        }
+      }
+    };
+
+    allIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) {return;}
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            visibleSet.add(id);
+          } else {
+            visibleSet.delete(id);
+          }
+          update();
+        },
+        {rootMargin: "-10% 0px -60% 0px"}
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    return () => observers.forEach(o => o.disconnect());
+  }, []);
+
+  const handleClick = (id) => {
+    const el = document.getElementById(id);
+    if (el) {el.scrollIntoView({behavior: "smooth", block: "start"});}
+  };
+
+  return (
+    <div style={{
+      width: 210,
+      flexShrink: 0,
+      position: "sticky",
+      top: 24,
+      alignSelf: "flex-start",
+      maxHeight: "calc(100vh - 48px)",
+      overflowY: "auto",
+      background: "#fff",
+      borderRadius: 8,
+      boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+      border: `1px solid ${C.border}`,
+      padding: "14px 0 14px",
+    }}>
+      <div style={{
+        fontSize: 12, fontWeight: 800, color: C.primary,
+        padding: "0 14px 10px", borderBottom: `1px solid ${C.border}`,
+        marginBottom: 8, letterSpacing: "0.05em",
+      }}>
+        目录导航
+      </div>
+      {NAV_TOC.map(({id, title, subs}) => (
+        <div key={id}>
+          <div
+            onClick={() => handleClick(id)}
+            style={{
+              padding: "6px 14px",
+              fontSize: 12,
+              fontWeight: 700,
+              color: activeId === id ? C.accent : C.text,
+              background: activeId === id ? C.accentLight : "transparent",
+              borderLeft: `3px solid ${activeId === id ? C.accent : "transparent"}`,
+              cursor: "pointer",
+              lineHeight: 1.5,
+              transition: "all 0.15s",
+            }}
+          >
+            {title}
+          </div>
+          {subs.map(({id: subId, label, detail}) => {
+            const isActive = activeId === subId;
+            return (
+              <div
+                key={subId}
+                onClick={() => handleClick(subId)}
+                style={{
+                  padding: "5px 14px 5px 20px",
+                  cursor: "pointer",
+                  borderLeft: `3px solid ${isActive ? C.accent : "transparent"}`,
+                  background: isActive ? "#f0f7ff" : "transparent",
+                  transition: "all 0.15s",
+                }}
+              >
+                <div style={{
+                  fontSize: 11,
+                  color: isActive ? C.accent : C.muted,
+                  fontWeight: isActive ? 700 : 400,
+                  lineHeight: 1.5,
+                }}>
+                  {label}
+                </div>
+                {detail && (
+                  <div style={{fontSize: 10, color: "#94a3b8", lineHeight: 1.4, marginTop: 1}}>
+                    {detail}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -1226,22 +1370,6 @@ function DistrictReportPage({match, isRaw = false}) {
     );
   }
 
-  const tocItems = [
-    {title: "一、工作基本情况", subs: [
-      "（一）课程教学：1.课程落实　2.实验教学　3.课程建设",
-      "（二）师资建设：1.师资规模　2.专业背景　3.科学副校长与科技辅导员",
-      "（三）资源设备：1.实验室建设　2.实验仪器配备",
-      "（四）社会协同：1.机构结对　2.科学实践活动",
-    ]},
-    {title: "二、重点关注方面", subs: [
-      "（一）主要结论",
-      "（二）与全市平均水平对比分析",
-      "（三）全市区县排名情况",
-      "（四）全市低于全国平均水平事项",
-      "（五）组织保障情况",
-    ]},
-  ];
-
   return (
     <div style={{
       background: isRaw ? "transparent" : "#f0f4f8",
@@ -1257,7 +1385,7 @@ function DistrictReportPage({match, isRaw = false}) {
       </Helmet>
 
       {!isRaw && (
-        <div style={{maxWidth: 980, margin: "0 auto 12px", display: "flex", justifyContent: "flex-end", paddingRight: 4}}>
+        <div style={{maxWidth: 1220, margin: "0 auto 12px", display: "flex", justifyContent: "flex-end", paddingRight: 4}}>
           <Button
             type="primary"
             icon={<DownloadOutlined />}
@@ -1270,68 +1398,79 @@ function DistrictReportPage({match, isRaw = false}) {
       )}
 
       <div style={{
-        maxWidth: isRaw ? "none" : 980,
+        maxWidth: isRaw ? "none" : 1220,
         margin: isRaw ? 0 : "0 auto",
-        background: "#fff",
-        boxShadow: isRaw ? "none" : "0 2px 16px rgba(0,0,0,0.10)",
-        borderRadius: isRaw ? 0 : 8,
+        display: isRaw ? "block" : "flex",
+        alignItems: "flex-start",
+        gap: isRaw ? 0 : 16,
       }}>
-        <Cover d={d} isRaw={isRaw} />
+        {!isRaw && <NavSidebar />}
 
-        <div style={{padding: "44px 60px"}}>
+        <div style={{
+          flex: 1,
+          minWidth: 0,
+          maxWidth: isRaw ? "none" : 980,
+          background: "#fff",
+          boxShadow: isRaw ? "none" : "0 2px 16px rgba(0,0,0,0.10)",
+          borderRadius: isRaw ? 0 : 8,
+        }}>
+          <Cover d={d} isRaw={isRaw} />
 
-          {/* Summary box */}
-          <div style={{
-            background: C.accentLight, border: `1px solid ${C.accent}`,
-            borderRadius: 8, padding: "18px 22px", marginBottom: 36,
-            fontSize: 13, lineHeight: 2.0, color: C.primary,
-          }}>
-            <div style={{fontWeight: 800, marginBottom: 8, fontSize: 15}}>报告摘要</div>
+          <div style={{padding: "44px 60px"}}>
+
+            {/* Summary box */}
+            <div style={{
+              background: C.accentLight, border: `1px solid ${C.accent}`,
+              borderRadius: 8, padding: "18px 22px", marginBottom: 36,
+              fontSize: 13, lineHeight: 2.0, color: C.primary,
+            }}>
+              <div style={{fontWeight: 800, marginBottom: 8, fontSize: 15}}>报告摘要</div>
             2025年中小学科学教育工作专项诊断调查在31个省（自治区、直辖市）和新疆生产建设兵团开展。
-            {META["省份"]}共有{META["区县总数"]}个区县参与了本次调查，
+              {META["省份"]}共有{META["区县总数"]}个区县参与了本次调查，
             共{META["学校总数"]}所学校参与填报，
             通过对本次调查结果开展全面分析，形成本报告。
-            <div style={{marginTop: 10}}>
-              <b>{d["名称"]}核心指标：</b>
+              <div style={{marginTop: 10}}>
+                <b>{d["名称"]}核心指标：</b>
               课程达标率 <b style={{color: d["课程落实"]["达标率"] >= CITY["课程落实"]["达标率"] ? C.green : C.red}}>
-                {pct(d["课程落实"]["达标率"])}
-              </b>（全市 {pct(CITY["课程落实"]["达标率"])}）；
+                  {pct(d["课程落实"]["达标率"])}
+                </b>（全市 {pct(CITY["课程落实"]["达标率"])}）；
               科学副校长配备率 <b style={{color: d["科学副校长"]["配备率"] >= CITY["科学副校长"]["配备率"] ? C.green : C.red}}>
-                {pct(d["科学副校长"]["配备率"])}
-              </b>（全市 {pct(CITY["科学副校长"]["配备率"])}）；
+                  {pct(d["科学副校长"]["配备率"])}
+                </b>（全市 {pct(CITY["科学副校长"]["配备率"])}）；
               机构结对比例 <b style={{color: d["机构结对"]["结对比例"] >= CITY["机构结对"]["整体"]["结对比例"] ? C.green : C.red}}>
-                {pct(d["机构结对"]["结对比例"])}
-              </b>（全市 {pct(CITY["机构结对"]["整体"]["结对比例"])}）。
-            </div>
-          </div>
-
-          {/* TOC */}
-          <div style={{marginBottom: 40, padding: "18px 22px", background: C.grayLight, borderRadius: 8, border: `1px solid ${C.border}`}}>
-            <div style={{fontWeight: 800, fontSize: 15, color: C.primary, marginBottom: 12, letterSpacing: "0.05em"}}>
-              目录
-            </div>
-            {tocItems.map(({title, subs}) => (
-              <div key={title} style={{marginBottom: 10}}>
-                <div style={{fontWeight: 700, color: C.text, fontSize: 13}}>{title}</div>
-                {subs.map(sub => (
-                  <div key={sub} style={{fontSize: 12, color: C.muted, paddingLeft: 22, marginTop: 3, lineHeight: 1.7}}>
-                    · {sub}
-                  </div>
-                ))}
+                  {pct(d["机构结对"]["结对比例"])}
+                </b>（全市 {pct(CITY["机构结对"]["整体"]["结对比例"])}）。
               </div>
-            ))}
+            </div>
+
+            {/* TOC */}
+            <div style={{marginBottom: 40, padding: "18px 22px", background: C.grayLight, borderRadius: 8, border: `1px solid ${C.border}`}}>
+              <div style={{fontWeight: 800, fontSize: 15, color: C.primary, marginBottom: 12, letterSpacing: "0.05em"}}>
+              目录
+              </div>
+              {NAV_TOC.map(({title, subs}) => (
+                <div key={title} style={{marginBottom: 10}}>
+                  <div style={{fontWeight: 700, color: C.text, fontSize: 13}}>{title}</div>
+                  {subs.map(({label, detail}) => (
+                    <div key={label} style={{fontSize: 12, color: C.muted, paddingLeft: 22, marginTop: 3, lineHeight: 1.7}}>
+                    · {label}{detail ? `：${detail}` : ""}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Body */}
+            <Section id="sec-1" num="一、" title="工作基本情况">
+              <SecCourseTeaching d={d} />
+              <SecTeachers d={d} />
+              <SecResources d={d} />
+              <SecSocial d={d} />
+            </Section>
+
+            <SecIssues d={d} />
+
           </div>
-
-          {/* Body */}
-          <Section num="一、" title="工作基本情况">
-            <SecCourseTeaching d={d} />
-            <SecTeachers d={d} />
-            <SecResources d={d} />
-            <SecSocial d={d} />
-          </Section>
-
-          <SecIssues d={d} />
-
         </div>
       </div>
 

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from "react";
-import {Button} from "antd";
+import {Affix, Button} from "antd";
 import {DownloadOutlined} from "@ant-design/icons";
 import {Helmet} from "react-helmet";
 import ReactECharts from "echarts-for-react";
@@ -1165,16 +1165,20 @@ const NAV_TOC = [
   },
 ];
 
+// Top navbar height in ManagementPage is 52px; add 16px breathing room
+const NAV_OFFSET = 52 + 16;
+
 function NavSidebar() {
   const [activeId, setActiveId] = React.useState(null);
 
+  // Only track level-2 sub IDs for active highlight
   React.useEffect(() => {
-    const allIds = NAV_TOC.flatMap(({id, subs}) => [id, ...subs.map(s => s.id)]);
+    const subIds = NAV_TOC.flatMap(({subs}) => subs.map(s => s.id));
     const observers = [];
     const visibleSet = new Set();
 
     const update = () => {
-      for (const id of allIds) {
+      for (const id of subIds) {
         if (visibleSet.has(id)) {
           setActiveId(id);
           return;
@@ -1182,20 +1186,16 @@ function NavSidebar() {
       }
     };
 
-    allIds.forEach(id => {
+    subIds.forEach(id => {
       const el = document.getElementById(id);
       if (!el) {return;}
       const obs = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
-            visibleSet.add(id);
-          } else {
-            visibleSet.delete(id);
-          }
+          if (entry.isIntersecting) {visibleSet.add(id);} else {visibleSet.delete(id);}
           update();
         },
-        {rootMargin: "-10% 0px -60% 0px"}
-      );
+        {rootMargin: `-${NAV_OFFSET}px 0px -50% 0px`});
+
       obs.observe(el);
       observers.push(obs);
     });
@@ -1205,17 +1205,15 @@ function NavSidebar() {
 
   const handleClick = (id) => {
     const el = document.getElementById(id);
-    if (el) {el.scrollIntoView({behavior: "smooth", block: "start"});}
+    if (!el) {return;}
+    const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    window.scrollTo({top, behavior: "smooth"});
   };
 
-  return (
+  const inner = (
     <div style={{
       width: 210,
-      flexShrink: 0,
-      position: "sticky",
-      top: 24,
-      alignSelf: "flex-start",
-      maxHeight: "calc(100vh - 48px)",
+      maxHeight: `calc(100vh - ${NAV_OFFSET + 8}px)`,
       overflowY: "auto",
       background: "#fff",
       borderRadius: 8,
@@ -1230,56 +1228,64 @@ function NavSidebar() {
       }}>
         目录导航
       </div>
-      {NAV_TOC.map(({id, title, subs}) => (
-        <div key={id}>
-          <div
-            onClick={() => handleClick(id)}
-            style={{
-              padding: "6px 14px",
-              fontSize: 12,
-              fontWeight: 700,
-              color: activeId === id ? C.accent : C.text,
-              background: activeId === id ? C.accentLight : "transparent",
-              borderLeft: `3px solid ${activeId === id ? C.accent : "transparent"}`,
-              cursor: "pointer",
-              lineHeight: 1.5,
-              transition: "all 0.15s",
-            }}
-          >
-            {title}
-          </div>
-          {subs.map(({id: subId, label, detail}) => {
-            const isActive = activeId === subId;
-            return (
-              <div
-                key={subId}
-                onClick={() => handleClick(subId)}
-                style={{
-                  padding: "5px 14px 5px 20px",
-                  cursor: "pointer",
-                  borderLeft: `3px solid ${isActive ? C.accent : "transparent"}`,
-                  background: isActive ? "#f0f7ff" : "transparent",
-                  transition: "all 0.15s",
-                }}
-              >
-                <div style={{
-                  fontSize: 11,
-                  color: isActive ? C.accent : C.muted,
-                  fontWeight: isActive ? 700 : 400,
-                  lineHeight: 1.5,
-                }}>
-                  {label}
-                </div>
-                {detail && (
-                  <div style={{fontSize: 10, color: "#94a3b8", lineHeight: 1.4, marginTop: 1}}>
-                    {detail}
+      {NAV_TOC.map(({id, title, subs}) => {
+        const parentActive = subs.some(s => s.id === activeId);
+        return (
+          <div key={id}>
+            <div
+              onClick={() => handleClick(id)}
+              style={{
+                padding: "6px 14px",
+                fontSize: 12,
+                fontWeight: 700,
+                color: parentActive ? C.accent : C.text,
+                cursor: "pointer",
+                lineHeight: 1.5,
+              }}
+            >
+              {title}
+            </div>
+            {subs.map(({id: subId, label, detail}) => {
+              const isActive = activeId === subId;
+              return (
+                <div
+                  key={subId}
+                  onClick={() => handleClick(subId)}
+                  style={{
+                    padding: "5px 14px 5px 20px",
+                    cursor: "pointer",
+                    borderLeft: `3px solid ${isActive ? C.accent : "transparent"}`,
+                    background: isActive ? "#f0f7ff" : "transparent",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <div style={{
+                    fontSize: 11,
+                    color: isActive ? C.accent : C.muted,
+                    fontWeight: isActive ? 700 : 400,
+                    lineHeight: 1.5,
+                  }}>
+                    {label}
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
+                  {detail && (
+                    <div style={{fontSize: 10, color: "#94a3b8", lineHeight: 1.4, marginTop: 1}}>
+                      {detail}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div style={{width: 210, flexShrink: 0}}>
+      <Affix offsetTop={NAV_OFFSET}>
+        {inner}
+      </Affix>
     </div>
   );
 }

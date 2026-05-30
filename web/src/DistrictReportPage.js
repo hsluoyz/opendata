@@ -1209,7 +1209,7 @@ function NavSidebar() {
     const el = document.getElementById(id);
     if (!el) {return;}
     const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
-    window.scrollTo({top, behavior: "smooth"});
+    window.scrollTo({top, behavior: "instant"});
   };
 
   const inner = (
